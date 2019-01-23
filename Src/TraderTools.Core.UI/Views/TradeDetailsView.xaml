@@ -1,0 +1,84 @@
+﻿<Window x:Class="TraderTools.UI.Views.TradeDetailsView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:TraderTools.UI.Views"
+        mc:Ignorable="d"
+        Title="TradeDetailsView" Height="750" Width="850" WindowStartupLocation="CenterScreen">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Label Grid.Row="0" Grid.Column="0" Content="Market"/>
+        <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Trade.Market}" IsReadOnly="True"/>
+
+        <Label Grid.Row="1" Grid.Column="0" Content="Order date/time"/>
+        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Trade.OrderDateTime, StringFormat=yyyy-MM-dd HH:mm}" IsReadOnly="True"/>
+
+        <Label Grid.Row="2" Grid.Column="0" Content="Order price"/>
+        <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding Trade.OrderPrice}" IsReadOnly="True"/>
+
+        <Label Grid.Row="3" Grid.Column="0" Content="Limit"/>
+        <ListBox Grid.Row="3" Grid.Column="1" Height="200px" ItemsSource="{Binding LimitPrices}" SelectedIndex="{Binding SelectedLimitIndex}">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal">
+                        <Label Content="{Binding Date}" Width="150px"/>
+                        <Label Content="{Binding Price}"/>
+                    </StackPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+
+        <StackPanel Grid.Row="4" Grid.Column="1" Orientation="Horizontal">
+            <Button Content="Remove" Margin="2" Padding="4" Command="{Binding RemoveLimitCommand}"/>
+        </StackPanel>
+
+        <Label Grid.Row="5" Grid.Column="0" Content="Stop"/>
+        <ListBox Grid.Row="5" Grid.Column="1" Height="200px" ItemsSource="{Binding StopPrices}"  SelectedIndex="{Binding SelectedPriceIndex}">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal">
+                        <Label Content="{Binding Date}" Width="150px"/>
+                        <Label Content="{Binding Price}"/>
+                    </StackPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+
+        <StackPanel Grid.Row="6" Grid.Column="1" Orientation="Horizontal">
+            <Button Content="Remove" Margin="2" Padding="4" Command="{Binding RemoveStopCommand}"/>
+        </StackPanel>
+
+        <Label Content="Date" Grid.Row="7" Grid.Column="0"/>
+        <TextBox Width="150px" Text="{Binding Date}" Grid.Row="7" Grid.Column="1" HorizontalAlignment="Left" Height="28px"/>
+
+        <Label Content="Price" Grid.Row="8" Grid.Column="0"/>
+        <StackPanel Grid.Row="8" Grid.Column="1" HorizontalAlignment="Left" Orientation="Horizontal">
+            <TextBox Width="150px" Text="{Binding Price}" Height="28px"/>
+            <CheckBox Content="Use pips from order price" VerticalAlignment="Center" IsChecked="{Binding UsePips}"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="9" Grid.Column="1" Orientation="Horizontal">
+            <Button Content="Add limit" Margin="2" Padding="4" Command="{Binding AddLimitCommand}"/>
+            <Button Content="Add stop" Margin="2" Padding="4" Command="{Binding AddStopCommand}"/>
+            <Button Content="Set order date/time/price" Margin="2" Padding="4" Command="{Binding SetOrderDateTimePriceCommand}"/>
+        </StackPanel>
+    </Grid>
+</Window>

@@ -1,0 +1,103 @@
+﻿<Window x:Class="TraderTools.TradingTrainer.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:TraderTools.TradingTrainer"
+        xmlns:ui="clr-namespace:Hallupa.Library.UI;assembly=Hallupa.Library.UI"
+        xmlns:charting="clr-namespace:TraderTools.Core.UI;assembly=TraderTools.Core.UI"
+        xmlns:converters="clr-namespace:Hallupa.Library.UI.Converters;assembly=Hallupa.Library.UI"
+        xmlns:views2="clr-namespace:TraderTools.Core.UI.Views;assembly=TraderTools.Core.UI"
+        mc:Ignorable="d"
+        Title="Trader Simulator" Height="900" Width="1500" WindowStartupLocation="CenterScreen" WindowState="Normal">
+    <Grid>
+        <Grid.Resources>
+            <converters:InvBoolConverter x:Key="InvBool"/>
+            <converters:ObjectToBoolConverter x:Key="ObjToBool"/>
+            <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+            <converters:BoolToVisibilityConverter x:Key="InvBoolToVis" Inverse="True"/>
+        </Grid.Resources>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="3*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+
+        <StackPanel Grid.Row="0">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
+                <ToggleButton Content="Line" IsChecked="{Binding ChartingService.ChartMode, Converter={StaticResource ObjToBool}, ConverterParameter={x:Static charting:ChartMode.AddLine}, Mode=TwoWay}" Margin="2" Padding="5,2,5,2"/>
+                <Button Margin="2" Padding="5,2,5,2" Content="New chart (Ctrl-N)" Command="{Binding NewChartCommand}"/>
+                <Button Margin="2" Padding="5,2,5,2" Content="Next candle (Ctrl-F)" Command="{Binding NextCandleCommand}"/>
+                <ComboBox Visibility="Collapsed" SelectedIndex="{Binding SelectedMainIndicatorsIndex}" Width="160" Margin="2" Padding="5,2,5,2">
+                    <ComboBoxItem>EMA8, EMA25 &amp; EMA50</ComboBoxItem>
+                    <ComboBoxItem>EMA20, MA50 &amp; MA200</ComboBoxItem>
+                </ComboBox>
+            </StackPanel>
+        </StackPanel>
+
+        <Grid Grid.Column="1" Grid.Row="1" Grid.RowSpan="2" HorizontalAlignment="Right" Margin="4">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <Label Content="Trade" Grid.Row="0" FontSize="16" FontWeight="Bold"/>
+            <Label Grid.Row="1" Grid.ColumnSpan="2" Content="## Trade Active ##" Visibility="{Binding Running, Converter={StaticResource BoolToVis}}"/>
+            <Label Grid.Row="1" Grid.ColumnSpan="2" Content="## Trade NOT Active ##" Visibility="{Binding Running, Converter={StaticResource InvBoolToVis}}"/>
+            <ToggleButton Grid.Row="2" Content="Set stop (Ctrl-S)" IsChecked="{Binding IsSetStopButtonPressed}" Margin="2" Padding="15,4,15,4" Grid.ColumnSpan="2"/>
+            <ToggleButton Grid.Row="3" Content="Set entry price (Ctrl-E)" IsChecked="{Binding IsEntryButtonPressed}" IsEnabled="{Binding Running, Converter={StaticResource InvBool}}" Margin="2" Padding="15,4,15,4" Grid.ColumnSpan="2"/>
+            <ToggleButton Grid.Row="4" Content="Set limit (Ctrl-L)" IsChecked="{Binding IsSetLimitButtonPressed}" Margin="2" Padding="15,4,15,4" Grid.ColumnSpan="2"/>
+            <Button Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" Content="Start long trade" FontWeight="Bold" Margin="2" Padding="15,4,15,4" Command="{Binding LongCommand}" IsEnabled="{Binding IsTradeEnabled}"/>
+            <Button Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" Content="Start short trade" FontWeight="Bold" Margin="2" Padding="15,4,15,4" Command="{Binding ShortCommand}" IsEnabled="{Binding IsTradeEnabled}"/>
+            <Button Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2" Content="Close" Margin="2" Padding="15,4,15,4" Command="{Binding CloseCommand}" IsEnabled="{Binding IsCloseEnabled}"/>
+            <CheckBox Grid.Row="8" Grid.ColumnSpan="2" IsChecked="{Binding CloseHalfTradeAtLimit}" Content="Close half of trade at limit price" Margin="2" VerticalContentAlignment="Center" IsEnabled="{Binding Running, Converter={StaticResource InvBool}}"/>
+            <Label Grid.Row="9" Grid.Column="0" Content="Order expiry candles"/>
+            <ComboBox Grid.Row="9" Grid.Column="1" SelectedIndex="{Binding OrderExpiryCandlesIndex}" Width="60">
+                <ComboBoxItem>None</ComboBoxItem>
+                <ComboBoxItem>1</ComboBoxItem>
+                <ComboBoxItem>2</ComboBoxItem>
+                <ComboBoxItem>3</ComboBoxItem>
+                <ComboBoxItem>4</ComboBoxItem>
+                <ComboBoxItem>5</ComboBoxItem>
+                <ComboBoxItem>6</ComboBoxItem>
+                <ComboBoxItem>7</ComboBoxItem>
+                <ComboBoxItem>8</ComboBoxItem>
+                <ComboBoxItem>9</ComboBoxItem>
+                <ComboBoxItem>10</ComboBoxItem>
+            </ComboBox>
+        </Grid>
+
+
+        <Label Content="Chart" Grid.Row="1" FontSize="16" FontWeight="Bold"/>
+        <charting:DoubleChartView Grid.Row="2" x:Name="DoubleChart"/>
+
+        <Label Content="Results" Grid.Row="3" FontSize="16" FontWeight="Bold"/>
+        <views2:TradesResultsControl Grid.Row="4" Grid.ColumnSpan="2"/>
+
+        <Label Content="Completed trades" Grid.Row="5" FontSize="16" FontWeight="Bold"/>
+        <views2:TradeListControl Grid.Row="6" Grid.ColumnSpan="2" ShowBasicDetailsOnly="True" HideContextMenu="True" AllColumnsReadOnly="True"/>
+
+        <ui:LogControl Grid.Row="7" Grid.ColumnSpan="2" Visibility="Collapsed"/>
+    </Grid>
+</Window>

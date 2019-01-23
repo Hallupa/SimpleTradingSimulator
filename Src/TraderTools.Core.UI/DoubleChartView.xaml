@@ -1,0 +1,245 @@
+﻿<UserControl x:Class="TraderTools.Core.UI.DoubleChartView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:s="http://schemas.abtsoftware.co.uk/scichart"
+             xmlns:converters="clr-namespace:TraderTools.Core.UI.Converters"
+             xmlns:charting="clr-namespace:TraderTools.Core.UI"
+             xmlns:converters1="clr-namespace:Hallupa.Library.UI.Converters;assembly=Hallupa.Library.UI"
+             xmlns:chartModifiers="clr-namespace:TraderTools.Core.UI.ChartModifiers"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <Grid.Resources>
+            <converters1:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+            <Style x:Key="ChartPaneStyle" TargetType="s:SciChartGroupPane">
+                <Setter Property="Height" Value="{Binding PaneViewModel.Height, Mode=TwoWay}"/>
+            </Style>
+
+            <!-- The style applied to the chart behind the scrollbar -->
+            <Style TargetType="s:SciStockChart" x:Key="OverviewChartStyle">
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="Padding" Value="0"/>
+                <Setter Property="Height" Value="20"/>
+                <Setter Property="IsAxisMarkersEnabled" Value="False"/>
+                <Setter Property="IsCursorEnabled" Value="False"/>
+                <Setter Property="IsXAxisVisible" Value="False"/>
+                <Setter Property="IsRubberBandZoomEnabled" Value="False"/>
+                <Setter Property="XAxisStyle">
+                    <Setter.Value>
+                        <Style TargetType="s:CategoryDateTimeAxis">
+                            <Setter Property="AutoRange" Value="Always"/>
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Setter Property="DrawMajorGridLines" Value="False"/>
+                            <Setter Property="DrawMinorGridLines" Value="False"/>
+                        </Style>
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="YAxisStyle">
+                    <Setter.Value>
+                        <Style TargetType="s:NumericAxis">
+                            <Setter Property="AutoRange" Value="Always"/>
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Setter Property="DrawMajorGridLines" Value="False"/>
+                            <Setter Property="DrawMinorGridLines" Value="False"/>
+                        </Style>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <Style TargetType="s:SciChartScrollbar" x:Key="ScrollBarStyle">
+                <Setter Property="GripsThickness" Value="7"/>
+                <Setter Property="GripsLength" Value="18"/>
+                <Setter Property="NonSelectedAreaStyle">
+                    <Setter.Value>
+                        <Style TargetType="Path">
+                            <Setter Property="Fill" Value="#7FD3D3D3"/>
+                        </Style>
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="ViewportStyle">
+                    <Setter.Value>
+                        <Style TargetType="Control">
+                            <Setter Property="Opacity" Value="0"/>
+                        </Style>
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="GripsStyle">
+                    <Setter.Value>
+                        <Style TargetType="Control">
+                            <Setter Property="Background" Value="#535353"/>
+                            <Setter Property="BorderThickness" Value="2"/>
+                        </Style>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <converters:BoolToValueConverter x:Key="MinorsPerMajorConverter" FalseValue="2" TrueValue="4" />
+            <converters:BoolToValueConverter x:Key="MaxAutoTicksConverter" FalseValue="4" TrueValue="8" />
+            <converters:BoolToValueConverter x:Key="GrowByConverter">
+                <converters:BoolToValueConverter.TrueValue>
+                    <s:DoubleRange Max="0.3" Min="0.3" />
+                </converters:BoolToValueConverter.TrueValue>
+                <converters:BoolToValueConverter.FalseValue>
+                    <s:DoubleRange Max="0.0" Min="0.0" />
+                </converters:BoolToValueConverter.FalseValue>
+            </converters:BoolToValueConverter>
+            <converters1:InvObjectToBoolConverter x:Key="InvObjToBool"/>
+        </Grid.Resources>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1.2*"/>
+            <ColumnDefinition Width="2*"/>
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- s:ThemeManager.Theme="BlackSteel" -->
+        <Label Grid.Row="0" Grid.Column="0" FontWeight="Bold">D1</Label>
+        <s:SciChartGroup Grid.Column="0" Grid.Row="1" ItemsSource="{Binding ChartViewModelSmaller1.ChartPaneViewModels}" 
+                         x:Name="SmallerChartGroup" x:FieldModifier="public"
+                         s:ThemeManager.Theme="Chrome" ItemContainerStyle="{StaticResource ChartPaneStyle}">
+            <s:SciChartGroup.ItemTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <s:SciStockChart x:Name="PART_ChartPaneView" Padding="0" BorderThickness="0,0,1,1" IsAxisMarkersEnabled="True" IsRolloverEnabled="False"
+                                         IsCursorEnabled="True" IsXAxisVisible="{Binding IsFirstChartPane}" IsPanEnabled="{Binding ParentViewModel.IsPanEnabled}"
+                                         IsRubberBandZoomEnabled="{Binding ParentViewModel.IsZoomEnabled}" VerticalChartGroupId="{Binding ParentViewModel.VerticalChartGroupId}"
+                                         ViewportManager="{Binding ViewportManager}" SeriesSource="{Binding ChartSeriesViewModels}"
+                                         Annotations="{Binding TradeAnnotations}">
+
+                            <s:SciStockChart.XAxisStyle>
+                                <Style TargetType="s:CategoryDateTimeAxis">
+                                    <Setter Property="DrawMajorBands" Value="False"/>
+                                    <Setter Property="DrawMinorGridLines" Value="True"/>
+                                    <Setter Property="DrawMajorGridLines" Value="True"/>
+                                    <Setter Property="AxisAlignment" Value="Default"/>
+                                    <Setter Property="VisibleRange" Value="{Binding ParentViewModel.XVisibleRange, Mode=TwoWay}"/>
+                                    <Setter Property="GrowBy" Value="0, 0.05"/>
+                                </Style>
+                            </s:SciStockChart.XAxisStyle>
+
+                            <s:SciStockChart.YAxisStyle>
+                                <Style TargetType="s:NumericAxis">
+                                    <Setter Property="CursorTextFormatting" Value="0.0000"/>
+                                    <Setter Property="TextFormatting" Value="{Binding YAxisTextFormatting}"/>
+                                    <Setter Property="AutoRange" Value="Always"/>
+                                    <Setter Property="AxisAlignment" Value="Left"/>
+                                    <Setter Property="MinorsPerMajor" Value="{Binding IsFirstChartPane, Converter={StaticResource MinorsPerMajorConverter}}"/>
+                                    <Setter Property="MaxAutoTicks" Value="{Binding IsFirstChartPane, Converter={StaticResource MaxAutoTicksConverter}}"/>
+                                    <Setter Property="GrowBy" Value="{Binding IsFirstChartPane, Converter={StaticResource GrowByConverter}}"/>
+                                </Style>
+                            </s:SciStockChart.YAxisStyle>
+
+                            <s:SciChartSurface.ChartModifier>
+                                <s:ModifierGroup>
+                                    <chartModifiers:ChartClickedModifier ExecuteOn="MouseLeftButton"/>
+                                    <chartModifiers:AddLinesModifier LinkedChartGroupName="MainChartGroup"/>
+                                    <!--<s:RubberBandXyZoomModifier ExecuteOn="MouseRightButton" RubberBandFill="#33FFFFFF" RubberBandStroke="#AAFFFFFF" RubberBandStrokeDashArray="2 2"/>-->
+                                    <s:ZoomPanModifier ExecuteOn="MouseLeftButton" ClipModeX="None"
+                                                       IsEnabled="{Binding NavigationService.ChartMode, Converter={StaticResource InvObjToBool}, ConverterParameter={x:Static charting:ChartMode.AddLine}}" />
+                                    <s:YAxisDragModifier DragMode="Scale"/>
+                                    <s:XAxisDragModifier DragMode="Pan"/>
+                                    <s:MouseWheelZoomModifier/>
+                                    <s:ZoomExtentsModifier ExecuteOn="MouseDoubleClick" />
+                                    <s:TooltipModifier></s:TooltipModifier>
+                                    <s:CursorModifier></s:CursorModifier>
+                                </s:ModifierGroup>
+                            </s:SciChartSurface.ChartModifier>
+
+                        </s:SciStockChart>
+                    </Grid>
+                </DataTemplate>
+            </s:SciChartGroup.ItemTemplate>
+        </s:SciChartGroup>
+
+        <Label Grid.Row="0" Grid.Column="1" FontWeight="Bold">2 hour chart</Label>
+
+        <s:SciChartGroup Grid.Row="1" Grid.Column="1" ItemsSource="{Binding ChartViewModel.ChartPaneViewModels}"
+                         s:ThemeManager.Theme="Chrome" ItemContainerStyle="{StaticResource ChartPaneStyle}" x:Name="MainChartGroup" x:FieldModifier="public">
+            <s:SciChartGroup.ItemTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <s:SciStockChart x:Name="PART_ChartPaneView" Padding="0" BorderThickness="0,0,1,1" IsAxisMarkersEnabled="True" IsRolloverEnabled="False"
+                                         IsCursorEnabled="True" IsXAxisVisible="{Binding IsFirstChartPane}" IsPanEnabled="{Binding ParentViewModel.IsPanEnabled}"
+                                         IsRubberBandZoomEnabled="{Binding ParentViewModel.IsZoomEnabled}" VerticalChartGroupId="{Binding ParentViewModel.VerticalChartGroupId}"
+                                         ViewportManager="{Binding ViewportManager}" SeriesSource="{Binding ChartSeriesViewModels}"
+                                         Annotations="{Binding TradeAnnotations}">
+
+                            <s:SciStockChart.XAxisStyle>
+                                <Style TargetType="s:CategoryDateTimeAxis">
+                                    <Setter Property="DrawMajorBands" Value="False"/>
+                                    <Setter Property="DrawMinorGridLines" Value="True"/>
+                                    <Setter Property="DrawMajorGridLines" Value="True"/>
+                                    <Setter Property="AxisAlignment" Value="Default"/>
+                                    <Setter Property="VisibleRange" Value="{Binding ParentViewModel.XVisibleRange, Mode=TwoWay}"/>
+                                    <Setter Property="GrowBy" Value="0, 0.05"/>
+                                </Style>
+                            </s:SciStockChart.XAxisStyle>
+
+                            <s:SciStockChart.YAxisStyle>
+                                <Style TargetType="s:NumericAxis">
+                                    <Setter Property="CursorTextFormatting" Value="0.0000"/>
+                                    <Setter Property="TextFormatting" Value="{Binding YAxisTextFormatting}"/>
+                                    <Setter Property="AutoRange" Value="Always"/>
+                                    <Setter Property="AxisAlignment" Value="Left"/>
+                                    <Setter Property="MinorsPerMajor" Value="{Binding IsFirstChartPane, Converter={StaticResource MinorsPerMajorConverter}}"/>
+                                    <Setter Property="MaxAutoTicks" Value="{Binding IsFirstChartPane, Converter={StaticResource MaxAutoTicksConverter}}"/>
+                                    <Setter Property="GrowBy" Value="{Binding IsFirstChartPane, Converter={StaticResource GrowByConverter}}"/>
+                                </Style>
+                            </s:SciStockChart.YAxisStyle>
+
+                            <s:SciChartSurface.ChartModifier>
+                                <s:ModifierGroup>
+                                    <chartModifiers:ChartClickedModifier ExecuteOn="MouseLeftButton"/>
+                                    <chartModifiers:AddLinesModifier LinkedChartGroupName="SmallerChartGroup"/>
+                                    <!--<s:RubberBandXyZoomModifier ExecuteOn="MouseRightButton" RubberBandFill="#33FFFFFF" RubberBandStroke="#AAFFFFFF" RubberBandStrokeDashArray="2 2"/>-->
+                                    <s:ZoomPanModifier ExecuteOn="MouseLeftButton" ClipModeX="None"
+                                                       IsEnabled="{Binding NavigationService.ChartMode, Converter={StaticResource InvObjToBool}, ConverterParameter={x:Static charting:ChartMode.AddLine}}" />
+                                    <s:YAxisDragModifier DragMode="Scale"/>
+                                    <s:XAxisDragModifier DragMode="Pan"/>
+                                    <s:MouseWheelZoomModifier/>
+                                    <s:ZoomExtentsModifier ExecuteOn="MouseDoubleClick" />
+                                    <s:TooltipModifier></s:TooltipModifier>
+                                    <s:CursorModifier></s:CursorModifier>
+                                </s:ModifierGroup>
+                            </s:SciChartSurface.ChartModifier>
+
+                        </s:SciStockChart>
+
+                        <!-- Displays a SciChartScrollBar bound to the charts XAxis, and visible only for last chart pane -->
+                        <Grid Grid.Row="1" Visibility="{Binding IsLastChartPane, Converter={StaticResource BoolToVisibilityConverter}}">
+
+                            <!-- This is the Chart behind the scrollbar, bound to the First ChartPaneViewModel, first DataSeries -->
+                            <!-- It displays the data as a FastMountainRenderableSeries -->
+                            <s:SciStockChart x:Name="PART_ScrollbarChartBackground" Style="{StaticResource OverviewChartStyle}">
+
+                                <s:SciStockChart.RenderableSeries>
+                                    <s:FastMountainRenderableSeries DataSeries="{Binding ParentViewModel.ChartPaneViewModels[0].ChartSeriesViewModels[0].DataSeries}"/>
+                                </s:SciStockChart.RenderableSeries>
+
+                            </s:SciStockChart>
+
+                            <!-- This is the scrollbar, its bound to the PART_ChartPaneView.XAxis above -->
+                            <s:SciChartScrollbar Margin="{Binding ElementName=PART_ChartPaneView, Path=Padding, Mode=OneWay}" Axis="{Binding ElementName=PART_ChartPaneView, Path=XAxis    }" Style="{StaticResource ScrollBarStyle}"/>
+                        </Grid>
+                    </Grid>
+                </DataTemplate>
+            </s:SciChartGroup.ItemTemplate>
+        </s:SciChartGroup>
+    </Grid>
+</UserControl>
