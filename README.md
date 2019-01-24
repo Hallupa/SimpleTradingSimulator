@@ -3,6 +3,8 @@ Simple Forex trader simulator for manually testing strategies.
 This application is still in the early stages so is a bit raw - any bugs/suggestions please let me know.
 The application currently has 30 markets each with 5 years of data built in, hence the large size of the download.
 
+![Screenshot](Docs\Images\screenshot.png)
+
 # Installation
 1. Download latest version from:
 https://github.com/Hallupa/TraderSimulator/releases
