@@ -19,7 +19,10 @@ namespace TraderTools.TradingTrainer
 
             Func<string> getInput = () =>
             {
-                _dlg = new InputWindow { WindowLabel = { Content = "Strategy:" }, WindowTextBox = { Text = "" } };
+                _dlg = new InputWindow
+                {
+                    WindowLabel = {Content = "Strategy:"}, WindowTextBox = {Text = ""}, Owner = this
+                };
                 _dlg.ShowDialog();
                 Focus();
                 var text = _dlg.WindowTextBox.Text;
@@ -29,7 +32,12 @@ namespace TraderTools.TradingTrainer
             };
             DataContext = new MainWindowViewModel(
                 getInput,
-                txt => Dispatcher.Invoke(() => MessageBox.Show(txt, "Message", MessageBoxButton.OK, MessageBoxImage.Information)),
+                txt => Dispatcher.Invoke(() =>
+                {
+                    var res = MessageBox.Show(txt, "Message", MessageBoxButton.OK, MessageBoxImage.Information);
+                    Focus();
+                    return res;
+                }),
                 c => Cursor = c);
 
             PreviewKeyDown += UIElement_OnPreviewKeyDown;
@@ -64,10 +72,6 @@ namespace TraderTools.TradingTrainer
                 {
                     ((MainWindowViewModel) DataContext).KeyDown(e.Key, null, null);
                 }
-            }
-            else if (e.Key == Key.Enter)
-            {
-                _dlg.Close();
             }
         }
     }
