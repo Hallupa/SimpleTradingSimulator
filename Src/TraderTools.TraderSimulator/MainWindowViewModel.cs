@@ -50,7 +50,7 @@ namespace TraderTools.TradingTrainer
         private TradeDetails _currentTrade;
         private List<Candle> _allSmallestTimeframeCandles;
         private List<Candle> _allH2Candles;
-        private List<Candle> _allH4Candles;
+        //private List<Candle> _allH4Candles;
         private List<Candle> _allD1Candles;
         private bool _isCloseEnabled;
         private bool _closeHalfTradeAtLimit;
@@ -123,6 +123,8 @@ namespace TraderTools.TradingTrainer
             _orderExpiryCandlesIndex = 0;
 
             SimResultsViewModel = new SimulationResultsViewModel(() => Trades.ToList());
+            SimResultsViewModel.ResultOptions.Remove("Months");
+            SimResultsViewModel.ResultOptions.Remove("Timeframes");
 
             if (File.Exists(_finalPath))
             {
@@ -567,7 +569,7 @@ namespace TraderTools.TradingTrainer
             _h2EndDateIndex = _rnd.Next(12 * 50, allH2Candles.Count - 12 * 50);
 
             _allH2Candles = null;
-            _allH4Candles = null;
+            //_allH4Candles = null;
             _allD1Candles = null;
             _allSmallestTimeframeCandles = null;
             UpdateUIState();
@@ -611,23 +613,23 @@ namespace TraderTools.TradingTrainer
             {
                 _allSmallestTimeframeCandles = _candlesService.GetCandles(_market, Timeframe.M5);
                 _allH2Candles = _candlesService.GetCandles(_market, Timeframe.H2);
-                _allH4Candles = _candlesService.GetCandles(_market, Timeframe.H4);
+                //_allH4Candles = _candlesService.GetCandles(_market, Timeframe.H4);
                 _allD1Candles = _candlesService.GetCandles(_market, Timeframe.D1);
             }
 
             var endDateUtc = new DateTime(_allH2Candles[_h2EndDateIndex].CloseTimeTicks, DateTimeKind.Utc);
 
             var currentH2Candles = _allH2Candles.Where(x => new DateTime(x.CloseTimeTicks, DateTimeKind.Utc) <= endDateUtc).ToList();
-            var currentH4Candles = _allH4Candles.Where(x => new DateTime(x.CloseTimeTicks, DateTimeKind.Utc) <= endDateUtc).ToList();
+            //var currentH4Candles = _allH4Candles.Where(x => new DateTime(x.CloseTimeTicks, DateTimeKind.Utc) <= endDateUtc).ToList();
             var currentD1Candles = _allD1Candles.Where(x => new DateTime(x.CloseTimeTicks, DateTimeKind.Utc) <= endDateUtc).ToList();
 
-            Candle? h4Incomplete = null;
+            //Candle? h4Incomplete = null;
             Candle? d1Incomplete = null;
 
             for (var i = 0; i <= _h2EndDateIndex; i++)
             {
                 var h2 = _allH2Candles[i];
-                if (h2.CloseTimeTicks > currentH4Candles[currentH4Candles.Count - 1].CloseTimeTicks)
+                /*if (h2.CloseTimeTicks > currentH4Candles[currentH4Candles.Count - 1].CloseTimeTicks)
                 {
                     h4Incomplete = new Candle
                     {
@@ -641,7 +643,7 @@ namespace TraderTools.TradingTrainer
                         IsComplete = 0,
                         Id = Guid.NewGuid()
                     };
-                }
+                }*/
 
                 if (h2.CloseTimeTicks > currentD1Candles[currentD1Candles.Count - 1].CloseTimeTicks)
                 {
@@ -660,12 +662,12 @@ namespace TraderTools.TradingTrainer
                 }
             }
 
-            if (h4Incomplete != null) currentH4Candles.Add(h4Incomplete.Value);
+            //if (h4Incomplete != null) currentH4Candles.Add(h4Incomplete.Value);
             if (d1Incomplete != null) currentD1Candles.Add(d1Incomplete.Value);
 
             _currentCandles[Timeframe.D1] = currentD1Candles;
             _currentCandles[Timeframe.H2] = currentH2Candles;
-            _currentCandles[Timeframe.H4] = currentH4Candles;
+            //_currentCandles[Timeframe.H4] = currentH4Candles;
 
             SetChartCandles(recreateChart);
         }

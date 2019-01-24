@@ -19,7 +19,7 @@ namespace TraderTools.TradingTrainer
 
             Func<string> getInput = () =>
             {
-                _dlg = new InputWindow { WindowLabel = { Content = "Trade comments:" }, WindowTextBox = { Text = "" } };
+                _dlg = new InputWindow { WindowLabel = { Content = "Strategy:" }, WindowTextBox = { Text = "" } };
                 _dlg.ShowDialog();
                 Focus();
                 var text = _dlg.WindowTextBox.Text;

@@ -32,7 +32,22 @@
             <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
 
-        <StackPanel Grid.Row="0">
+        <Ribbon x:Name="RibbonWin" Grid.Row="0" SelectedIndex="0" Grid.ColumnSpan="2">
+            <Ribbon.ApplicationMenu>
+                <RibbonApplicationMenu Visibility="Collapsed">
+                </RibbonApplicationMenu>
+            </Ribbon.ApplicationMenu>
+
+            <RibbonTab Header="Charting" Grid.Row="0">
+                <RibbonGroup Header="Chart">
+                    <RibbonToggleButton Label="Line" IsChecked="{Binding ChartingService.ChartMode, Converter={StaticResource ObjToBool}, ConverterParameter={x:Static charting:ChartMode.AddLine}, Mode=TwoWay}"/>
+                    <RibbonButton Label="New chart (Ctrl-N)" Command="{Binding NewChartCommand}"/>
+                    <RibbonButton Label="Next candle (Ctrl-F)" Command="{Binding NextCandleCommand}"/>
+                </RibbonGroup>
+            </RibbonTab>
+        </Ribbon>
+
+        <!--<StackPanel Grid.Row="0">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
                 <ToggleButton Content="Line" IsChecked="{Binding ChartingService.ChartMode, Converter={StaticResource ObjToBool}, ConverterParameter={x:Static charting:ChartMode.AddLine}, Mode=TwoWay}" Margin="2" Padding="5,2,5,2"/>
                 <Button Margin="2" Padding="5,2,5,2" Content="New chart (Ctrl-N)" Command="{Binding NewChartCommand}"/>
@@ -42,7 +57,7 @@
                     <ComboBoxItem>EMA20, MA50 &amp; MA200</ComboBoxItem>
                 </ComboBox>
             </StackPanel>
-        </StackPanel>
+        </StackPanel>-->
 
         <Grid Grid.Column="1" Grid.Row="1" Grid.RowSpan="2" HorizontalAlignment="Right" Margin="4">
             <Grid.RowDefinitions>
@@ -68,12 +83,9 @@
             <ToggleButton Grid.Row="2" Content="Set stop (Ctrl-S)" IsChecked="{Binding IsSetStopButtonPressed}" Margin="2" Padding="15,4,15,4" Grid.ColumnSpan="2"/>
             <ToggleButton Grid.Row="3" Content="Set entry price (Ctrl-E)" IsChecked="{Binding IsEntryButtonPressed}" IsEnabled="{Binding Running, Converter={StaticResource InvBool}}" Margin="2" Padding="15,4,15,4" Grid.ColumnSpan="2"/>
             <ToggleButton Grid.Row="4" Content="Set limit (Ctrl-L)" IsChecked="{Binding IsSetLimitButtonPressed}" Margin="2" Padding="15,4,15,4" Grid.ColumnSpan="2"/>
-            <Button Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" Content="Start long trade" FontWeight="Bold" Margin="2" Padding="15,4,15,4" Command="{Binding LongCommand}" IsEnabled="{Binding IsTradeEnabled}"/>
-            <Button Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" Content="Start short trade" FontWeight="Bold" Margin="2" Padding="15,4,15,4" Command="{Binding ShortCommand}" IsEnabled="{Binding IsTradeEnabled}"/>
-            <Button Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2" Content="Close" Margin="2" Padding="15,4,15,4" Command="{Binding CloseCommand}" IsEnabled="{Binding IsCloseEnabled}"/>
-            <CheckBox Grid.Row="8" Grid.ColumnSpan="2" IsChecked="{Binding CloseHalfTradeAtLimit}" Content="Close half of trade at limit price" Margin="2" VerticalContentAlignment="Center" IsEnabled="{Binding Running, Converter={StaticResource InvBool}}"/>
-            <Label Grid.Row="9" Grid.Column="0" Content="Order expiry candles"/>
-            <ComboBox Grid.Row="9" Grid.Column="1" SelectedIndex="{Binding OrderExpiryCandlesIndex}" Width="60">
+            <CheckBox Grid.Row="5" Grid.ColumnSpan="2" IsChecked="{Binding CloseHalfTradeAtLimit}" Content="Close half of trade at limit price" Margin="2" VerticalContentAlignment="Center" IsEnabled="{Binding Running, Converter={StaticResource InvBool}}"/>
+            <Label Grid.Row="6" Grid.Column="0" Content="Order expiry candles"/>
+            <ComboBox Grid.Row="6" Grid.Column="1" SelectedIndex="{Binding OrderExpiryCandlesIndex}" Width="60" IsEnabled="{Binding Running, Converter={StaticResource InvBool}}">
                 <ComboBoxItem>None</ComboBoxItem>
                 <ComboBoxItem>1</ComboBoxItem>
                 <ComboBoxItem>2</ComboBoxItem>
@@ -86,6 +98,10 @@
                 <ComboBoxItem>9</ComboBoxItem>
                 <ComboBoxItem>10</ComboBoxItem>
             </ComboBox>
+            
+            <Button Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2" Content="Start long trade" Margin="2,20,2,2" Padding="15,4,15,4" Command="{Binding LongCommand}" IsEnabled="{Binding IsTradeEnabled}"/>
+            <Button Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2" Content="Start short trade" Margin="2" Padding="15,4,15,4" Command="{Binding ShortCommand}" IsEnabled="{Binding IsTradeEnabled}"/>
+            <Button Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="2" Content="Close" Margin="2" Padding="15,4,15,4" Command="{Binding CloseCommand}" IsEnabled="{Binding IsCloseEnabled}"/>
         </Grid>
 
 

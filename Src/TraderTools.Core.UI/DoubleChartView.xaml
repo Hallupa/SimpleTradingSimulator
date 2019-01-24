@@ -162,7 +162,7 @@
             </s:SciChartGroup.ItemTemplate>
         </s:SciChartGroup>
 
-        <Label Grid.Row="0" Grid.Column="1" FontWeight="Bold">2 hour chart</Label>
+        <Label Grid.Row="0" Grid.Column="1" FontWeight="Bold">2H</Label>
 
         <s:SciChartGroup Grid.Row="1" Grid.Column="1" ItemsSource="{Binding ChartViewModel.ChartPaneViewModels}"
                          s:ThemeManager.Theme="Chrome" ItemContainerStyle="{StaticResource ChartPaneStyle}" x:Name="MainChartGroup" x:FieldModifier="public">
