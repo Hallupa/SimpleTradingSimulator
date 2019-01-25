@@ -22,11 +22,11 @@
             <DataGrid.Columns>
                 <DataGridTextColumn Binding="{Binding Name}" Header="Name" Width="100" IsReadOnly="True"/>
                 <DataGridTextColumn Binding="{Binding CompletedTrades}" Header="Completed trades" IsReadOnly="True"/>
-                <DataGridTextColumn Binding="{Binding PercentSuccessfulTrades, StringFormat={}{0:0.000}}" Header="% successful trades" Width="80" IsReadOnly="True"/>
-                <DataGridTextColumn Binding="{Binding AvRWinningTrades, StringFormat={}{0:0.000}}" Header="Av R for winning trades" Width="140" IsReadOnly="True"/>
-                <DataGridTextColumn Binding="{Binding AvRLosingTrades, StringFormat={}{0:0.000}}" Header="Av R for losing trades" Width="140" IsReadOnly="True"/>
-                <DataGridTextColumn Binding="{Binding RExpectancy, StringFormat={}{0:0.0000}}" Header="Expectancy R" Width="140" IsReadOnly="True"/>
-                <DataGridTextColumn Binding="{Binding RSum, StringFormat={}{0:0.000}}" Header="R sum" Width="80" IsReadOnly="True"/>
+                <DataGridTextColumn Binding="{Binding PercentSuccessfulTrades, StringFormat={}{0:0.0}%}" Header="Successful trades" Width="100" IsReadOnly="True"/>
+                <DataGridTextColumn Binding="{Binding AvRWinningTrades, StringFormat={}{0:0.000}}" Header="Average win R" Width="140" IsReadOnly="True"/>
+                <DataGridTextColumn Binding="{Binding AvRLosingTrades, StringFormat={}{0:0.000}}" Header="Average lose R" Width="140" IsReadOnly="True"/>
+                <DataGridTextColumn Binding="{Binding RExpectancy, StringFormat={}{0:0.000}}" Header="Expectancy R" Width="140" IsReadOnly="True"/>
+                <DataGridTextColumn Binding="{Binding RSum, StringFormat={}{0:0.000}}" Header="R sum" Width="80" IsReadOnly="True" Visibility="Collapsed"/>
             </DataGrid.Columns>
         </DataGrid>
     </Grid>

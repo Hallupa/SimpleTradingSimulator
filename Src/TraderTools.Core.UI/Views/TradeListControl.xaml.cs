@@ -58,6 +58,8 @@ namespace TraderTools.Core.UI.Views
             var c = (TradeListControl)d;
             c.MainDataGrid.Columns[1].Visibility = (bool)e.NewValue ? Visibility.Collapsed : Visibility.Visible;
             c.MainDataGrid.Columns[7].Visibility = (bool)e.NewValue ? Visibility.Collapsed : Visibility.Visible;
+            c.MainDataGrid.Columns[8].Visibility = (bool)e.NewValue ? Visibility.Collapsed : Visibility.Visible;
+            c.MainDataGrid.Columns[10].Visibility = (bool)e.NewValue ? Visibility.Collapsed : Visibility.Visible;
             c.MainDataGrid.Columns[13].Visibility = (bool)e.NewValue ? Visibility.Collapsed : Visibility.Visible;
             c.MainDataGrid.Columns[14].Visibility = (bool)e.NewValue ? Visibility.Collapsed : Visibility.Visible;
             c.MainDataGrid.Columns[15].Visibility = (bool)e.NewValue ? Visibility.Collapsed : Visibility.Visible;

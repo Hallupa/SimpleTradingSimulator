@@ -125,6 +125,7 @@ namespace TraderTools.TradingTrainer
             SimResultsViewModel = new SimulationResultsViewModel(() => Trades.ToList());
             SimResultsViewModel.ResultOptions.Remove("Months");
             SimResultsViewModel.ResultOptions.Remove("Timeframes");
+            SimResultsViewModel.ResultOptions.Remove("Grouped (10)");
 
             if (File.Exists(_finalPath))
             {
@@ -169,6 +170,7 @@ namespace TraderTools.TradingTrainer
             _currentTrade.OrderPrice = (decimal)price;
 
             SetAnnotations();
+            UpdateUIState();
         }
 
         private void SetTradeLimit(double price)
@@ -192,6 +194,7 @@ namespace TraderTools.TradingTrainer
             }
 
             SetAnnotations();
+            UpdateUIState();
         }
 
         private void SetTradeStop(double price)
@@ -215,6 +218,7 @@ namespace TraderTools.TradingTrainer
             }
 
             SetAnnotations();
+            UpdateUIState();
         }
 
         public DelegateCommand NextCandleCommand { get; set; }
@@ -360,6 +364,16 @@ namespace TraderTools.TradingTrainer
         public ObservableCollection<TradeDetails> Trades { get; } = new ObservableCollection<TradeDetails>();
         public DelegateCommand CloseCommand { get; private set; }
         public SimulationResultsViewModel SimResultsViewModel { get; }
+
+        public bool IsCloseHalfTradeAtLimitEnabled
+        {
+            get => _isCloseHalfTradeAtLimitEnabled;
+            set
+            {
+                _isCloseHalfTradeAtLimitEnabled = value; 
+                OnPropertyChanged();
+            }
+        }
 
         public bool IsTradeEnabled
         {
@@ -578,6 +592,8 @@ namespace TraderTools.TradingTrainer
         }
 
         private bool _uiStateUpdating = false;
+        private bool _isCloseHalfTradeAtLimitEnabled;
+
         private void UpdateUIState()
         {
             if (_uiStateUpdating) return;
@@ -586,6 +602,7 @@ namespace TraderTools.TradingTrainer
             IsTradeEnabled = _currentTrade.OrderDateTime == null && _currentTrade.EntryDateTime == null;
             IsCloseEnabled = _currentTrade.OrderDateTime != null || _currentTrade.EntryDateTime != null;
             Running = _currentTrade.OrderDateTime != null || _currentTrade.EntryDateTime != null;
+            IsCloseHalfTradeAtLimitEnabled = _currentTrade.LimitPrices.Count > 0 && _currentTrade.EntryPrice == null;
 
             if (ChartingService.ChartMode == ChartMode.AddLine)
             {
@@ -620,30 +637,13 @@ namespace TraderTools.TradingTrainer
             var endDateUtc = new DateTime(_allH2Candles[_h2EndDateIndex].CloseTimeTicks, DateTimeKind.Utc);
 
             var currentH2Candles = _allH2Candles.Where(x => new DateTime(x.CloseTimeTicks, DateTimeKind.Utc) <= endDateUtc).ToList();
-            //var currentH4Candles = _allH4Candles.Where(x => new DateTime(x.CloseTimeTicks, DateTimeKind.Utc) <= endDateUtc).ToList();
             var currentD1Candles = _allD1Candles.Where(x => new DateTime(x.CloseTimeTicks, DateTimeKind.Utc) <= endDateUtc).ToList();
 
-            //Candle? h4Incomplete = null;
             Candle? d1Incomplete = null;
 
             for (var i = 0; i <= _h2EndDateIndex; i++)
             {
                 var h2 = _allH2Candles[i];
-                /*if (h2.CloseTimeTicks > currentH4Candles[currentH4Candles.Count - 1].CloseTimeTicks)
-                {
-                    h4Incomplete = new Candle
-                    {
-                        Timeframe = (int)Timeframe.H2,
-                        Close = h2.Close,
-                        Open = h4Incomplete?.Open ?? h2.Open,
-                        CloseTimeTicks = h2.CloseTimeTicks,
-                        High = h4Incomplete != null && h4Incomplete.Value.High > h2.High ? h4Incomplete.Value.High : h2.High,
-                        Low = h4Incomplete != null && h4Incomplete.Value.Low < h2.Low ? h4Incomplete.Value.Low : h2.Low,
-                        OpenTimeTicks = h4Incomplete?.OpenTimeTicks ?? h2.OpenTimeTicks,
-                        IsComplete = 0,
-                        Id = Guid.NewGuid()
-                    };
-                }*/
 
                 if (h2.CloseTimeTicks > currentD1Candles[currentD1Candles.Count - 1].CloseTimeTicks)
                 {
@@ -662,12 +662,10 @@ namespace TraderTools.TradingTrainer
                 }
             }
 
-            //if (h4Incomplete != null) currentH4Candles.Add(h4Incomplete.Value);
             if (d1Incomplete != null) currentD1Candles.Add(d1Incomplete.Value);
 
             _currentCandles[Timeframe.D1] = currentD1Candles;
             _currentCandles[Timeframe.H2] = currentH2Candles;
-            //_currentCandles[Timeframe.H4] = currentH4Candles;
 
             SetChartCandles(recreateChart);
         }
@@ -788,8 +786,8 @@ namespace TraderTools.TradingTrainer
 
             if (recreate)
             {
-                ChartHelper.SetChartXVisibleRange(ChartViewModel, _currentCandles[largeChartTimeframe].Count - 95, _currentCandles[largeChartTimeframe].Count + 10);
-                ChartHelper.SetChartXVisibleRange(ChartViewModelSmaller1, _currentCandles[Timeframe.D1].Count - 120, _currentCandles[Timeframe.D1].Count + 10);
+                ChartHelper.SetChartXVisibleRange(ChartViewModel, _currentCandles[largeChartTimeframe].Count - 60, _currentCandles[largeChartTimeframe].Count + 10);
+                ChartHelper.SetChartXVisibleRange(ChartViewModelSmaller1, _currentCandles[Timeframe.D1].Count - 60, _currentCandles[Timeframe.D1].Count + 10);
 
                 var annotations = new AnnotationCollection();
                 var annotationsSmallerCharts = new AnnotationCollection();
@@ -799,16 +797,18 @@ namespace TraderTools.TradingTrainer
             else
             {
                 var maxIndex = _currentCandles[largeChartTimeframe].Count - 1;
-                if (ChartViewModel.XVisibleRange.Max <= maxIndex + 10)
+                var currentDisplayRange = ChartViewModel.XVisibleRange.Max - ChartViewModel.XVisibleRange.Min;
+                if (ChartViewModel.XVisibleRange.Max <= maxIndex + (currentDisplayRange * 0.08))
                 {
-                    var change = (maxIndex - ChartViewModel.XVisibleRange.Max) + 30;
+                    var change = (maxIndex - ChartViewModel.XVisibleRange.Max) + (currentDisplayRange * 0.5);
                     ChartViewModel.XVisibleRange.SetMinMax(ChartViewModel.XVisibleRange.Min + change, ChartViewModel.XVisibleRange.Max + change);
                 }
 
                 maxIndex = _currentCandles[Timeframe.D1].Count - 1;
-                if (ChartViewModelSmaller1.XVisibleRange.Max <= maxIndex + 20)
+                currentDisplayRange = ChartViewModelSmaller1.XVisibleRange.Max - ChartViewModelSmaller1.XVisibleRange.Min;
+                if (ChartViewModelSmaller1.XVisibleRange.Max <= maxIndex + (currentDisplayRange * 0.08))
                 {
-                    var change = (maxIndex - ChartViewModelSmaller1.XVisibleRange.Max) + 50;
+                    var change = (maxIndex - ChartViewModelSmaller1.XVisibleRange.Max) + (currentDisplayRange * 0.5);
                     ChartViewModelSmaller1.XVisibleRange.SetMinMax(ChartViewModelSmaller1.XVisibleRange.Min + change, ChartViewModelSmaller1.XVisibleRange.Max + change);
                 }
             }

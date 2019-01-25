@@ -60,7 +60,7 @@ namespace TraderTools.Core.UI.ViewModels
             switch (SelectedResultOption)
             {
                 case "Summary":
-                    groupedTrades = trades.GroupBy(x => "All").ToList();
+                    groupedTrades = trades.GroupBy(x => "All trades").ToList();
                     break;
                 case "Markets":
                     groupedTrades = trades.GroupBy(x => x.Market).ToList();

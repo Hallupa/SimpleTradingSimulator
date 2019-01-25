@@ -9,7 +9,7 @@
         xmlns:converters="clr-namespace:Hallupa.Library.UI.Converters;assembly=Hallupa.Library.UI"
         xmlns:views2="clr-namespace:TraderTools.Core.UI.Views;assembly=TraderTools.Core.UI"
         mc:Ignorable="d"
-        Title="Trader Simulator" Height="900" Width="1500" WindowStartupLocation="CenterScreen" WindowState="Normal">
+        Title="Trader Simulator" Height="700" Width="1200" WindowStartupLocation="CenterScreen" WindowState="Normal">
     <Grid>
         <Grid.Resources>
             <converters:InvBoolConverter x:Key="InvBool"/>
@@ -19,12 +19,8 @@
         </Grid.Resources>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="3*"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="2*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
@@ -39,10 +35,12 @@
             </Ribbon.ApplicationMenu>
 
             <RibbonTab Header="Charting" Grid.Row="0">
-                <RibbonGroup Header="Chart">
+                <RibbonGroup Height="Auto">
+                    <!--<StackPanel Orientation="Horizontal">-->
                     <RibbonToggleButton Label="Line" IsChecked="{Binding ChartingService.ChartMode, Converter={StaticResource ObjToBool}, ConverterParameter={x:Static charting:ChartMode.AddLine}, Mode=TwoWay}"/>
                     <RibbonButton Label="New chart (Ctrl-N)" Command="{Binding NewChartCommand}"/>
                     <RibbonButton Label="Next candle (Ctrl-F)" Command="{Binding NextCandleCommand}"/>
+                <!--</StackPanel>-->
                 </RibbonGroup>
             </RibbonTab>
         </Ribbon>
@@ -83,7 +81,7 @@
             <ToggleButton Grid.Row="2" Content="Set stop (Ctrl-S)" IsChecked="{Binding IsSetStopButtonPressed}" Margin="2" Padding="15,4,15,4" Grid.ColumnSpan="2"/>
             <ToggleButton Grid.Row="3" Content="Set entry price (Ctrl-E)" IsChecked="{Binding IsEntryButtonPressed}" IsEnabled="{Binding Running, Converter={StaticResource InvBool}}" Margin="2" Padding="15,4,15,4" Grid.ColumnSpan="2"/>
             <ToggleButton Grid.Row="4" Content="Set limit (Ctrl-L)" IsChecked="{Binding IsSetLimitButtonPressed}" Margin="2" Padding="15,4,15,4" Grid.ColumnSpan="2"/>
-            <CheckBox Grid.Row="5" Grid.ColumnSpan="2" IsChecked="{Binding CloseHalfTradeAtLimit}" Content="Close half of trade at limit price" Margin="2" VerticalContentAlignment="Center" IsEnabled="{Binding Running, Converter={StaticResource InvBool}}"/>
+            <CheckBox Grid.Row="5" Grid.ColumnSpan="2" IsChecked="{Binding CloseHalfTradeAtLimit}" Content="Close half of trade when limit is hit" Margin="2" VerticalContentAlignment="Center" IsEnabled="{Binding IsCloseHalfTradeAtLimitEnabled}"/>
             <Label Grid.Row="6" Grid.Column="0" Content="Order expiry candles"/>
             <ComboBox Grid.Row="6" Grid.Column="1" SelectedIndex="{Binding OrderExpiryCandlesIndex}" Width="60" IsEnabled="{Binding Running, Converter={StaticResource InvBool}}">
                 <ComboBoxItem>None</ComboBoxItem>
@@ -98,22 +96,23 @@
                 <ComboBoxItem>9</ComboBoxItem>
                 <ComboBoxItem>10</ComboBoxItem>
             </ComboBox>
-            
+
             <Button Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2" Content="Start long trade" Margin="2,20,2,2" Padding="15,4,15,4" Command="{Binding LongCommand}" IsEnabled="{Binding IsTradeEnabled}"/>
             <Button Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2" Content="Start short trade" Margin="2" Padding="15,4,15,4" Command="{Binding ShortCommand}" IsEnabled="{Binding IsTradeEnabled}"/>
             <Button Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="2" Content="Close" Margin="2" Padding="15,4,15,4" Command="{Binding CloseCommand}" IsEnabled="{Binding IsCloseEnabled}"/>
         </Grid>
 
+        <charting:DoubleChartView Grid.Row="1" x:Name="DoubleChart"/>
 
-        <Label Content="Chart" Grid.Row="1" FontSize="16" FontWeight="Bold"/>
-        <charting:DoubleChartView Grid.Row="2" x:Name="DoubleChart"/>
+        <TabControl Grid.Row="2" Grid.ColumnSpan="2" Margin="5">
+            <TabItem Header="Analysis">
+                <views2:TradesResultsControl />
+            </TabItem>
+            <TabItem Header="Completed trades">
+                <views2:TradeListControl ShowBasicDetailsOnly="True" HideContextMenu="True" AllColumnsReadOnly="True"/>
+            </TabItem>
+        </TabControl>
 
-        <Label Content="Results" Grid.Row="3" FontSize="16" FontWeight="Bold"/>
-        <views2:TradesResultsControl Grid.Row="4" Grid.ColumnSpan="2"/>
-
-        <Label Content="Completed trades" Grid.Row="5" FontSize="16" FontWeight="Bold"/>
-        <views2:TradeListControl Grid.Row="6" Grid.ColumnSpan="2" ShowBasicDetailsOnly="True" HideContextMenu="True" AllColumnsReadOnly="True"/>
-
-        <ui:LogControl Grid.Row="7" Grid.ColumnSpan="2" Visibility="Collapsed"/>
+        <ui:LogControl Grid.Row="3" Grid.ColumnSpan="2" Visibility="Collapsed"/>
     </Grid>
 </Window>
