@@ -711,6 +711,8 @@ namespace TraderTools.TradingTrainer
             {
                 _currentTrade.OrderExpireTime = date.AddSeconds(OrderExpiryCandlesIndex * (int)timeframe);
             }
+
+            UpdateUIState();
         }
 
         public bool Running

@@ -17,6 +17,8 @@ namespace TraderTools.TradingTrainer
         {
             InitializeComponent();
 
+            Title = Title + $" {typeof(MainWindow).Assembly.GetName().Version}";
+
             Func<string> getInput = () =>
             {
                 _dlg = new InputWindow
