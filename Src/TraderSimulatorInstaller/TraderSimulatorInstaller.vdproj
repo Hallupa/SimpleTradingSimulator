@@ -7997,8 +7997,8 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Trader Simulator"
-        "ProductCode" = "8:{6FC60B08-970C-4D8F-A944-9F5808F33B7C}"
-        "PackageCode" = "8:{FB230655-D530-46E5-902A-73E5E4E2AB7B}"
+        "ProductCode" = "8:{121FFD5D-CB5B-473B-99B6-279CB4D5418C}"
+        "PackageCode" = "8:{627387C1-D1CF-4EB8-8ECF-70C948C897C7}"
         "UpgradeCode" = "8:{6C223DBD-ACEB-4820-B67A-484AFB14C0DA}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
@@ -8589,7 +8589,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_B4356602FBF04E19ACA7C8562E817135"
             {
-            "SourcePath" = "8:..\\TraderTools.TraderSimulator\\obj\\x86\\Debug\\TraderTools.TradingTrainer.exe"
+            "SourcePath" = "8:..\\TraderTools.TraderSimulator\\obj\\x86\\Release\\TraderTools.TradingTrainer.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_4D4A4A60AD55400F80A70C76F982CFE1"
