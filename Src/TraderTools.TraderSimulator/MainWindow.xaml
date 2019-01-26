@@ -28,7 +28,7 @@
             <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
 
-        <Ribbon x:Name="RibbonWin" Grid.Row="0" SelectedIndex="0" Grid.ColumnSpan="2">
+        <Ribbon x:Name="RibbonWin" Grid.Row="0" SelectedIndex="0" Grid.ColumnSpan="2" Template="{StaticResource MainRibbonControlTemplate}">
             <Ribbon.ApplicationMenu>
                 <RibbonApplicationMenu Visibility="Collapsed">
                 </RibbonApplicationMenu>

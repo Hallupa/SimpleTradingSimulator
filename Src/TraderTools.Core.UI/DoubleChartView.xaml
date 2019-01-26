@@ -99,7 +99,7 @@
         </Grid.RowDefinitions>
 
         <!-- s:ThemeManager.Theme="BlackSteel" -->
-        <Label Grid.Row="0" Grid.Column="0" FontWeight="Bold">D1</Label>
+        <Label Grid.Row="0" Grid.Column="0" FontWeight="Bold">D1 (8EMA, 25EMA &amp; 50EMA)</Label>
 
         <Border Grid.Column="0" Grid.Row="1" BorderBrush="DarkGray" BorderThickness="1" Margin="5,5,0,5">
             <s:SciChartGroup ItemsSource="{Binding ChartViewModelSmaller1.ChartPaneViewModels}" 
@@ -165,7 +165,7 @@
             </s:SciChartGroup>
         </Border>
 
-        <Label Grid.Row="0" Grid.Column="1" FontWeight="Bold">2H</Label>
+        <Label Grid.Row="0" Grid.Column="1" FontWeight="Bold">2H  (8EMA, 25EMA &amp; 50EMA)</Label>
 
         <Border Grid.Row="1" Grid.Column="1" BorderBrush="DarkGray" BorderThickness="1" Margin="5">
             <s:SciChartGroup ItemsSource="{Binding ChartViewModel.ChartPaneViewModels}"

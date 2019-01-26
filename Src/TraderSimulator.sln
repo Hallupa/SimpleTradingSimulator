@@ -106,7 +106,6 @@ Global
 		{C7375D78-0DDA-4CDF-8BC8-A46EFA13ED18}.Release|Any CPU.ActiveCfg = Release
 		{C7375D78-0DDA-4CDF-8BC8-A46EFA13ED18}.Release|x64.ActiveCfg = Release
 		{C7375D78-0DDA-4CDF-8BC8-A46EFA13ED18}.Release|x86.ActiveCfg = Release
-		{C7375D78-0DDA-4CDF-8BC8-A46EFA13ED18}.Release|x86.Build.0 = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
