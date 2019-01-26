@@ -37,7 +37,7 @@
                 <DataGridTextColumn Header="Profit" Binding="{Binding Profit, StringFormat={}£{0:0.00}, Mode=OneWay}" IsReadOnly="True" Width="100"/>
                 <DataGridTextColumn Header="Risking" Binding="{Binding RiskAmount, StringFormat={}£{0:0.00}, Mode=OneWay}" IsReadOnly="True" Width="100"/>
                 <DataGridTextColumn Header="Risk %" Binding="{Binding RiskPercentOfBalance, StringFormat={}{0:0.00}%, Mode=OneWay}" IsReadOnly="True" Width="100"/>
-                <DataGridTextColumn Header="Result R" Binding="{Binding RMultiple, StringFormat={}{0:0.00R}, Mode=OneWay}" IsReadOnly="True" Width="70"/>
+                <DataGridTextColumn Header="Result R" Binding="{Binding RMultiple, StringFormat={}{0:0.00}, Mode=OneWay}" IsReadOnly="True" Width="70"/>
                 <DataGridComboBoxColumn Header="Timeframe" SelectedItemBinding="{Binding Timeframe}" ItemsSource="{Binding Data.TimeFrameItems, Source={StaticResource Proxy}, UpdateSourceTrigger=PropertyChanged}" Width="70"/>
                 <DataGridTextColumn Header="Strategy" Binding="{Binding Comments, StringFormat={}{0:0.00}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="150"/>
             </DataGrid.Columns>
