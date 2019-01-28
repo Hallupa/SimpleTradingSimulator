@@ -19,10 +19,10 @@ https://github.com/Hallupa/TraderSimulator/releases
 After starting the application there will be a random chart from one of 30 markets at a random point in time.
 
 The chart on the left shows day candles, on the right are 2 hour candles.
-Clicking or pressing Control-F will progress one candle forward.
+Clicking 'next candle' or pressing Control-F will progress one candle forward.
 
 ## Setting up a trade
-Every trade has to have a stop so the trade can be analysed. 
+Every trade has to have a stop so the trade can have a risk to reward ratio.
 1. Click 'Set stop' then click a point on the chart for the stop.
 2. If wanted, click 'Set limit' and click a point on the chart for the limit. Clicking 'Close half of trade at limit price' will close half the trade when the limit is reached.
 
@@ -40,7 +40,7 @@ When the trade is running, clicking 'Close' at any point will close the trade at
 The stop/limit can also be adjusted by clicking the 'Set stop'/'Set limit' options then clicking the chart.
 
 ## Results
-Under the charts is the results.
+Under the charts is the results section.
 All the results are shown in risk to reward ratios, or R, and shows statistics such as % trades that made a positve R, R sum, expectancy, etc.
 In the drop down listbox it also gives options such as showing results grouped by strategies, markets, etc.
 
