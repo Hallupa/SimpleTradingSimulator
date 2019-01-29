@@ -86,6 +86,7 @@
                 </converters:BoolToValueConverter.FalseValue>
             </converters:BoolToValueConverter>
             <converters1:InvObjectToBoolConverter x:Key="InvObjToBool"/>
+            <converters1:ObjectToBoolConverter x:Key="ObjToBool"/>
         </Grid.Resources>
 
         <Grid.ColumnDefinitions>
@@ -144,11 +145,12 @@
 
                                 <s:SciChartSurface.ChartModifier>
                                     <s:ModifierGroup>
-                                        <chartModifiers:ChartClickedModifier ExecuteOn="MouseLeftButton"/>
+                                        <chartModifiers:MouseModifier ExecuteOn="MouseLeftButton"/>
                                         <chartModifiers:AddLinesModifier LinkedChartGroupName="MainChartGroup"/>
-                                        <!--<s:RubberBandXyZoomModifier ExecuteOn="MouseRightButton" RubberBandFill="#33FFFFFF" RubberBandStroke="#AAFFFFFF" RubberBandStrokeDashArray="2 2"/>-->
+                                        <!--<s:RubberBandXyZoomModifier ExecuteOn="MouseLeftButton" RubberBandFill="#33FFFFFF" RubberBandStroke="#AAFFFFFF" RubberBandStrokeDashArray="2 2" 
+                                                                    IsEnabled="{Binding NavigationService.ChartMode, Converter={StaticResource ObjToBool}, ConverterParameter={x:Static charting:ChartMode.Zoom}}"/>-->
                                         <s:ZoomPanModifier ExecuteOn="MouseLeftButton" ClipModeX="None"
-                                                       IsEnabled="{Binding NavigationService.ChartMode, Converter={StaticResource InvObjToBool}, ConverterParameter={x:Static charting:ChartMode.AddLine}}" />
+                                                           IsEnabled="{Binding NavigationService.ChartMode, Converter={StaticResource InvObjToBool}, ConverterParameter={x:Static charting:ChartMode.AddLine}}" />
                                         <s:YAxisDragModifier DragMode="Scale"/>
                                         <s:XAxisDragModifier DragMode="Pan"/>
                                         <s:MouseWheelZoomModifier/>
@@ -209,11 +211,12 @@
 
                                 <s:SciChartSurface.ChartModifier>
                                     <s:ModifierGroup>
-                                        <chartModifiers:ChartClickedModifier ExecuteOn="MouseLeftButton"/>
+                                        <chartModifiers:MouseModifier ExecuteOn="MouseLeftButton"/>
                                         <chartModifiers:AddLinesModifier LinkedChartGroupName="SmallerChartGroup"/>
-                                        <!--<s:RubberBandXyZoomModifier ExecuteOn="MouseRightButton" RubberBandFill="#33FFFFFF" RubberBandStroke="#AAFFFFFF" RubberBandStrokeDashArray="2 2"/>-->
+                                        <!--<s:RubberBandXyZoomModifier ExecuteOn="MouseLeftButton" RubberBandFill="#33FFFFFF" RubberBandStroke="#AAFFFFFF" RubberBandStrokeDashArray="2 2"
+                                                                    IsEnabled="{Binding NavigationService.ChartMode, Converter={StaticResource ObjToBool}, ConverterParameter={x:Static charting:ChartMode.Zoom}}"/>-->
                                         <s:ZoomPanModifier ExecuteOn="MouseLeftButton" ClipModeX="None"
-                                                       IsEnabled="{Binding NavigationService.ChartMode, Converter={StaticResource InvObjToBool}, ConverterParameter={x:Static charting:ChartMode.AddLine}}" />
+                                                           IsEnabled="{Binding NavigationService.ChartMode, Converter={StaticResource InvObjToBool}, ConverterParameter={x:Static charting:ChartMode.AddLine}}" />
                                         <s:YAxisDragModifier DragMode="Scale"/>
                                         <s:XAxisDragModifier DragMode="Pan"/>
                                         <s:MouseWheelZoomModifier/>

@@ -2,6 +2,7 @@
 {
     public enum ChartMode
     {
-        AddLine
+        AddLine,
+        Zoom
     }
 }

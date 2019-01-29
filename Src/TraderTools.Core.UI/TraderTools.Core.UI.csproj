@@ -105,7 +105,7 @@
     <Compile Include="ChartModifiers\AddLinesModifier.cs" />
     <Compile Include="ChartHelper.cs" />
     <Compile Include="ChartMode.cs" />
-    <Compile Include="ChartModifiers\ChartClickedModifier.cs" />
+    <Compile Include="ChartModifiers\MouseModifier.cs" />
     <Compile Include="ChartPaneViewModel.cs" />
     <Compile Include="ChartViewModel.cs" />
     <Compile Include="Controls\BuyMarkerAnnotation.xaml.cs">

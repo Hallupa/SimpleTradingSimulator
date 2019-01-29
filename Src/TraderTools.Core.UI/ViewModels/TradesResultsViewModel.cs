@@ -60,17 +60,17 @@ namespace TraderTools.Core.UI.ViewModels
             switch (SelectedResultOption)
             {
                 case "Summary":
-                    groupedTrades = trades.GroupBy(x => "All trades").ToList();
+                    groupedTrades = trades.Where(t => t.RMultiple != null).GroupBy(x => "All trades").ToList();
                     break;
                 case "Markets":
-                    groupedTrades = trades.GroupBy(x => x.Market).ToList();
+                    groupedTrades = trades.Where(t => t.RMultiple != null).GroupBy(x => x.Market).ToList();
                     break;
                 case "Months":
-                    groupedTrades = trades.GroupBy(x =>
+                    groupedTrades = trades.Where(t => t.RMultiple != null).GroupBy(x =>
                         $"{x.OrderDateTimeLocal.Value.Year}/{x.OrderDateTimeLocal.Value.Month:00}").ToList();
                     break;
                 case "Timeframes":
-                    groupedTrades = trades.GroupBy(x => $"{x.Timeframe}").ToList();
+                    groupedTrades = trades.Where(t => t.RMultiple != null).GroupBy(x => $"{x.Timeframe}").ToList();
                     break;
                 case "Strategies":
                     var advStratNaming = false;
@@ -78,7 +78,7 @@ namespace TraderTools.Core.UI.ViewModels
                     if (advStratNaming)
                     {
                         var regex = new Regex("#[a-zA-Z0-9&]*");
-                        groupedTrades = trades.SelectMany(t =>
+                        groupedTrades = trades.Where(t => t.RMultiple != null).SelectMany(t =>
                         {
                             var ret = new List<(string Name, TradeDetails Trade)>();
                             foreach (Match match in regex.Matches(t.Comments))
@@ -91,7 +91,7 @@ namespace TraderTools.Core.UI.ViewModels
                     }
                     else
                     {
-                        groupedTrades = trades.GroupBy(x => x.Comments).ToList();
+                        groupedTrades = trades.Where(t => t.RMultiple != null).GroupBy(x => x.Comments).ToList();
                     }
 
                     break;

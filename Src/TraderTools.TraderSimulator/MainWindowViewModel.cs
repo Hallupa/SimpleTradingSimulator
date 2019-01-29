@@ -57,14 +57,14 @@ namespace TraderTools.TradingTrainer
         public event PropertyChangedEventHandler PropertyChanged;
         private CandlesService _candlesService;
         private ObservableCollection<TradeDetails> _trades = new ObservableCollection<TradeDetails>();
-        private int _selectedMainIndicatorsIndex;
         private List<string> _markets;
         private IDisposable _chartClickedDisposable;
         private bool _isSetStopButtonPressed;
         private bool _isSetLimitButtonPressed;
         private bool _isEntryButtonPressed;
         private IDisposable _chartModeDisposable;
-
+        private TextAnnotation _smallChartTextAnnotation = new TextAnnotation();
+        private TextAnnotation _largeChartTextAnnotation = new TextAnnotation();
         #endregion
 
         public MainWindowViewModel(Func<string> getTradeCommentsFunc, Action<string> showMessageAction, Action<Cursor> setCursorAction)
@@ -83,6 +83,9 @@ namespace TraderTools.TradingTrainer
             DeleteCommand = new DelegateCommand(o => DeleteTrade());
             NewChartCommand = new DelegateCommand(o => Next(), o => !Running);
             NextCandleCommand = new DelegateCommand(o => ProgressTime());
+            ClearStopCommand = new DelegateCommand(o => ClearStop(), o => IsClearStopEnabled);
+            ClearLimitCommand = new DelegateCommand(o => ClearLimit(), o => IsClearLimitEnabled);
+            ClearEntryOrderCommand = new DelegateCommand(o => ClearEntryOrder(), o => IsClearEntryOrderEnabled);
 
             _getTradeCommentsFunc = getTradeCommentsFunc;
             _showMessageAction = showMessageAction;
@@ -94,6 +97,7 @@ namespace TraderTools.TradingTrainer
             _chartModeDisposable = ChartingService.ChartModeObservable.Subscribe(c => ChartModeChanged(c));
 
             _chartClickedDisposable = ChartingService.ChartClickObservable.Subscribe(ChartClicked);
+            _chartMouseMoveDisposable = ChartingService.ChartMoveObservable.Subscribe(ChartMouseMove);
 
             var regex = new Regex("FXCM_([a-zA-Z0-9]*)_");
             var markets = new HashSet<string>();
@@ -104,8 +108,6 @@ namespace TraderTools.TradingTrainer
             }
 
             _markets = markets.ToList();
-
-            // Setup brokers and load accounts
 
             LongCommand = new DelegateCommand(o => Trade(TradeDirection.Long), o => !Running);
             ShortCommand = new DelegateCommand(o => Trade(TradeDirection.Short), o => !Running);
@@ -136,9 +138,139 @@ namespace TraderTools.TradingTrainer
             Next();
         }
 
+        private void ClearStop()
+        {
+            if (_currentTrade.StopPrices.Count > 0)
+            {
+                if (_currentTrade.OrderDateTime != null)
+                {
+                    _currentTrade.AddStopPrice(_allH2Candles[_h2EndDateIndex].CloseTime(), null);
+                }
+                else
+                {
+                    _currentTrade.StopPrices.Clear();
+                }
+
+                SetAnnotations();
+                UpdateUIState();
+            }
+        }
+
+        private void ClearLimit()
+        {
+            if (_currentTrade.LimitPrices.Count > 0)
+            {
+                if (_currentTrade.OrderDateTime != null)
+                {
+                    _currentTrade.AddLimitPrice(_allH2Candles[_h2EndDateIndex].CloseTime(), null);
+                }
+                else
+                {
+                    _currentTrade.LimitPrices.Clear();
+                }
+
+                SetAnnotations();
+                UpdateUIState();
+            }
+        }
+
+        private void ClearEntryOrder()
+        {
+            if (_currentTrade.EntryDateTime == null)
+            {
+                _currentTrade.OrderPrice = null;
+            }
+
+            SetAnnotations();
+            UpdateUIState();
+        }
+
+        public bool IsClearStopEnabled => _currentTrade.StopPrices.Count > 0 && _currentTrade.StopPrices[_currentTrade.StopPrices.Count - 1].Price != null;
+        public bool IsClearLimitEnabled => _currentTrade.LimitPrices.Count > 0 && _currentTrade.LimitPrices[_currentTrade.LimitPrices.Count - 1].Price != null;
+        public bool IsClearEntryOrderEnabled => _currentTrade.EntryDateTime == null && _currentTrade.OrderPrice != null;
+        
         private void ChartModeChanged(ChartMode? chartMode)
         {
             UpdateUIState();
+        }
+
+        private void ChartMouseMove((DateTime Time, double Price, Action SetIsHandled) details)
+        {
+            var makeVisible = false;
+
+
+            if (IsSetLimitButtonPressed && _currentTrade.StopPrices.Count > 0 && _currentTrade.StopPrices[_currentTrade.StopPrices.Count - 1].Price != null)
+            {
+                var candle = _allH2Candles[_h2EndDateIndex];
+
+                //var currentStop = _currentTrade.StopPrices[_currentTrade.StopPrices.Count - 1].Price.Value;
+                var entry = _currentTrade.OrderPrice != null && _currentTrade.EntryDateTime == null
+                    ? _currentTrade.OrderPrice.Value
+                    : (decimal)candle.Close;
+
+                var limit = details.Price;
+                var pips = Math.Abs(PipsHelper.GetPriceInPips((decimal)limit - entry, _market));
+
+                _largeChartTextAnnotation.Text = $"{pips:0.00} pips";
+                _smallChartTextAnnotation.Text = $"{pips:0.00} pips";
+                makeVisible = true;
+            }
+            
+            if (IsSetStopButtonPressed)
+            {
+                var stop = (decimal)details.Price;
+                var candle = _allH2Candles[_h2EndDateIndex];
+                var entry = _currentTrade.OrderPrice != null && _currentTrade.EntryDateTime == null
+                    ? _currentTrade.OrderPrice.Value
+                    : (decimal)candle.Close;
+                var pips = Math.Abs(PipsHelper.GetPriceInPips(entry - stop, _market));
+
+                _largeChartTextAnnotation.Text = $"{pips:0.00} pips";
+                _smallChartTextAnnotation.Text = $"{pips:0.00} pips";
+                makeVisible = true;
+            }
+
+
+            //_smallChartTextAnnotation.Background = new SolidColorBrush(Colors.White);
+            // _smallChartTextAnnotation.FontSize = 20;
+
+            if (makeVisible)
+            {
+                _largeChartTextAnnotation.BorderThickness = new Thickness(0, 0, 0, 2);
+                _largeChartTextAnnotation.BorderBrush = Brushes.Black;
+                _largeChartTextAnnotation.FontSize = 14;
+                _largeChartTextAnnotation.X1 = details.Time;
+                _largeChartTextAnnotation.Y1 = details.Price;
+                _largeChartTextAnnotation.X2 = details.Time;
+                _largeChartTextAnnotation.Y2 = details.Price;
+                _largeChartTextAnnotation.VerticalAnchorPoint = VerticalAnchorPoint.Bottom;
+                _largeChartTextAnnotation.Visibility = Visibility.Visible;
+
+                _smallChartTextAnnotation.BorderThickness = new Thickness(0, 0, 0, 2);
+                _smallChartTextAnnotation.BorderBrush = Brushes.Black;
+                _smallChartTextAnnotation.FontSize = 14;
+                _smallChartTextAnnotation.X1 = details.Time;
+                _smallChartTextAnnotation.Y1 = details.Price;
+                _smallChartTextAnnotation.X2 = details.Time;
+                _smallChartTextAnnotation.Y2 = details.Price;
+                _smallChartTextAnnotation.VerticalAnchorPoint = VerticalAnchorPoint.Bottom;
+                _smallChartTextAnnotation.Visibility = Visibility.Visible;
+
+                if (!ChartViewModel.ChartPaneViewModels[0].TradeAnnotations.Contains(_largeChartTextAnnotation))
+                {
+                    ChartViewModel.ChartPaneViewModels[0].TradeAnnotations.Add(_largeChartTextAnnotation);
+                }
+
+                if (!ChartViewModelSmaller1.ChartPaneViewModels[0].TradeAnnotations.Contains(_smallChartTextAnnotation))
+                {
+                    ChartViewModelSmaller1.ChartPaneViewModels[0].TradeAnnotations.Add(_smallChartTextAnnotation);
+                }
+            }
+            else if (!makeVisible && (ChartViewModel.ChartPaneViewModels[0].TradeAnnotations.Contains(_largeChartTextAnnotation) || ChartViewModelSmaller1.ChartPaneViewModels[0].TradeAnnotations.Contains(_smallChartTextAnnotation)))
+            {
+                ChartViewModel.ChartPaneViewModels[0].TradeAnnotations.Remove(_largeChartTextAnnotation);
+                ChartViewModelSmaller1.ChartPaneViewModels[0].TradeAnnotations.Remove(_smallChartTextAnnotation);
+            }
         }
 
         private void ChartClicked((DateTime Time, double Price, Action SetIsHandled) details)
@@ -283,12 +415,11 @@ namespace TraderTools.TradingTrainer
 
         [Import] public ChartingService ChartingService { get; private set; }
 
-        public int SelectedMainIndicatorsIndex
-        {
-            get => _selectedMainIndicatorsIndex;
-            set => _selectedMainIndicatorsIndex = value;
-        }
+        public int SelectedMainIndicatorsIndex { get; set; }
         public DelegateCommand DeleteCommand { get; }
+        public DelegateCommand ClearStopCommand { get; }
+        public DelegateCommand ClearLimitCommand { get; }
+        public DelegateCommand ClearEntryOrderCommand { get; }
 
         private void CreateEmptyTrade()
         {
@@ -455,6 +586,9 @@ namespace TraderTools.TradingTrainer
                 {
                     if ((string)l.Tag == "Added") continue;
                 }
+
+                if (annotation == _largeChartTextAnnotation || annotation == _smallChartTextAnnotation) continue;
+
                 ChartViewModel.ChartPaneViewModels[0].TradeAnnotations.RemoveAt(i);
             }
 
@@ -465,6 +599,9 @@ namespace TraderTools.TradingTrainer
                 {
                     if ((string)l.Tag == "Added") continue;
                 }
+
+                if (annotation == _largeChartTextAnnotation || annotation == _smallChartTextAnnotation) continue;
+
                 ChartViewModelSmaller1.ChartPaneViewModels[0].TradeAnnotations.RemoveAt(i);
             }
 
@@ -593,6 +730,7 @@ namespace TraderTools.TradingTrainer
 
         private bool _uiStateUpdating = false;
         private bool _isCloseHalfTradeAtLimitEnabled;
+        private IDisposable _chartMouseMoveDisposable;
 
         private void UpdateUIState()
         {
@@ -619,6 +757,10 @@ namespace TraderTools.TradingTrainer
             {
                 _setCursorAction(Cursors.Arrow);
             }
+
+            ClearLimitCommand.RaiseCanExecuteChanged();
+            ClearStopCommand.RaiseCanExecuteChanged();
+            ClearEntryOrderCommand.RaiseCanExecuteChanged();
 
             _uiStateUpdating = false;
         }

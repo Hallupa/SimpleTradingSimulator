@@ -8,11 +8,11 @@ using TraderTools.Core.UI.Services;
 
 namespace TraderTools.Core.UI.ChartModifiers
 {
-    public class ChartClickedModifier : ChartModifierBase
+    public class MouseModifier : ChartModifierBase
     {
         [Import] private ChartingService _chartingService;
 
-        public ChartClickedModifier()
+        public MouseModifier()
         {
             DependencyContainer.ComposeParts(this);
         }
@@ -22,6 +22,13 @@ namespace TraderTools.Core.UI.ChartModifiers
             e.Handled = false;
             var xy = GetXY(e.MousePoint, ParentSurface, ModifierSurface);
             _chartingService.RaiseChartClick((DateTime)xy.X, (double)xy.Y, () => e.Handled = true);
+        }
+
+        public override void OnModifierMouseMove(ModifierMouseArgs e)
+        {
+            e.Handled = false;
+            var xy = GetXY(e.MousePoint, ParentSurface, ModifierSurface);
+            _chartingService.RaiseMouseMove((DateTime)xy.X, (double)xy.Y, () => e.Handled = true);
         }
 
         private (IComparable X, IComparable Y) GetXY(Point initialMousePoint, ISciChartSurface surface, IChartModifierSurface modifierSurface)

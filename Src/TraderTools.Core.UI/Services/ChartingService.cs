@@ -25,16 +25,23 @@ namespace TraderTools.Core.UI.Services
         }
 
         private Subject<(DateTime Time, double Price, Action setIsHandled)> _chartClickSubject = new Subject<(DateTime Time, double Price, Action setIsHandled)>();
+        private Subject<(DateTime Time, double Price, Action setIsHandled)> _chartMouseMoveSubject = new Subject<(DateTime Time, double Price, Action setIsHandled)>();
 
         private Subject<ChartMode?> _chartModeSubject = new Subject<ChartMode?>();
 
         public IObservable<(DateTime Time, double Price, Action setIsHandled)> ChartClickObservable => _chartClickSubject.AsObservable();
+        public IObservable<(DateTime Time, double Price, Action setIsHandled)> ChartMoveObservable => _chartMouseMoveSubject.AsObservable();
 
         public IObservable<ChartMode?> ChartModeObservable => _chartModeSubject.AsObservable();
 
         public void RaiseChartClick(DateTime time, double price, Action setIsHandled)
         {
             _chartClickSubject.OnNext((time, price, setIsHandled));
+        }
+
+        public void RaiseMouseMove(DateTime time, double price, Action setIsHandled)
+        {
+            _chartMouseMoveSubject.OnNext((time, price, setIsHandled));
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
