@@ -8,10 +8,12 @@
              xmlns:charting="clr-namespace:TraderTools.Core.UI"
              xmlns:converters1="clr-namespace:Hallupa.Library.UI.Converters;assembly=Hallupa.Library.UI"
              xmlns:chartModifiers="clr-namespace:TraderTools.Core.UI.ChartModifiers"
+             xmlns:ui="clr-namespace:Hallupa.Library.UI;assembly=Hallupa.Library.UI"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
         <Grid.Resources>
+            <ui:BindingProxy x:Key="Proxy" Data="{Binding}" />
             <converters1:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
             <Style x:Key="ChartPaneStyle" TargetType="s:SciChartGroupPane">
                 <Setter Property="Height" Value="{Binding PaneViewModel.Height, Mode=TwoWay}"/>
@@ -116,7 +118,6 @@
 
                             <s:SciStockChart x:Name="PART_ChartPaneView" Padding="0" BorderThickness="0,0,1,1" IsAxisMarkersEnabled="True" IsRolloverEnabled="False"
                                          IsCursorEnabled="True" IsXAxisVisible="{Binding IsFirstChartPane}" IsPanEnabled="{Binding ParentViewModel.IsPanEnabled}"
-                                         IsRubberBandZoomEnabled="{Binding ParentViewModel.IsZoomEnabled}" VerticalChartGroupId="{Binding ParentViewModel.VerticalChartGroupId}"
                                          ViewportManager="{Binding ViewportManager}" SeriesSource="{Binding ChartSeriesViewModels}"
                                          Annotations="{Binding TradeAnnotations}">
 
@@ -147,10 +148,10 @@
                                     <s:ModifierGroup>
                                         <chartModifiers:MouseModifier ExecuteOn="MouseLeftButton"/>
                                         <chartModifiers:AddLinesModifier LinkedChartGroupName="MainChartGroup"/>
-                                        <!--<s:RubberBandXyZoomModifier ExecuteOn="MouseLeftButton" RubberBandFill="#33FFFFFF" RubberBandStroke="#AAFFFFFF" RubberBandStrokeDashArray="2 2" 
-                                                                    IsEnabled="{Binding NavigationService.ChartMode, Converter={StaticResource ObjToBool}, ConverterParameter={x:Static charting:ChartMode.Zoom}}"/>-->
+                                        <s:RubberBandXyZoomModifier ExecuteOn="MouseLeftButton" RubberBandFill="#66EEEEEE" RubberBandStroke="#AAFFFFFF" RubberBandStrokeDashArray="2 2"
+                                                                    IsEnabled="{Binding Data.ChartingService.ChartMode, Converter={StaticResource ObjToBool}, ConverterParameter={x:Static charting:ChartMode.Zoom}, Source={StaticResource Proxy}}"/>
                                         <s:ZoomPanModifier ExecuteOn="MouseLeftButton" ClipModeX="None"
-                                                           IsEnabled="{Binding NavigationService.ChartMode, Converter={StaticResource InvObjToBool}, ConverterParameter={x:Static charting:ChartMode.AddLine}}" />
+                                                           IsEnabled="{Binding Data.ChartingService.ChartMode, Converter={StaticResource ObjToBool}, ConverterParameter={x:Null}, Source={StaticResource Proxy}}" />
                                         <s:YAxisDragModifier DragMode="Scale"/>
                                         <s:XAxisDragModifier DragMode="Pan"/>
                                         <s:MouseWheelZoomModifier/>
@@ -182,7 +183,6 @@
 
                             <s:SciStockChart x:Name="PART_ChartPaneView" Padding="0" BorderThickness="0,0,1,1" IsAxisMarkersEnabled="True" IsRolloverEnabled="False"
                                          IsCursorEnabled="True" IsXAxisVisible="{Binding IsFirstChartPane}" IsPanEnabled="{Binding ParentViewModel.IsPanEnabled}"
-                                         IsRubberBandZoomEnabled="{Binding ParentViewModel.IsZoomEnabled}" VerticalChartGroupId="{Binding ParentViewModel.VerticalChartGroupId}"
                                          ViewportManager="{Binding ViewportManager}" SeriesSource="{Binding ChartSeriesViewModels}"
                                          Annotations="{Binding TradeAnnotations}">
 
@@ -213,10 +213,10 @@
                                     <s:ModifierGroup>
                                         <chartModifiers:MouseModifier ExecuteOn="MouseLeftButton"/>
                                         <chartModifiers:AddLinesModifier LinkedChartGroupName="SmallerChartGroup"/>
-                                        <!--<s:RubberBandXyZoomModifier ExecuteOn="MouseLeftButton" RubberBandFill="#33FFFFFF" RubberBandStroke="#AAFFFFFF" RubberBandStrokeDashArray="2 2"
-                                                                    IsEnabled="{Binding NavigationService.ChartMode, Converter={StaticResource ObjToBool}, ConverterParameter={x:Static charting:ChartMode.Zoom}}"/>-->
+                                        <s:RubberBandXyZoomModifier ExecuteOn="MouseLeftButton" RubberBandFill="#66EEEEEE" RubberBandStroke="#AAFFFFFF" RubberBandStrokeDashArray="2 2"
+                                                                    IsEnabled="{Binding Data.ChartingService.ChartMode, Converter={StaticResource ObjToBool}, ConverterParameter={x:Static charting:ChartMode.Zoom}, Source={StaticResource Proxy}}"/>
                                         <s:ZoomPanModifier ExecuteOn="MouseLeftButton" ClipModeX="None"
-                                                           IsEnabled="{Binding NavigationService.ChartMode, Converter={StaticResource InvObjToBool}, ConverterParameter={x:Static charting:ChartMode.AddLine}}" />
+                                                           IsEnabled="{Binding Data.ChartingService.ChartMode, Converter={StaticResource ObjToBool}, ConverterParameter={x:Null}, Source={StaticResource Proxy}}" />
                                         <s:YAxisDragModifier DragMode="Scale"/>
                                         <s:XAxisDragModifier DragMode="Pan"/>
                                         <s:MouseWheelZoomModifier/>

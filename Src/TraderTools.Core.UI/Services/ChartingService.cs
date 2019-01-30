@@ -4,24 +4,27 @@ using System.ComponentModel.Composition;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Runtime.CompilerServices;
+using System.Windows;
 
 namespace TraderTools.Core.UI.Services
 {
     [Export(typeof(ChartingService))]
     [PartCreationPolicy(CreationPolicy.Shared)]
-    public class ChartingService : INotifyPropertyChanged
+    public class ChartingService : DependencyObject
     {
-        private ChartMode? _chartMode;
+        public static readonly DependencyProperty ChartModeProperty = DependencyProperty.Register(
+            "ChartMode", typeof(ChartMode?), typeof(ChartingService), new PropertyMetadata(default(ChartMode?), PropertyChangedCallback));
+
+        private static void PropertyChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var c = (ChartingService)d;
+            c._chartModeSubject.OnNext(c.ChartMode);
+        }
 
         public ChartMode? ChartMode
         {
-            get => _chartMode;
-            set
-            {
-                _chartMode = value;
-                OnPropertyChanged();
-                _chartModeSubject.OnNext(ChartMode);
-            }
+            get { return (ChartMode?) GetValue(ChartModeProperty); }
+            set { SetValue(ChartModeProperty, value); }
         }
 
         private Subject<(DateTime Time, double Price, Action setIsHandled)> _chartClickSubject = new Subject<(DateTime Time, double Price, Action setIsHandled)>();
