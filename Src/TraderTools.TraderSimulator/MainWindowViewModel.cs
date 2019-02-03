@@ -534,6 +534,7 @@ namespace TraderTools.TradingTrainer
 
             if (_currentTrade.CloseReason == TradeCloseReason.HitLimit && CloseHalfTradeAtLimit)
             {
+                showMsg = false;
                 CloseHalfTradeAtLimit = false;
                 var existingTrade = _currentTrade;
                 _currentTrade = new TradeDetails
@@ -553,6 +554,7 @@ namespace TraderTools.TradingTrainer
                     OrderExpireTime = existingTrade.OrderExpireTime,
                     PricePerPip = existingTrade.PricePerPip
                 };
+                _displayedTrade = _currentTrade;
 
                 foreach (var stop in existingTrade.GetStopPrices())
                 {
@@ -569,7 +571,11 @@ namespace TraderTools.TradingTrainer
 
             UpdateUIState();
             SetAnnotations();
-            _showMessageAction("Trade closed");
+
+            if (showMsg)
+            {
+                _showMessageAction("Trade closed");
+            }
         }
 
         #region Properties
@@ -774,7 +780,7 @@ namespace TraderTools.TradingTrainer
             CloseHalfTradeAtLimit = false;
             OrderExpiryCandlesIndex = 0;
             var allH2Candles = _candlesService.GetCandles(market, Timeframe.H2);
-            _h2EndDateIndex = _rnd.Next(12 * 50, allH2Candles.Count - 12 * 50);
+            _h2EndDateIndex = _rnd.Next(12 * 50, allH2Candles.Count - 12 * 100);
 
             _allH2Candles = null;
             _allD1Candles = null;
