@@ -11,6 +11,7 @@ namespace TraderTools.Indicators
 
         private double _prevValue;
         private readonly List<ISimpleCandle> _candles = new List<ISimpleCandle>();
+        private bool _longPosition;
         private double _xp;        // Extreme Price
         private double _af;         // Acceleration factor
         private int _prevBar;
@@ -21,9 +22,6 @@ namespace TraderTools.Indicators
         private double _prevSar;
         private double _todaySar;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ParabolicSar"/>.
-        /// </summary>
         public ParabolicSar()
         {
             Acceleration = 0.02;
@@ -57,30 +55,27 @@ namespace TraderTools.Indicators
 
             if (_candles.Count < 3)
             {
-                //_prevValue = candle.Low;
                 _currentValue = _prevValue;
-                return new SignalAndValue((float)_currentValue, IsFormed, Signal);
+                return new SignalAndValue((float) _prevValue, IsFormed);
             }
 
             if (_candles.Count == 3)
             {
-                Signal = _candles[_candles.Count - 1].High > _candles[_candles.Count - 2].High
-                    ? Signal.Long
-                    : Signal.Short;
+                _longPosition = _candles[_candles.Count - 1].High > _candles[_candles.Count - 2].High;
                 var max = _candles.Max(t => t.High);
                 var min = _candles.Min(t => t.Low);
-                _xp = Signal == Signal.Long ? max : min;
+                _xp = _longPosition ? max : min;
                 _af = Acceleration;
-                var ret = _xp + (Signal == Signal.Long ? -1 : 1) * (max - min) * _af;
-                _currentValue = ret;
-                return new SignalAndValue((float)_currentValue, IsFormed, Signal);
+                var v = (float) (_xp + (_longPosition ? -1 : 1) * (max - min) * _af);
+                _currentValue = v;
+                return new SignalAndValue(v, IsFormed);
             }
 
             if (_afIncreased && _prevBar != _candles.Count)
                 _afIncreased = false;
 
-            //if (input.IsFinal)
-            IsFormed = true;
+            if (candle.IsComplete == 1)
+                IsFormed = true;
 
             var value = _prevValue;
 
@@ -90,29 +85,29 @@ namespace TraderTools.Indicators
 
                 for (var x = 1; x <= 2; x++)
                 {
-                    if (Signal == Signal.Long)
+                    if (_longPosition)
                     {
-                        if (_todaySar > (double)_candles[_candles.Count - 1 - x].Low)
-                            _todaySar = (double)_candles[_candles.Count - 1 - x].Low;
+                        if (_todaySar > _candles[_candles.Count - 1 - x].Low)
+                            _todaySar = _candles[_candles.Count - 1 - x].Low;
                     }
                     else
                     {
-                        if (_todaySar < (double)_candles[_candles.Count - 1 - x].High)
-                            _todaySar = (double)_candles[_candles.Count - 1 - x].High;
+                        if (_todaySar < _candles[_candles.Count - 1 - x].High)
+                            _todaySar = _candles[_candles.Count - 1 - x].High;
                     }
                 }
 
-                if ((Signal == Signal.Long && ((double)_candles[_candles.Count - 1].Low < _todaySar || (double)_candles[_candles.Count - 2].Low < _todaySar))
-                        || (Signal != Signal.Long && ((double)_candles[_candles.Count - 1].High > _todaySar || (double)_candles[_candles.Count - 2].High > _todaySar)))
+                if ((_longPosition && (_candles[_candles.Count - 1].Low < _todaySar || _candles[_candles.Count - 2].Low < _todaySar))
+                        || (!_longPosition && (_candles[_candles.Count - 1].High > _todaySar || _candles[_candles.Count - 2].High > _todaySar)))
                 {
-                    var ret = Reverse();
-                    _currentValue = ret;
-                    return new SignalAndValue((float)_currentValue, IsFormed, Signal);
+                    var v = (float)Reverse();
+                    _currentValue = v;
+                    return new SignalAndValue(v, IsFormed);
                 }
 
-                if (Signal == Signal.Long)
+                if (_longPosition)
                 {
-                    if (_prevBar != _candles.Count || (double)_candles[_candles.Count - 1].Low < _prevSar)
+                    if (_prevBar != _candles.Count || _candles[_candles.Count - 1].Low < _prevSar)
                     {
                         value = _todaySar;
                         _prevSar = _todaySar;
@@ -120,15 +115,15 @@ namespace TraderTools.Indicators
                     else
                         value = _prevSar;
 
-                    if ((double)_candles[_candles.Count - 1].High > _xp)
+                    if (_candles[_candles.Count - 1].High > _xp)
                     {
-                        _xp = (double)_candles[_candles.Count - 1].High;
+                        _xp = _candles[_candles.Count - 1].High;
                         AfIncrease();
                     }
                 }
-                else if (Signal != Signal.Long)
+                else if (!_longPosition)
                 {
-                    if (_prevBar != _candles.Count || (double)_candles[_candles.Count - 1].High > _prevSar)
+                    if (_prevBar != _candles.Count || _candles[_candles.Count - 1].High > _prevSar)
                     {
                         value = _todaySar;
                         _prevSar = _todaySar;
@@ -136,9 +131,9 @@ namespace TraderTools.Indicators
                     else
                         value = _prevSar;
 
-                    if ((double)_candles[_candles.Count - 1].Low < _xp)
+                    if (_candles[_candles.Count - 1].Low < _xp)
                     {
-                        _xp = (double)_candles[_candles.Count - 1].Low;
+                        _xp = _candles[_candles.Count - 1].Low;
                         AfIncrease();
                     }
                 }
@@ -146,26 +141,21 @@ namespace TraderTools.Indicators
             }
             else
             {
-                if (Signal == Signal.Long && (double)_candles[_candles.Count - 1].High > _xp)
-                    _xp = (double)_candles[_candles.Count - 1].High;
-                else if (Signal != Signal.Long && (double)_candles[_candles.Count - 1].Low < _xp)
-                    _xp = (double)_candles[_candles.Count - 1].Low;
+                if (_longPosition && _candles[_candles.Count - 1].High > _xp)
+                    _xp = _candles[_candles.Count - 1].High;
+                else if (!_longPosition && _candles[_candles.Count - 1].Low < _xp)
+                    _xp = _candles[_candles.Count - 1].Low;
 
                 value = _prevSar;
 
-                _todaySar = TodaySar(Signal == Signal.Long ? Math.Min(_reverseValue, (double)_candles[_candles.Count - 1].Low) :
-                    Math.Max(_reverseValue, (double)_candles[_candles.Count - 1].High));
+                _todaySar = TodaySar(_longPosition ? Math.Min(_reverseValue, _candles[_candles.Count - 1].Low) :
+                    Math.Max(_reverseValue, _candles[_candles.Count - 1].High));
             }
 
             _prevBar = _candles.Count;
 
             _currentValue = value;
-            return new SignalAndValue((float)_currentValue, IsFormed, Signal);
-        }
-
-        public void RollbackLastValue()
-        {
-            throw new NotImplementedException();
+            return new SignalAndValue((float)value, IsFormed);
         }
 
         private double TodaySar(double todaySar)

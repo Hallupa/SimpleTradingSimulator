@@ -18,6 +18,13 @@ namespace TraderTools.Core.UI
 {
     public static class ChartHelper
     {
+        static ChartHelper()
+        {
+            LocalUtcOffset = TimeZone.CurrentTimeZone.GetUtcOffset(DateTime.Now);
+        }
+
+        public static TimeSpan LocalUtcOffset { get; private set; }
+
         public static void SetChartViewModelPriceData(IList<Candle> candles, ChartViewModel cvm, Timeframe timeframe)
         {
             var priceDataSeries = new OhlcDataSeries<DateTime, double>();
@@ -32,11 +39,11 @@ namespace TraderTools.Core.UI
             {
                 if (timeframe == Timeframe.D1Tiger)
                 {
-                    time = new DateTime(candles[i].OpenTimeTicks, DateTimeKind.Utc).ToLocalTime().AddMilliseconds(i);
+                    time = DateTime.SpecifyKind(new DateTime(candles[i].OpenTimeTicks, DateTimeKind.Utc) + LocalUtcOffset, DateTimeKind.Local).AddMilliseconds(i);
                 }
                 else
                 {
-                    time = new DateTime(candles[i].OpenTimeTicks, DateTimeKind.Utc).ToLocalTime();
+                    time = DateTime.SpecifyKind(new DateTime(candles[i].OpenTimeTicks, DateTimeKind.Utc) + LocalUtcOffset, DateTimeKind.Local);
                 }
 
                 xvalues.Add(time);
@@ -78,12 +85,12 @@ namespace TraderTools.Core.UI
                 var signalAndValue = indicator.Process(new SimpleCandle(candle));
                 if (indicator.IsFormed)
                 {
-                    xvalues.Add(new DateTime(candle.OpenTimeTicks, DateTimeKind.Utc).ToLocalTime());
+                    xvalues.Add(DateTime.SpecifyKind(new DateTime(candle.OpenTimeTicks, DateTimeKind.Utc) + LocalUtcOffset, DateTimeKind.Local));
                     yvalues.Add((double)signalAndValue.Value);
                 }
                 else
                 {
-                    xvalues.Add(new DateTime(candle.OpenTimeTicks, DateTimeKind.Utc).ToLocalTime());
+                    xvalues.Add(DateTime.SpecifyKind(new DateTime(candle.OpenTimeTicks, DateTimeKind.Utc) + LocalUtcOffset, DateTimeKind.Local));
                     yvalues.Add(double.NaN);
                 }
             }

@@ -22,25 +22,33 @@ namespace TraderTools.Indicators
         
         public SignalAndValue Process(ISimpleCandle candle)
         {
-            HighBuffer.Add(candle.High);
-            LowBuffer.Add(candle.Low);
-
-            if (HighBuffer.Count > _length)
+            if (candle.IsComplete == 1)
             {
-                HighBuffer.RemoveAt(0);
-                LowBuffer.RemoveAt(0);
+                HighBuffer.Add(candle.High);
+                LowBuffer.Add(candle.Low);
+
+                if (HighBuffer.Count > _length)
+                {
+                    HighBuffer.RemoveAt(0);
+                    LowBuffer.RemoveAt(0);
+                }
+
+                return new SignalAndValue((float) (HighBuffer.Max() - LowBuffer.Min()), IsFormed);
             }
 
-            return new SignalAndValue((float)(HighBuffer.Max() - LowBuffer.Min()), IsFormed);
-        }
+            var highBuffer = HighBuffer.ToList();
+            var lowBuffer = LowBuffer.ToList();
 
-        public void RollbackLastValue()
-        {
-            if (HighBuffer.Count > 0)
+            highBuffer.Add(candle.High);
+            lowBuffer.Add(candle.Low);
+
+            if (highBuffer.Count > _length)
             {
-                HighBuffer.RemoveAt(HighBuffer.Count - 1);
-                LowBuffer.RemoveAt(LowBuffer.Count - 1);
+                highBuffer.RemoveAt(0);
+                lowBuffer.RemoveAt(0);
             }
+
+            return new SignalAndValue((float)(highBuffer.Max() - lowBuffer.Min()), IsFormed);
         }
     }
 }

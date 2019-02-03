@@ -9,7 +9,7 @@ namespace TraderTools.Indicators
         /// Initializes a new instance of the <see cref="MovingAverageConvergenceDivergence"/>.
         /// </summary>
         public MovingAverageConvergenceDivergence(string name = "MACD")
-            : this(name, new ExponentialMovingAverage("EMA26", 26), new ExponentialMovingAverage("EMA12", 12))
+            : this(name, new ExponentialMovingAverage(26), new ExponentialMovingAverage(12))
         {
         }
 
@@ -50,21 +50,9 @@ namespace TraderTools.Indicators
 
         public SignalAndValue Process(ISimpleCandle candle)
         {
-            var newValue = candle.Close;
-            return Process(newValue);
-        }
-
-        public SignalAndValue Process(double newValue)
-        {
-            var shortValue = ShortMa.Process(newValue);
-            var longValue = LongMa.Process(newValue);
+            var shortValue = ShortMa.Process(candle);
+            var longValue = LongMa.Process(candle);
             return new SignalAndValue(shortValue.Value - longValue.Value, IsFormed);
-        }
-
-        public void RollbackLastValue()
-        {
-            ShortMa.RollbackLastValue();
-            LongMa.RollbackLastValue();
         }
     }
 }

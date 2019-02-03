@@ -77,8 +77,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AverageTrueRange.cs" />
     <Compile Include="ExponentialMovingAverage.cs" />
-    <Compile Include="MovingAverage.cs" />
+    <Compile Include="LengthIndicator.cs" />
+    <Compile Include="SimpleMovingAverage.cs" />
     <Compile Include="MovingAverageConvergenceDivergence.cs" />
     <Compile Include="MovingAverageConvergenceDivergenceSignal.cs" />
     <Compile Include="ParabolicSar.cs" />
@@ -86,6 +88,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RelativeStrengthIndex.cs" />
     <Compile Include="SmoothedMovingAverage.cs" />
+    <Compile Include="TrueRange.cs" />
+    <Compile Include="WilderMovingAverage.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TraderTools.Basics\TraderTools.Basics.csproj">

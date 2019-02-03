@@ -148,7 +148,7 @@
                                     <s:ModifierGroup>
                                         <chartModifiers:MouseModifier ExecuteOn="MouseLeftButton"/>
                                         <chartModifiers:AddLinesModifier LinkedChartGroupName="MainChartGroup"/>
-                                        <s:RubberBandXyZoomModifier ExecuteOn="MouseLeftButton" RubberBandFill="#66EEEEEE" RubberBandStroke="#AAFFFFFF" RubberBandStrokeDashArray="2 2"
+                                        <chartModifiers:RubberBandXyZoomModifierEnhanced ExecuteOn="MouseLeftButton" RubberBandFill="#66CCCCCC" RubberBandStroke="#AADDDDDD" RubberBandStrokeDashArray="2 2"
                                                                     IsEnabled="{Binding Data.ChartingService.ChartMode, Converter={StaticResource ObjToBool}, ConverterParameter={x:Static charting:ChartMode.Zoom}, Source={StaticResource Proxy}}"/>
                                         <s:ZoomPanModifier ExecuteOn="MouseLeftButton" ClipModeX="None"
                                                            IsEnabled="{Binding Data.ChartingService.ChartMode, Converter={StaticResource ObjToBool}, ConverterParameter={x:Null}, Source={StaticResource Proxy}}" />
@@ -213,7 +213,7 @@
                                     <s:ModifierGroup>
                                         <chartModifiers:MouseModifier ExecuteOn="MouseLeftButton"/>
                                         <chartModifiers:AddLinesModifier LinkedChartGroupName="SmallerChartGroup"/>
-                                        <s:RubberBandXyZoomModifier ExecuteOn="MouseLeftButton" RubberBandFill="#66EEEEEE" RubberBandStroke="#AAFFFFFF" RubberBandStrokeDashArray="2 2"
+                                        <chartModifiers:RubberBandXyZoomModifierEnhanced ExecuteOn="MouseLeftButton" RubberBandFill="#66CCCCCC" RubberBandStroke="#AADDDDDD" RubberBandStrokeDashArray="2 2"
                                                                     IsEnabled="{Binding Data.ChartingService.ChartMode, Converter={StaticResource ObjToBool}, ConverterParameter={x:Static charting:ChartMode.Zoom}, Source={StaticResource Proxy}}"/>
                                         <s:ZoomPanModifier ExecuteOn="MouseLeftButton" ClipModeX="None"
                                                            IsEnabled="{Binding Data.ChartingService.ChartMode, Converter={StaticResource ObjToBool}, ConverterParameter={x:Null}, Source={StaticResource Proxy}}" />
@@ -228,22 +228,18 @@
 
                             </s:SciStockChart>
 
-                            <!-- Displays a SciChartScrollBar bound to the charts XAxis, and visible only for last chart pane -->
-                            <Grid Grid.Row="1" Visibility="{Binding IsLastChartPane, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <!--<Grid Grid.Row="1" Visibility="{Binding IsLastChartPane, Converter={StaticResource BoolToVisibilityConverter}}">
 
-                                <!-- This is the Chart behind the scrollbar, bound to the First ChartPaneViewModel, first DataSeries -->
-                                <!-- It displays the data as a FastMountainRenderableSeries -->
                                 <s:SciStockChart x:Name="PART_ScrollbarChartBackground" Style="{StaticResource OverviewChartStyle}">
 
                                     <s:SciStockChart.RenderableSeries>
-                                        <s:FastMountainRenderableSeries DataSeries="{Binding ParentViewModel.ChartPaneViewModels[0].ChartSeriesViewModels[0].DataSeries}"/>
+                                        <s:FastMountainRenderableSeries DataSeries="{Binding Path=ParentViewModel.ChartPaneViewModels[0].ChartSeriesViewModels[0].DataSeries}"/>
                                     </s:SciStockChart.RenderableSeries>
 
                                 </s:SciStockChart>
 
-                                <!-- This is the scrollbar, its bound to the PART_ChartPaneView.XAxis above -->
-                                <s:SciChartScrollbar Margin="{Binding ElementName=PART_ChartPaneView, Path=Padding, Mode=OneWay}" Axis="{Binding ElementName=PART_ChartPaneView, Path=XAxis    }" Style="{StaticResource ScrollBarStyle}"/>
-                            </Grid>
+                                <s:SciChartScrollbar Margin="{Binding ElementName=PART_ChartPaneView, Path=Padding, Mode=OneWay}" Axis="{Binding ElementName=PART_ChartPaneView, Path=XAxis}" Style="{StaticResource ScrollBarStyle}"/>
+                            </Grid>-->
                         </Grid>
                     </DataTemplate>
                 </s:SciChartGroup.ItemTemplate>

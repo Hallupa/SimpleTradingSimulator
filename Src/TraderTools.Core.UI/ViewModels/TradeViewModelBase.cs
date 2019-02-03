@@ -156,15 +156,15 @@ namespace TraderTools.Core.UI.ViewModels
 
             if (SelectedMainIndicatorsIndex == (int)MainIndicators.EMA8_EMA25_EMA50)
             {
-                ChartHelper.AddIndicator(ChartViewModel.ChartPaneViewModels[0], selectedTrade.Market, new ExponentialMovingAverage("EMA8", 8), Colors.DarkBlue, timeframe, candles);
-                ChartHelper.AddIndicator(ChartViewModel.ChartPaneViewModels[0], selectedTrade.Market, new ExponentialMovingAverage("EMA25", 25), Colors.Blue, timeframe, candles);
-                ChartHelper.AddIndicator(ChartViewModel.ChartPaneViewModels[0], selectedTrade.Market, new ExponentialMovingAverage("EMA50", 50), Colors.LightBlue, timeframe, candles);
+                ChartHelper.AddIndicator(ChartViewModel.ChartPaneViewModels[0], selectedTrade.Market, new ExponentialMovingAverage(8), Colors.DarkBlue, timeframe, candles);
+                ChartHelper.AddIndicator(ChartViewModel.ChartPaneViewModels[0], selectedTrade.Market, new ExponentialMovingAverage(25), Colors.Blue, timeframe, candles);
+                ChartHelper.AddIndicator(ChartViewModel.ChartPaneViewModels[0], selectedTrade.Market, new ExponentialMovingAverage(50), Colors.LightBlue, timeframe, candles);
             }
             else if (SelectedMainIndicatorsIndex == (int)MainIndicators.EMA20_MA50_MA200)
             {
-                ChartHelper.AddIndicator(ChartViewModel.ChartPaneViewModels[0], selectedTrade.Market, new ExponentialMovingAverage("EMA8", 8), Colors.DarkBlue, timeframe, candles);
-                ChartHelper.AddIndicator(ChartViewModel.ChartPaneViewModels[0], selectedTrade.Market, new MovingAverage("MA50", 50), Colors.Blue, timeframe, candles);
-                ChartHelper.AddIndicator(ChartViewModel.ChartPaneViewModels[0], selectedTrade.Market, new MovingAverage("MA200", 200), Colors.LightBlue, timeframe, candles);
+                ChartHelper.AddIndicator(ChartViewModel.ChartPaneViewModels[0], selectedTrade.Market, new ExponentialMovingAverage(8), Colors.DarkBlue, timeframe, candles);
+                ChartHelper.AddIndicator(ChartViewModel.ChartPaneViewModels[0], selectedTrade.Market, new SimpleMovingAverage(50), Colors.Blue, timeframe, candles);
+                ChartHelper.AddIndicator(ChartViewModel.ChartPaneViewModels[0], selectedTrade.Market, new SimpleMovingAverage(200), Colors.LightBlue, timeframe, candles);
             }
 
             var macdPane = new ChartPaneViewModel(ChartViewModel, ChartViewModel.ViewportManager)
@@ -184,15 +184,15 @@ namespace TraderTools.Core.UI.ViewModels
 
             if (SelectedMainIndicatorsIndex == (int)MainIndicators.EMA8_EMA25_EMA50)
             {
-                ChartHelper.AddIndicator(ChartViewModelSmaller1.ChartPaneViewModels[0], selectedTrade.Market, new ExponentialMovingAverage("EMA8", 8), Colors.DarkBlue, Timeframe.D1, dayCandles);
-                ChartHelper.AddIndicator(ChartViewModelSmaller1.ChartPaneViewModels[0], selectedTrade.Market, new ExponentialMovingAverage("EMA25", 25), Colors.Blue, Timeframe.D1, dayCandles);
-                ChartHelper.AddIndicator(ChartViewModelSmaller1.ChartPaneViewModels[0], selectedTrade.Market, new ExponentialMovingAverage("EMA50", 50), Colors.LightBlue, Timeframe.D1, dayCandles);
+                ChartHelper.AddIndicator(ChartViewModelSmaller1.ChartPaneViewModels[0], selectedTrade.Market, new ExponentialMovingAverage(8), Colors.DarkBlue, Timeframe.D1, dayCandles);
+                ChartHelper.AddIndicator(ChartViewModelSmaller1.ChartPaneViewModels[0], selectedTrade.Market, new ExponentialMovingAverage(25), Colors.Blue, Timeframe.D1, dayCandles);
+                ChartHelper.AddIndicator(ChartViewModelSmaller1.ChartPaneViewModels[0], selectedTrade.Market, new ExponentialMovingAverage(50), Colors.LightBlue, Timeframe.D1, dayCandles);
             }
             else if (SelectedMainIndicatorsIndex == (int)MainIndicators.EMA20_MA50_MA200)
             {
-                ChartHelper.AddIndicator(ChartViewModelSmaller1.ChartPaneViewModels[0], selectedTrade.Market, new ExponentialMovingAverage("EMA20", 20), Colors.DarkBlue, Timeframe.D1, dayCandles);
-                ChartHelper.AddIndicator(ChartViewModelSmaller1.ChartPaneViewModels[0], selectedTrade.Market, new MovingAverage("MA50", 50), Colors.Blue, Timeframe.D1, dayCandles);
-                ChartHelper.AddIndicator(ChartViewModelSmaller1.ChartPaneViewModels[0], selectedTrade.Market, new MovingAverage("MA200", 200), Colors.LightBlue, Timeframe.D1, dayCandles);
+                ChartHelper.AddIndicator(ChartViewModelSmaller1.ChartPaneViewModels[0], selectedTrade.Market, new ExponentialMovingAverage(20), Colors.DarkBlue, Timeframe.D1, dayCandles);
+                ChartHelper.AddIndicator(ChartViewModelSmaller1.ChartPaneViewModels[0], selectedTrade.Market, new SimpleMovingAverage(50), Colors.Blue, Timeframe.D1, dayCandles);
+                ChartHelper.AddIndicator(ChartViewModelSmaller1.ChartPaneViewModels[0], selectedTrade.Market, new SimpleMovingAverage(200), Colors.LightBlue, Timeframe.D1, dayCandles);
             }
 
             ChartHelper.SetChartViewModelVisibleRange(selectedTrade, ChartViewModelSmaller1, dayCandles, Timeframe.D1, BrokerCandles, Broker);

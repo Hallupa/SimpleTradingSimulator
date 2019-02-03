@@ -163,22 +163,6 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <AdditionalFiles Include="Candles\FXCM_AUDJPY_D1.dat" />
-    <AdditionalFiles Include="Candles\FXCM_AUDJPY_H2.dat" />
-    <AdditionalFiles Include="Candles\FXCM_AUDJPY_H4.dat" />
-    <AdditionalFiles Include="Candles\FXCM_AUDJPY_M5.dat" />
-    <AdditionalFiles Include="Candles\FXCM_AUDUSD_D1.dat" />
-    <AdditionalFiles Include="Candles\FXCM_AUDUSD_H2.dat" />
-    <AdditionalFiles Include="Candles\FXCM_AUDUSD_H4.dat" />
-    <AdditionalFiles Include="Candles\FXCM_AUDUSD_M5.dat" />
-    <AdditionalFiles Include="Candles\FXCM_EURJPY_D1.dat" />
-    <AdditionalFiles Include="Candles\FXCM_EURJPY_H2.dat" />
-    <AdditionalFiles Include="Candles\FXCM_EURJPY_H4.dat" />
-    <AdditionalFiles Include="Candles\FXCM_EURJPY_M5.dat" />
-    <AdditionalFiles Include="Candles\FXCM_EURUSD_D1.dat" />
-    <AdditionalFiles Include="Candles\FXCM_EURUSD_H2.dat" />
-    <AdditionalFiles Include="Candles\FXCM_EURUSD_H4.dat" />
-    <AdditionalFiles Include="Candles\FXCM_EURUSD_M5.dat" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

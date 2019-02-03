@@ -8,7 +8,8 @@ namespace TraderTools.Basics
         float Low { get; }
         float Close { get; }
         float Open { get; }
-        long OpenTimeTicks { get; set; }
-        long CloseTimeTicks { get; set; }
+        long OpenTimeTicks { get; }
+        long CloseTimeTicks { get; }
+        byte IsComplete { get; }
     }
 }

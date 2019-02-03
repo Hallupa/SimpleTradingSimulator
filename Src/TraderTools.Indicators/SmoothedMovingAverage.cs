@@ -15,38 +15,39 @@ namespace TraderTools.Indicators
 
         public int Length { get; set; }
 
-        public string Name => "SMA";
+        public string Name => $"SMA{Length}";
 
         public bool IsFormed => Buffer.Count >= Length;
 
         protected IList<double> Buffer { get; } = new List<double>();
 
+        public void Reset()
+        {
+            _prevFinalValue = 0;
+        }
+
         public SignalAndValue Process(ISimpleCandle candle)
         {
-            return Process(candle.Close);
-        }
+            var newValue = candle.Close;
 
-        public void RollbackLastValue()
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public SignalAndValue Process(double newValue)
-        {
             if (!IsFormed)
             {
-                Buffer.Add(newValue);
+                if (candle.IsComplete == 1)
+                {
+                    Buffer.Add(newValue);
 
-                _prevFinalValue = Buffer.Sum() / Length;
+                    _prevFinalValue = Buffer.Sum() / Length;
+                }
 
-                return new SignalAndValue((float)_prevFinalValue, IsFormed, Signal.None);
+                return new SignalAndValue((float)_prevFinalValue, IsFormed);
             }
 
             var curValue = (_prevFinalValue * (Length - 1) + newValue) / Length;
 
-            _prevFinalValue = curValue;
+            if (candle.IsComplete == 1)
+                _prevFinalValue = curValue;
 
-            return new SignalAndValue((float)curValue, IsFormed, Signal.None);
+            return new SignalAndValue((float)curValue, IsFormed);
         }
     }
 }

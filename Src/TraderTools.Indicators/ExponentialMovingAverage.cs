@@ -4,101 +4,60 @@ using TraderTools.Basics;
 
 namespace TraderTools.Indicators
 {
-    public class ExponentialMovingAverage : IIndicator
+    public class ExponentialMovingAverage : LengthIndicator
     {
-        private double _currentValue;
-        private double _multiplier = 1;
-        private int _length;
-        private double _prevValue;
+        private float _prevFinalValue;
+        private float _multiplier = 1;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ExponentialMovingAverage"/>.
         /// </summary>
-        public ExponentialMovingAverage(string name)
+        public ExponentialMovingAverage()
         {
             Length = 32;
-            Name = name;
-            Reset();
         }
 
-        public ExponentialMovingAverage(string name, int length)
+        public ExponentialMovingAverage(int length)
         {
             Length = length;
-            Name = name;
-            Reset();
         }
-
-        public string Name { get; }
-
-        public int Length
-        {
-            get { return _length; }
-            set
-            {
-                _length = value;
-                _multiplier = 2.0 / (Length + 1);
-            }
-        }
-
-        protected IList<double> Buffer { get; } = new List<double>();
-        public bool IsFormed => Buffer.Count >= Length;
-        private int _totalValues = 0;
 
         /// <summary>
         /// To reset the indicator status to initial. The method is called each time when initial settings are changed (for example, the length of period).
         /// </summary>
-        public void Reset()
+        public override void Reset()
         {
-            Buffer.Clear();
-            _currentValue = 0;
+            base.Reset();
+            _multiplier = 2.0F / (Length + 1);
+            _prevFinalValue = 0;
         }
 
-        public SignalAndValue Process(ISimpleCandle candle)
+        public override string Name => $"EMA{Length}";
+
+        public override SignalAndValue Process(ISimpleCandle candle)
         {
             var newValue = candle.Close;
-            return Process(newValue);
-        }
 
-        public SignalAndValue Process(double newValue)
-        {
             if (!IsFormed)
             {
-                //if (candle.IsFinal)
+                if (candle.IsComplete == 1)
                 {
-                    _totalValues++;
                     Buffer.Add(newValue);
 
-                    _prevValue = _currentValue;
-                    _currentValue = Buffer.Sum() / Length;
+                    _prevFinalValue = Buffer.Sum() / Length;
 
-                    return new SignalAndValue((float)_currentValue, IsFormed);
+                    return new SignalAndValue(_prevFinalValue, IsFormed);
                 }
-                /*else
-                {
-                    return (Buffer.Skip(1).Sum() + newValue) / Length;
-                }*/
+
+                return new SignalAndValue((Buffer.Skip(1).Sum() + newValue) / Length, IsFormed);
             }
             else
             {
-                var curValue = (newValue - _currentValue) * _multiplier + _currentValue;
-                _totalValues++;
-                //if (candle.IsFinal)
-                _prevValue = _currentValue;
-                _currentValue = curValue;
+                var curValue = (newValue - _prevFinalValue) * _multiplier + _prevFinalValue;
 
-                return new SignalAndValue((float)curValue, IsFormed);
-            }
-        }
+                if (candle.IsComplete == 1) _prevFinalValue = curValue;
 
-        public void RollbackLastValue()
-        {
-            _totalValues--;
-            _currentValue = _prevValue;
-            _prevValue = 0;
-
-            if (_totalValues < Buffer.Count)
-            {
-                Buffer.RemoveAt(Buffer.Count - 1);
+                return new SignalAndValue(curValue, IsFormed);
             }
         }
     }

@@ -3,7 +3,7 @@ using TraderTools.Basics;
 
 namespace TraderTools.Indicators
 {
-    public class RelativeStrengthIndex : IIndicator
+    public class RelativeStrengthIndex : LengthIndicator
     {
         private readonly SmoothedMovingAverage _gain;
         private readonly SmoothedMovingAverage _loss;
@@ -15,47 +15,63 @@ namespace TraderTools.Indicators
             _gain = new SmoothedMovingAverage();
             _loss = new SmoothedMovingAverage();
 
-            Length = 14;
+            Length = 15;
         }
 
-        public int Length { get; set; }
-        protected IList<decimal> Buffer { get; } = new List<decimal>();
+        /// <summary>
+        /// Whether the indicator is set.
+        /// </summary>
+        public override bool IsFormed => _gain.IsFormed;
 
-        public bool IsFormed => _gain.IsFormed;
+        public override string Name => "RSI";
 
-        public string Name => "RSI";
+        /// <summary>
+        /// To reset the indicator status to initial. The method is called each time when initial settings are changed (for example, the length of period).
+        /// </summary>
+        public override void Reset()
+        {
+            _loss.Length = _gain.Length = Length;
+            base.Reset();
+        }
 
-        public SignalAndValue Process(ISimpleCandle candle)
+        public override SignalAndValue Process(ISimpleCandle candle)
         {
             var newValue = candle.Close;
 
             if (!_isInitialized)
             {
-                _last = newValue;
-                _isInitialized = true;
+                if (candle.IsComplete == 1)
+                {
+                    _last = newValue;
+                    _isInitialized = true;
+                }
 
-                return new SignalAndValue(0, IsFormed, Signal.None);
+                return new SignalAndValue(0F, false);
             }
 
             var delta = newValue - _last;
 
-            var gainValue = _gain.Process(delta > 0 ? delta : 0).Value;
-            var lossValue = _loss.Process(delta > 0 ? 0 : -delta).Value;
+            var gainValue = _gain.Process(new SimpleCandle
+            {
+                Close = (float)(delta > 0 ? delta : 0.0),
+                IsComplete = candle.IsComplete
+            });
+            var lossValue = _loss.Process(new SimpleCandle
+            {
+                Close = (float)(delta > 0 ? 0.0 : -delta),
+                IsComplete = candle.IsComplete
+            });
 
-            _last = newValue;
+            if (candle.IsComplete == 1)
+                _last = newValue;
 
-            if (lossValue == 0)
-                return new SignalAndValue(100, IsFormed, Signal.None);
+            if (lossValue.Value.Equals(0.0F))
+                return new SignalAndValue((float)100.0, IsFormed);
 
-            if (gainValue / lossValue == 1)
-                return new SignalAndValue(0, IsFormed, Signal.None);
+            if ((gainValue.Value / lossValue.Value).Equals(1F))
+                return new SignalAndValue((float)0.0, IsFormed);
 
-            return new SignalAndValue((float)(100.0 - 100.0 / (1.0 + gainValue / lossValue)), IsFormed, Signal.None);
-        }
-
-        public void RollbackLastValue()
-        {
-            throw new System.NotImplementedException();
+            return new SignalAndValue((float)(100.0 - 100.0 / (1.0 + gainValue.Value / lossValue.Value)), IsFormed);
         }
     }
 }

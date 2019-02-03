@@ -17,6 +17,7 @@ namespace TraderTools.Basics
             Low = (float)candle.Low;
             OpenTimeTicks = candle.OpenTimeTicks;
             CloseTimeTicks = candle.CloseTimeTicks;
+            IsComplete = candle.IsComplete;
         }
 
         public long OpenTimeTicks { get; set; }
@@ -25,5 +26,6 @@ namespace TraderTools.Basics
         public float Close { get; set; }
         public float High { get; set; }
         public float Low { get; set; }
+        public byte IsComplete { get; set; }
     }
 }

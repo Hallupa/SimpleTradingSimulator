@@ -14,7 +14,7 @@ namespace TraderTools.Indicators
         {
             Name = name;
             Macd = new MovingAverageConvergenceDivergence();
-            SignalMa = new ExponentialMovingAverage("EMA9", 9);
+            SignalMa = new ExponentialMovingAverage(9);
         }
 
         public bool IsFormed => SignalMa.IsFormed;
@@ -23,13 +23,11 @@ namespace TraderTools.Indicators
         public SignalAndValue Process(ISimpleCandle candle)
         {
             var value = Macd.Process(candle);
-            return SignalMa.Process(value.Value);
-        }
-
-        public void RollbackLastValue()
-        {
-            Macd.RollbackLastValue();
-            SignalMa.RollbackLastValue();
+            return SignalMa.Process(new SimpleCandle
+            {
+                Close = value.Value,
+                IsComplete = candle.IsComplete
+            });
         }
 
         public MovingAverageConvergenceDivergence Macd { get; }
