@@ -30,6 +30,12 @@ namespace TraderTools.Indicators
             });
         }
 
+        public void Reset()
+        {
+            Macd.Reset();
+            SignalMa.Reset();
+        }
+
         public MovingAverageConvergenceDivergence Macd { get; }
 
         public ExponentialMovingAverage SignalMa { get; }

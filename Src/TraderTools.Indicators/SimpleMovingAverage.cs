@@ -15,7 +15,7 @@ namespace TraderTools.Indicators
             Length = length;
         }
 
-        public override string Name => "Moving Average";
+        public override string Name => $"SMA{Length}";
 
         public override SignalAndValue Process(ISimpleCandle candle)
         {

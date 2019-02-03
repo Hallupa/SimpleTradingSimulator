@@ -8,10 +8,14 @@
         xmlns:charting="clr-namespace:TraderTools.Core.UI;assembly=TraderTools.Core.UI"
         xmlns:converters="clr-namespace:Hallupa.Library.UI.Converters;assembly=Hallupa.Library.UI"
         xmlns:views2="clr-namespace:TraderTools.Core.UI.Views;assembly=TraderTools.Core.UI"
+        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+        xmlns:behaviours="clr-namespace:TraderTools.TradingTrainer.Behaviours"
+        xmlns:primitives="clr-namespace:System.Windows.Controls.Ribbon.Primitives;assembly=System.Windows.Controls.Ribbon"
         mc:Ignorable="d"
         Title="Trader Simulator" Height="840" Width="1200" WindowStartupLocation="CenterScreen" WindowState="Normal">
     <Grid>
         <Grid.Resources>
+            <ui:BindingProxy x:Key="Proxy" Data="{Binding}" />
             <converters:InvBoolConverter x:Key="InvBool"/>
             <converters:ObjectToBoolConverter x:Key="ObjToBool"/>
             <BooleanToVisibilityConverter x:Key="BoolToVis"/>
@@ -36,27 +40,25 @@
 
             <RibbonTab Header="Charting" Grid.Row="0">
                 <RibbonGroup Height="Auto">
-                    <!--<StackPanel Orientation="Horizontal">-->
                     <RibbonToggleButton Label="Add line" IsChecked="{Binding ChartingService.ChartMode, Converter={StaticResource ObjToBool}, ConverterParameter={x:Static charting:ChartMode.AddLine}, Mode=TwoWay}"/>
                     <RibbonToggleButton Label="Zoom" IsChecked="{Binding ChartingService.ChartMode, Converter={StaticResource ObjToBool}, ConverterParameter={x:Static charting:ChartMode.Zoom}, Mode=TwoWay}"/>
                     <RibbonButton Label="New chart (Ctrl-N)" Command="{Binding NewChartCommand}"/>
                     <RibbonButton Label="Next candle (Ctrl-F)" Command="{Binding NextCandleCommand}"/>
-                    <!--</StackPanel>-->
+
+                    <RibbonMenuButton Label="Indicators" ItemsSource="{Binding AvailableIndiciators}">
+                        <RibbonMenuButton.ItemTemplate>
+                            <DataTemplate>
+                                <RibbonToggleButton Label="{Binding Indicator.Name}" Foreground="{Binding Brush}">
+                                    <i:Interaction.Behaviors>
+                                        <behaviours:SelectIndicatorBehaviour ViewModel="{Binding Data, Source={StaticResource Proxy}}"/>
+                                    </i:Interaction.Behaviors>
+                                </RibbonToggleButton>
+                            </DataTemplate>
+                        </RibbonMenuButton.ItemTemplate>
+                    </RibbonMenuButton>
                 </RibbonGroup>
             </RibbonTab>
         </Ribbon>
-
-        <!--<StackPanel Grid.Row="0">
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
-                <ToggleButton Content="Line" IsChecked="{Binding ChartingService.ChartMode, Converter={StaticResource ObjToBool}, ConverterParameter={x:Static charting:ChartMode.AddLine}, Mode=TwoWay}" Margin="2" Padding="5,2,5,2"/>
-                <Button Margin="2" Padding="5,2,5,2" Content="New chart (Ctrl-N)" Command="{Binding NewChartCommand}"/>
-                <Button Margin="2" Padding="5,2,5,2" Content="Next candle (Ctrl-F)" Command="{Binding NextCandleCommand}"/>
-                <ComboBox Visibility="Collapsed" SelectedIndex="{Binding SelectedMainIndicatorsIndex}" Width="160" Margin="2" Padding="5,2,5,2">
-                    <ComboBoxItem>EMA8, EMA25 &amp; EMA50</ComboBoxItem>
-                    <ComboBoxItem>EMA20, MA50 &amp; MA200</ComboBoxItem>
-                </ComboBox>
-            </StackPanel>
-        </StackPanel>-->
 
         <Grid Grid.Column="1" Grid.Row="1" Grid.RowSpan="2" HorizontalAlignment="Right" Margin="4">
             <Grid.RowDefinitions>

@@ -50,5 +50,11 @@ namespace TraderTools.Indicators
 
             return new SignalAndValue((float)(highBuffer.Max() - lowBuffer.Min()), IsFormed);
         }
+
+        public void Reset()
+        {
+            HighBuffer.Clear();
+            LowBuffer.Clear();
+        }
     }
 }

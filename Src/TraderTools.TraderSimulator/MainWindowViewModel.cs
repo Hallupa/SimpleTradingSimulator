@@ -14,7 +14,6 @@ using System.Windows.Media;
 using System.Windows.Threading;
 using Abt.Controls.SciChart.Visuals.Annotations;
 using Hallupa.Library;
-using Hallupa.Library.UI;
 using log4net;
 using Newtonsoft.Json;
 using TraderTools.Basics;
@@ -24,10 +23,18 @@ using TraderTools.Core.UI.Services;
 using TraderTools.Core.UI.ViewModels;
 using TraderTools.Indicators;
 using TraderTools.TradingTrainer.Services;
-using TraderTools.UI.Views;
 
 namespace TraderTools.TradingTrainer
 {
+    public class IndicatorDisplayOptions
+    {
+        public IIndicator Indicator { get; set; }
+        public Color Colour { get; set; }
+        public Brush Brush { get; set; }
+        public bool ShowOnLargeChartInSeparatePane { get; set; }
+        public ChartPaneViewModel Pane { get; set; }
+    }
+
     public class MainWindowViewModel : DoubleChartViewModel, INotifyPropertyChanged
     {
         #region Fields
@@ -78,6 +85,15 @@ namespace TraderTools.TradingTrainer
                 Timeframe.H1,
                 Timeframe.M1,
             };
+            
+            // Setup available indicators
+            AddAvailableIndicator(new ExponentialMovingAverage(8), Colors.DarkBlue, false, true);
+            AddAvailableIndicator(new ExponentialMovingAverage(20), Colors.Blue, false, false);
+            AddAvailableIndicator(new ExponentialMovingAverage(25), Colors.Blue, false, true);
+            AddAvailableIndicator(new ExponentialMovingAverage(50), Colors.LightBlue, false, true);
+            AddAvailableIndicator(new SimpleMovingAverage(50), Colors.Green, false, false);
+            AddAvailableIndicator(new SimpleMovingAverage(200), Colors.LightGreen, false, false);
+            AddAvailableIndicator(new AverageTrueRange(), Colors.Red, true, false);
 
             DeleteCommand = new DelegateCommand(o => DeleteTrade());
             NewChartCommand = new DelegateCommand(o => Next(), o => !Running);
@@ -135,6 +151,37 @@ namespace TraderTools.TradingTrainer
             }
 
             Next();
+        }
+
+        public ObservableCollection<IndicatorDisplayOptions> AvailableIndiciators { get; } = new ObservableCollection<IndicatorDisplayOptions>();
+
+        public ObservableCollection<IndicatorDisplayOptions> SelectedIndicators { get; } = new ObservableCollection<IndicatorDisplayOptions>();
+
+        private void AddAvailableIndicator(IIndicator indicator, Color colour, bool showInLargeChartInSeparatePane, bool selectIndicator)
+        {
+            var indicatorOptions = new IndicatorDisplayOptions
+            {
+                Indicator = indicator,
+                Colour = colour,
+                Brush = new SolidColorBrush(colour),
+                ShowOnLargeChartInSeparatePane = showInLargeChartInSeparatePane,
+                Pane = 
+                    showInLargeChartInSeparatePane
+                    ? new ChartPaneViewModel(ChartViewModel, ChartViewModel.ViewportManager)
+                    {
+                        IsFirstChartPane = false,
+                        IsLastChartPane = true,
+                        Height = 100
+                    }
+                    : null
+            };
+
+            AvailableIndiciators.Add(indicatorOptions);
+
+            if (selectIndicator)
+            {
+                SelectedIndicators.Add(indicatorOptions);
+            }
         }
 
         private void ClearStop()
@@ -726,7 +773,6 @@ namespace TraderTools.TradingTrainer
         private bool _uiStateUpdating = false;
         private bool _isCloseHalfTradeAtLimitEnabled;
         private IDisposable _chartMouseMoveDisposable;
-        private ChartPaneViewModel _atrPane;
 
         private void UpdateUIState()
         {
@@ -761,7 +807,7 @@ namespace TraderTools.TradingTrainer
             _uiStateUpdating = false;
         }
 
-        private void SetupChart(bool recreateChart = true)
+        public void SetupChart(bool recreateChart = true)
         {
             // Get candles
             if (_allSmallestTimeframeCandles == null)
@@ -894,34 +940,7 @@ namespace TraderTools.TradingTrainer
             if (ChartViewModelSmaller1.ChartPaneViewModels.Count > 0) ChartViewModelSmaller1.ChartPaneViewModels[0].ChartSeriesViewModels.Clear();
 
             ChartHelper.SetChartViewModelPriceData(_currentCandles[largeChartTimeframe], ChartViewModel, largeChartTimeframe);
-
-            if (SelectedMainIndicatorsIndex == (int)MainIndicators.EMA8_EMA25_EMA50)
-            {
-                ChartHelper.AddIndicator(ChartViewModel.ChartPaneViewModels[0], _market, new ExponentialMovingAverage(8), Colors.DarkBlue, largeChartTimeframe, _currentCandles[largeChartTimeframe]);
-                ChartHelper.AddIndicator(ChartViewModel.ChartPaneViewModels[0], _market, new ExponentialMovingAverage(25), Colors.Blue, largeChartTimeframe, _currentCandles[largeChartTimeframe]);
-                ChartHelper.AddIndicator(ChartViewModel.ChartPaneViewModels[0], _market, new ExponentialMovingAverage(50), Colors.LightBlue, largeChartTimeframe, _currentCandles[largeChartTimeframe]);
-            }
-            else if (SelectedMainIndicatorsIndex == (int)MainIndicators.EMA20_MA50_MA200)
-            {
-                ChartHelper.AddIndicator(ChartViewModel.ChartPaneViewModels[0], _market, new ExponentialMovingAverage(20), Colors.DarkBlue, largeChartTimeframe, _currentCandles[largeChartTimeframe]);
-                ChartHelper.AddIndicator(ChartViewModel.ChartPaneViewModels[0], _market, new SimpleMovingAverage(50), Colors.Blue, largeChartTimeframe, _currentCandles[largeChartTimeframe]);
-                ChartHelper.AddIndicator(ChartViewModel.ChartPaneViewModels[0], _market, new SimpleMovingAverage(200), Colors.LightBlue, largeChartTimeframe, _currentCandles[largeChartTimeframe]);
-            }
-
-            if (SelectedMainIndicatorsIndex == (int)MainIndicators.EMA8_EMA25_EMA50)
-            {
-                ChartHelper.SetChartViewModelPriceData(_currentCandles[Timeframe.D1], ChartViewModelSmaller1, Timeframe.D1);
-                ChartHelper.AddIndicator(ChartViewModelSmaller1.ChartPaneViewModels[0], _market, new ExponentialMovingAverage(8), Colors.DarkBlue, Timeframe.D1, _currentCandles[Timeframe.D1]);
-                ChartHelper.AddIndicator(ChartViewModelSmaller1.ChartPaneViewModels[0], _market, new ExponentialMovingAverage(25), Colors.Blue, Timeframe.D1, _currentCandles[Timeframe.D1]);
-                ChartHelper.AddIndicator(ChartViewModelSmaller1.ChartPaneViewModels[0], _market, new ExponentialMovingAverage(50), Colors.LightBlue, Timeframe.D1, _currentCandles[Timeframe.D1]);
-            }
-            else if (SelectedMainIndicatorsIndex == (int)MainIndicators.EMA20_MA50_MA200)
-            {
-                ChartHelper.SetChartViewModelPriceData(_currentCandles[Timeframe.D1], ChartViewModelSmaller1, Timeframe.D1);
-                ChartHelper.AddIndicator(ChartViewModelSmaller1.ChartPaneViewModels[0], _market, new ExponentialMovingAverage(20), Colors.DarkBlue, Timeframe.D1, _currentCandles[Timeframe.D1]);
-                ChartHelper.AddIndicator(ChartViewModelSmaller1.ChartPaneViewModels[0], _market, new SimpleMovingAverage(50), Colors.Blue, Timeframe.D1, _currentCandles[Timeframe.D1]);
-                ChartHelper.AddIndicator(ChartViewModelSmaller1.ChartPaneViewModels[0], _market, new SimpleMovingAverage(200), Colors.LightBlue, Timeframe.D1, _currentCandles[Timeframe.D1]);
-            }
+            ChartHelper.SetChartViewModelPriceData(_currentCandles[Timeframe.D1], ChartViewModelSmaller1, Timeframe.D1);
 
             if (recreate)
             {
@@ -952,23 +971,40 @@ namespace TraderTools.TradingTrainer
                 }
             }
 
-            // Setup ATR
-            if (recreate)
+            // Remove any indicator panes not used
+            foreach (var unselectedIndicator in AvailableIndiciators.Where(x => !SelectedIndicators.Contains(x)))
             {
-                _atrPane = new ChartPaneViewModel(ChartViewModel, ChartViewModel.ViewportManager)
+                if (unselectedIndicator.ShowOnLargeChartInSeparatePane)
                 {
-                    IsFirstChartPane = false,
-                    IsLastChartPane = true,
-                    Height = 100
-                };
-                ChartViewModel.ChartPaneViewModels.Add(_atrPane);
-            }
-            else
-            {
-                _atrPane.ChartSeriesViewModels[0].DataSeries.Clear();
+                    if (ChartViewModel.ChartPaneViewModels.Contains(unselectedIndicator.Pane))
+                    {
+                        ChartViewModel.ChartPaneViewModels.Remove(unselectedIndicator.Pane);
+                    }
+                }
             }
 
-            ChartHelper.AddIndicator(_atrPane, _market, new AverageTrueRange(), Colors.Red, largeChartTimeframe, _currentCandles[largeChartTimeframe]);
+            // Add indicators
+            foreach (var selectedIndicator in SelectedIndicators)
+            {
+                if (selectedIndicator.ShowOnLargeChartInSeparatePane)
+                {
+                    if (!ChartViewModel.ChartPaneViewModels.Contains(selectedIndicator.Pane))
+                    {
+                        ChartViewModel.ChartPaneViewModels.Add(selectedIndicator.Pane);
+                    }
+
+                    selectedIndicator.Indicator.Reset();
+                    if (selectedIndicator.Pane.ChartSeriesViewModels.Count > 0) selectedIndicator.Pane.ChartSeriesViewModels.Clear();
+                    ChartHelper.AddIndicator(selectedIndicator.Pane, _market, selectedIndicator.Indicator, selectedIndicator.Colour, largeChartTimeframe, _currentCandles[largeChartTimeframe]);
+                }
+                else
+                {
+                    selectedIndicator.Indicator.Reset();
+                    ChartHelper.AddIndicator(ChartViewModel.ChartPaneViewModels[0], _market, selectedIndicator.Indicator, selectedIndicator.Colour, largeChartTimeframe, _currentCandles[largeChartTimeframe]);
+                    selectedIndicator.Indicator.Reset();
+                    ChartHelper.AddIndicator(ChartViewModelSmaller1.ChartPaneViewModels[0], _market, selectedIndicator.Indicator, selectedIndicator.Colour, Timeframe.D1, _currentCandles[Timeframe.D1]);
+                }
+            }
 
             SetAnnotations();
         }

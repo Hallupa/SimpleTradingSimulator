@@ -39,6 +39,11 @@ namespace TraderTools.Indicators
 
         public Signal Signal { get; private set; }
 
+        public void Reset()
+        {
+            throw new NotImplementedException();
+        }
+
         public SignalAndValue Process(ISimpleCandle candle)
         {
             if (_candles.Count == 0)
