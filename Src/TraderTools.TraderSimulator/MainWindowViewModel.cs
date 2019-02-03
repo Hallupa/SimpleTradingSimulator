@@ -98,6 +98,7 @@ namespace TraderTools.TradingTrainer
             ClearStopCommand = new DelegateCommand(o => ClearStop(), o => IsClearStopEnabled);
             ClearLimitCommand = new DelegateCommand(o => ClearLimit(), o => IsClearLimitEnabled);
             ClearEntryOrderCommand = new DelegateCommand(o => ClearEntryOrder(), o => IsClearEntryOrderEnabled);
+            DeleteCommand = new DelegateCommand(o => DeleteTrade((TradeDetails)o));
 
             _getTradeCommentsFunc = getTradeCommentsFunc;
             _showMessageAction = showMessageAction;
@@ -149,6 +150,14 @@ namespace TraderTools.TradingTrainer
             }
 
             Next();
+        }
+
+        private void DeleteTrade(TradeDetails t)
+        {
+            Trades.Remove(t);
+            SimResultsViewModel.UpdateResults();
+            SaveTrades();
+            if (_displayedTrade == t) Next();
         }
 
         private void ViewTrade(TradeDetails tradeDetails)
@@ -490,6 +499,7 @@ namespace TraderTools.TradingTrainer
         public DelegateCommand ClearStopCommand { get; }
         public DelegateCommand ClearLimitCommand { get; }
         public DelegateCommand ClearEntryOrderCommand { get; }
+        public DelegateCommand DeleteCommand { get; }
 
         private void CreateEmptyTrade(string market)
         {

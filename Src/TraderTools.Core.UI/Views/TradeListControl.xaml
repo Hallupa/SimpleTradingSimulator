@@ -18,8 +18,8 @@
             </DataGrid.Resources>
             <DataGrid.ContextMenu>
                 <ContextMenu x:Name="MainContextMenu">
-                    <MenuItem Header="Edit" Command="{Binding EditCommand}"/>
-                    <MenuItem Header="Delete" Command="{Binding DeleteCommand}"/>
+                    <MenuItem Header="Edit" Command="{Binding EditCommand}" x:Name="MainContextMenuEditMenuItem"/>
+                    <MenuItem Header="Delete" Command="{Binding DeleteCommand}" CommandParameter="{Binding PlacementTarget.SelectedItem, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContextMenu}}}"/>
                 </ContextMenu>
             </DataGrid.ContextMenu>
 

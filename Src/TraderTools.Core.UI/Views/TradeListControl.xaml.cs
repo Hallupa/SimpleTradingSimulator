@@ -25,6 +25,22 @@ namespace TraderTools.Core.UI.Views
         public static readonly DependencyProperty HideContextMenuProperty = DependencyProperty.Register(
             "HideContextMenu", typeof(bool), typeof(TradeListControl), new PropertyMetadata(default(bool), HideContextMenuPropertyChangedCallback));
 
+        public static readonly DependencyProperty HideContextMenuEditOptionProperty = DependencyProperty.Register(
+            "HideContextMenuEditOption", typeof(bool), typeof(TradeListControl), new PropertyMetadata(default(bool), HideContextMenuEditOptionChanged));
+
+        private static void HideContextMenuEditOptionChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var c = (TradeListControl)d;
+            var hide = (bool)e.NewValue;
+            c.MainContextMenuEditMenuItem.Visibility = hide ? Visibility.Collapsed : Visibility.Visible;
+        }
+
+        public bool HideContextMenuEditOption
+        {
+            get { return (bool) GetValue(HideContextMenuEditOptionProperty); }
+            set { SetValue(HideContextMenuEditOptionProperty, value); }
+        }
+
         private static void HideContextMenuPropertyChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var c = (TradeListControl)d;

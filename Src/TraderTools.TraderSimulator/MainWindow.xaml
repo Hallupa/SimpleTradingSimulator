@@ -139,7 +139,7 @@
                 <views2:TradesResultsControl />
             </TabItem>
             <TabItem Header="Completed trades">
-                <views2:TradeListControl ShowBasicDetailsOnly="True" HideContextMenu="True" AllColumnsReadOnly="True"/>
+                <views2:TradeListControl ShowBasicDetailsOnly="True" HideContextMenuEditOption="True" AllColumnsReadOnly="True"/>
             </TabItem>
         </TabControl>
 
