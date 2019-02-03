@@ -78,8 +78,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AverageTrueRange.cs" />
+    <Compile Include="CommodityChannelIndex.cs" />
     <Compile Include="ExponentialMovingAverage.cs" />
     <Compile Include="LengthIndicator.cs" />
+    <Compile Include="MeanDeviation.cs" />
     <Compile Include="SimpleMovingAverage.cs" />
     <Compile Include="MovingAverageConvergenceDivergence.cs" />
     <Compile Include="MovingAverageConvergenceDivergenceSignal.cs" />

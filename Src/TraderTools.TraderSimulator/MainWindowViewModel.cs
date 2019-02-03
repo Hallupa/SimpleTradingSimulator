@@ -92,6 +92,7 @@ namespace TraderTools.TradingTrainer
             AddAvailableIndicator(new SimpleMovingAverage(50), Colors.Green, false, false);
             AddAvailableIndicator(new SimpleMovingAverage(200), Colors.LightGreen, false, false);
             AddAvailableIndicator(new AverageTrueRange(), Colors.Red, true, false);
+            AddAvailableIndicator(new CommodityChannelIndex(), Colors.Red, true, false);
 
             NewChartCommand = new DelegateCommand(o => Next(), o => !Running);
             NextCandleCommand = new DelegateCommand(o => ProgressTime());
