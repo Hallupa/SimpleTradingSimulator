@@ -7,7 +7,11 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
-        <DataGrid ItemsSource="{Binding Path=Trades, IsAsync=True}" EnableRowVirtualization="true" SelectedItem="{Binding SelectedTrade}" AutoGenerateColumns="False" GridLinesVisibility="Horizontal"
+        <Grid.Resources>
+            <ui:BindingProxy x:Key="Proxy" Data="{Binding}" />
+    </Grid.Resources>
+
+        <DataGrid ItemsSource="{Binding Path=Trades, IsAsync=True}" EnableRowVirtualization="true" AutoGenerateColumns="False" GridLinesVisibility="Horizontal"
                   CanUserAddRows="False" x:Name="MainDataGrid">
             <DataGrid.Resources>
                 <ui:BindingProxy x:Key="Proxy" Data="{Binding}" />
@@ -24,7 +28,7 @@
                 <DataGridTextColumn Header="Order expiry" Binding="{Binding OrderExpireTimeLocal, StringFormat={}{0:dd-MM-yy HH:mm}, Mode=OneWay}" IsReadOnly="True" Width="100"/>
                 <DataGridTextColumn Header="Entry date" Binding="{Binding EntryDateTimeLocal, StringFormat={}{0:dd-MM-yy HH:mm}, Mode=OneWay}" IsReadOnly="True" Width="100"/>
                 <DataGridTextColumn Header="Close date" Binding="{Binding CloseDateTimeLocal, StringFormat={}{0:dd-MM-yy HH:mm}, Mode=OneWay}" IsReadOnly="True" Width="100"/>
-                <DataGridTextColumn Header="Market" Binding="{Binding Market, Mode=OneWay}" FontWeight="Bold" IsReadOnly="True" Width="100"/>
+                <DataGridTextColumn Header="Market" Binding="{Binding Market, Mode=OneWay}" FontWeight="Bold" IsReadOnly="True" Width="80"/>
                 <DataGridTextColumn Header="Direction" Binding="{Binding TradeDirection}" FontWeight="Bold" IsReadOnly="True" Width="80"/>
                 <DataGridTextColumn Header="Start price" Binding="{Binding StartPrice, StringFormat={}{0:0.0000}, Mode=OneWay}" IsReadOnly="True" Width="70"/>
                 <DataGridTextColumn Header="£/pip" Binding="{Binding PricePerPip, StringFormat={}{0:0.00}}" IsReadOnly="True" Width="80"/>
@@ -39,7 +43,14 @@
                 <DataGridTextColumn Header="Risk %" Binding="{Binding RiskPercentOfBalance, StringFormat={}{0:0.00}%, Mode=OneWay}" IsReadOnly="True" Width="100"/>
                 <DataGridTextColumn Header="Result R" Binding="{Binding RMultiple, StringFormat={}{0:0.00}, Mode=OneWay}" IsReadOnly="True" Width="70"/>
                 <DataGridComboBoxColumn Header="Timeframe" SelectedItemBinding="{Binding Timeframe}" ItemsSource="{Binding Data.TimeFrameItems, Source={StaticResource Proxy}, UpdateSourceTrigger=PropertyChanged}" Width="70"/>
-                <DataGridTextColumn Header="Strategy" Binding="{Binding Comments, StringFormat={}{0:0.00}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="150"/>
+                <DataGridTextColumn Header="Strategy" Binding="{Binding Comments, StringFormat={}{0:0.00}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="50"/>
+                <DataGridTemplateColumn Header="View">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Content="View" Command="{Binding Data.ViewTradeCommand, Source={StaticResource Proxy}}" CommandParameter="{Binding}" Margin="2" Padding="5,2,5,2"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
             </DataGrid.Columns>
         </DataGrid>
     </Grid>

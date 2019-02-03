@@ -154,11 +154,6 @@ namespace TraderTools.Core.UI
                     ? trade.OrderPrice.Value
                     : trade.EntryPrice.Value;
 
-                /*if (trade.OrderDateTimeLocal != null)
-                {
-                    AddBuySellMarker(trade.TradeDirection.Value, annotations, trade, GetChartDateTime(trade.OrderDateTimeLocal.Value, candles, timeframe).Value, price);
-                }*/
-
                 if (trade.EntryDateTimeLocal != null)
                 {
                     AddBuySellMarker(trade.TradeDirection.Value, annotations, trade, GetChartDateTime(trade.EntryDateTimeLocal.Value, candles, timeframe).Value, price);
@@ -207,15 +202,15 @@ namespace TraderTools.Core.UI
         private static void AddBuySellMarker(TradeDirection direction, AnnotationCollection annotations, TradeDetails trade, DateTime timeLocal, decimal price)
         {
             var annotation = direction == TradeDirection.Long ? new BuyMarkerAnnotation() : (CustomAnnotation)new SellMarkerAnnotation();
-            annotation.Width = 25;
-            annotation.Height = 25;
+            annotation.Width = 18;
+            annotation.Height = 18;
             ((Path)annotation.Content).Stretch = Stretch.Fill;
             annotation.Margin = new Thickness(0, direction == TradeDirection.Long ? 5 : -5, 0, 0);
             annotation.DataContext = trade;
             var brush = new SolidColorBrush
             {
                 Color = direction == TradeDirection.Long ? Colors.Green : Colors.DarkRed,
-                Opacity = 0.5
+                Opacity = 0.7
             };
 
             ((Path)annotation.Content).Fill = brush;
@@ -299,8 +294,7 @@ namespace TraderTools.Core.UI
         }
 
         public static void SetChartViewModelVisibleRange(
-            TradeDetails trade, ChartViewModel cvm, IList<Candle> candles, Timeframe timeframe,
-            IBrokersCandlesService brokerCandles, IBroker broker)
+            TradeDetails trade, ChartViewModel cvm, IList<Candle> candles, Timeframe timeframe)
         {
             if (candles.Count == 0) return;
 
@@ -311,8 +305,8 @@ namespace TraderTools.Core.UI
 
             var endCandle = CandlesHelper.GetFirstCandleThatClosesBeforeDateTime(candles, endTime.ToLocalTime()) ?? candles.Last();
 
-            var candlesBeforeTrade = timeframe == Timeframe.D1 ? 80 : 90;
-            var candlesAfterTrade = timeframe == Timeframe.D1 ? 15 : 20;
+            var candlesBeforeTrade = 25;
+            var candlesAfterTrade = 25;
 
             var min = candles.IndexOf(startCandle.Value) - candlesBeforeTrade;
             var max = candles.IndexOf(endCandle) + candlesAfterTrade;

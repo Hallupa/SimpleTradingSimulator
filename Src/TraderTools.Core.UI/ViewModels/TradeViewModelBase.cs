@@ -176,7 +176,7 @@ namespace TraderTools.Core.UI.ViewModels
             ChartViewModel.ChartPaneViewModels.Add(macdPane);
             ChartHelper.AddIndicator(macdPane, selectedTrade.Market, new MovingAverageConvergenceDivergence(), Colors.Red, timeframe, candles);
             ChartHelper.AddIndicator(macdPane, selectedTrade.Market, new MovingAverageConvergenceDivergenceSignal(), Colors.Blue, timeframe, candles);
-            ChartHelper.SetChartViewModelVisibleRange(selectedTrade, ChartViewModel, candles, timeframe, BrokerCandles, Broker);
+            ChartHelper.SetChartViewModelVisibleRange(selectedTrade, ChartViewModel, candles, timeframe);
 
             var dayCandles = BrokerCandles.GetCandles(Broker, selectedTrade.Market, Timeframe.D1, false);
 
@@ -195,7 +195,7 @@ namespace TraderTools.Core.UI.ViewModels
                 ChartHelper.AddIndicator(ChartViewModelSmaller1.ChartPaneViewModels[0], selectedTrade.Market, new SimpleMovingAverage(200), Colors.LightBlue, Timeframe.D1, dayCandles);
             }
 
-            ChartHelper.SetChartViewModelVisibleRange(selectedTrade, ChartViewModelSmaller1, dayCandles, Timeframe.D1, BrokerCandles, Broker);
+            ChartHelper.SetChartViewModelVisibleRange(selectedTrade, ChartViewModelSmaller1, dayCandles, Timeframe.D1);
 
 
             ChartViewModel.ChartPaneViewModels[0].TradeAnnotations = ChartHelper.CreateTradeAnnotations(ChartViewModel, false, timeframe, candles, selectedTrade);

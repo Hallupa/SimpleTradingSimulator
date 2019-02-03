@@ -12,7 +12,7 @@
         xmlns:behaviours="clr-namespace:TraderTools.TradingTrainer.Behaviours"
         xmlns:primitives="clr-namespace:System.Windows.Controls.Ribbon.Primitives;assembly=System.Windows.Controls.Ribbon"
         mc:Ignorable="d"
-        Title="Trader Simulator" Height="840" Width="1200" WindowStartupLocation="CenterScreen" WindowState="Normal">
+        Title="Trader Simulator" Height="820" Width="1200" WindowStartupLocation="CenterScreen" WindowState="Normal">
     <Grid>
         <Grid.Resources>
             <ui:BindingProxy x:Key="Proxy" Data="{Binding}" />
@@ -43,7 +43,7 @@
                     <RibbonToggleButton Label="Add line" IsChecked="{Binding ChartingService.ChartMode, Converter={StaticResource ObjToBool}, ConverterParameter={x:Static charting:ChartMode.AddLine}, Mode=TwoWay}"/>
                     <RibbonToggleButton Label="Zoom" IsChecked="{Binding ChartingService.ChartMode, Converter={StaticResource ObjToBool}, ConverterParameter={x:Static charting:ChartMode.Zoom}, Mode=TwoWay}"/>
                     <RibbonButton Label="New chart (Ctrl-N)" Command="{Binding NewChartCommand}"/>
-                    <RibbonButton Label="Next candle (Ctrl-F)" Command="{Binding NextCandleCommand}"/>
+                    <RibbonButton Label="Next candle (Ctrl-F)" Command="{Binding NextCandleCommand}" IsEnabled="{Binding ViewingCompletedTrade, Converter={StaticResource InvBool}}"/>
 
                     <RibbonMenuButton Label="Indicators" ItemsSource="{Binding AvailableIndiciators}">
                         <RibbonMenuButton.ItemTemplate>
@@ -87,11 +87,11 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <ToggleButton Grid.Row="0" Grid.ColumnSpan="2" Content="Set entry order (Ctrl-E)" IsChecked="{Binding IsEntryButtonPressed}" IsEnabled="{Binding Running, Converter={StaticResource InvBool}}" Margin="2" Padding="15,4,15,4"/>
+                    <ToggleButton Grid.Row="0" Grid.ColumnSpan="2" Content="Set entry order (Ctrl-E)" IsChecked="{Binding IsEntryButtonPressed}" IsEnabled="{Binding IsEntryButtonEnabled}" Margin="2" Padding="15,4,15,4"/>
                     <Button Grid.Row="1" Grid.ColumnSpan="2" Content="Clear entry order" Padding="15,4,15,4" Margin="2" Command="{Binding ClearEntryOrderCommand}"/>
 
                     <Label Grid.Row="2" Grid.Column="0" Content="Cancel order after:"/>
-                    <ComboBox Grid.Row="2" Grid.Column="1" SelectedIndex="{Binding OrderExpiryCandlesIndex}" Width="80" IsEnabled="{Binding Running, Converter={StaticResource InvBool}}">
+                    <ComboBox Grid.Row="2" Grid.Column="1" SelectedIndex="{Binding OrderExpiryCandlesIndex}" Width="80" IsEnabled="{Binding IsOrderExpiryCandlesEnabled}">
                         <ComboBoxItem>None</ComboBoxItem>
                         <ComboBoxItem>1 candle</ComboBoxItem>
                         <ComboBoxItem>2 candles</ComboBoxItem>
@@ -109,14 +109,14 @@
 
             <GroupBox Header="Stop" Grid.Row="3">
                 <StackPanel>
-                    <ToggleButton Content="Set stop (Ctrl-S)" IsChecked="{Binding IsSetStopButtonPressed}" Margin="2"/>
+                    <ToggleButton Content="Set stop (Ctrl-S)" IsChecked="{Binding IsSetStopButtonPressed}" IsEnabled="{Binding ViewingCompletedTrade, Converter={StaticResource InvBool}}" Margin="2"/>
                     <Button Content="Clear stop" Padding="15,4,15,4" Margin="2" Command="{Binding ClearStopCommand}"/>
                 </StackPanel>
             </GroupBox>
 
             <GroupBox Header="Limit" Grid.Row="4">
                 <StackPanel>
-                    <ToggleButton Content="Set limit (Ctrl-L)" IsChecked="{Binding IsSetLimitButtonPressed}" Margin="2" Padding="15,4,15,4"/>
+                    <ToggleButton Content="Set limit (Ctrl-L)" IsChecked="{Binding IsSetLimitButtonPressed}" IsEnabled="{Binding ViewingCompletedTrade, Converter={StaticResource InvBool}}" Margin="2" Padding="15,4,15,4"/>
                     <Button Content="Clear limit" Padding="15,4,15,4" Margin="2" Command="{Binding ClearLimitCommand}"/>
                     <CheckBox IsChecked="{Binding CloseHalfTradeAtLimit}" Content="Close half of trade when limit hit" Margin="2" VerticalContentAlignment="Center" IsEnabled="{Binding IsCloseHalfTradeAtLimitEnabled}"/>
                 </StackPanel>

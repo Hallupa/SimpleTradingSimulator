@@ -38,7 +38,6 @@ namespace TraderTools.TradingTrainer
     public class MainWindowViewModel : DoubleChartViewModel, INotifyPropertyChanged
     {
         #region Fields
-        private TradeDetails _selectedTrade = null;
         private static readonly ILog Log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         private readonly Func<string> _getTradeCommentsFunc;
         private readonly Action<string> _showMessageAction;
@@ -47,7 +46,6 @@ namespace TraderTools.TradingTrainer
         private Random _rnd = new Random();
         private Dictionary<Timeframe, List<Candle>> _currentCandles = new Dictionary<Timeframe, List<Candle>>();
         private Dictionary<Timeframe, List<Candle>> _allCandles = new Dictionary<Timeframe, List<Candle>>();
-        private string _market;
         private bool _isTradeEnabled;
         private string _tmpPath;
         private string _finalPath;
@@ -55,6 +53,7 @@ namespace TraderTools.TradingTrainer
         private int _h2EndDateIndex;
         private bool _running;
         private TradeDetails _currentTrade;
+        private TradeDetails _displayedTrade;
         private List<Candle> _allSmallestTimeframeCandles;
         private List<Candle> _allH2Candles;
         private List<Candle> _allD1Candles;
@@ -75,7 +74,6 @@ namespace TraderTools.TradingTrainer
 
         public MainWindowViewModel(Func<string> getTradeCommentsFunc, Action<string> showMessageAction, Action<Cursor> setCursorAction)
         {
-            CreateEmptyTrade();
             TimeFrameItems = new List<Timeframe>
             {
                 Timeframe.D1Tiger,
@@ -85,7 +83,7 @@ namespace TraderTools.TradingTrainer
                 Timeframe.H1,
                 Timeframe.M1,
             };
-            
+
             // Setup available indicators
             AddAvailableIndicator(new ExponentialMovingAverage(8), Colors.DarkBlue, false, true);
             AddAvailableIndicator(new ExponentialMovingAverage(20), Colors.Blue, false, false);
@@ -95,7 +93,6 @@ namespace TraderTools.TradingTrainer
             AddAvailableIndicator(new SimpleMovingAverage(200), Colors.LightGreen, false, false);
             AddAvailableIndicator(new AverageTrueRange(), Colors.Red, true, false);
 
-            DeleteCommand = new DelegateCommand(o => DeleteTrade());
             NewChartCommand = new DelegateCommand(o => Next(), o => !Running);
             NextCandleCommand = new DelegateCommand(o => ProgressTime());
             ClearStopCommand = new DelegateCommand(o => ClearStop(), o => IsClearStopEnabled);
@@ -126,6 +123,7 @@ namespace TraderTools.TradingTrainer
 
             LongCommand = new DelegateCommand(o => Trade(TradeDirection.Long), o => !Running);
             ShortCommand = new DelegateCommand(o => Trade(TradeDirection.Short), o => !Running);
+            ViewTradeCommand = new DelegateCommand(t => ViewTrade((TradeDetails)t));
             CloseCommand = new DelegateCommand(o => CloseTrade(), o => Running);
             IsTradeEnabled = false;
 
@@ -153,6 +151,25 @@ namespace TraderTools.TradingTrainer
             Next();
         }
 
+        private void ViewTrade(TradeDetails tradeDetails)
+        {
+            if (Running)
+            {
+                _showMessageAction("Complete active trade before viewing old trades");
+                return;
+            }
+
+            Running = false;
+            _displayedTrade = tradeDetails;
+            _allSmallestTimeframeCandles = _candlesService.GetCandles(_displayedTrade.Market, Timeframe.M5);
+            _allH2Candles = _candlesService.GetCandles(_displayedTrade.Market, Timeframe.H2);
+            _allD1Candles = _candlesService.GetCandles(_displayedTrade.Market, Timeframe.D1);
+            SetupChart(true);
+            UpdateUIState();
+        }
+
+        public DelegateCommand ViewTradeCommand { get; private set; }
+
         public ObservableCollection<IndicatorDisplayOptions> AvailableIndiciators { get; } = new ObservableCollection<IndicatorDisplayOptions>();
 
         public ObservableCollection<IndicatorDisplayOptions> SelectedIndicators { get; } = new ObservableCollection<IndicatorDisplayOptions>();
@@ -165,7 +182,7 @@ namespace TraderTools.TradingTrainer
                 Colour = colour,
                 Brush = new SolidColorBrush(colour),
                 ShowOnLargeChartInSeparatePane = showInLargeChartInSeparatePane,
-                Pane = 
+                Pane =
                     showInLargeChartInSeparatePane
                     ? new ChartPaneViewModel(ChartViewModel, ChartViewModel.ViewportManager)
                     {
@@ -233,8 +250,20 @@ namespace TraderTools.TradingTrainer
 
         public bool IsClearStopEnabled => _currentTrade.StopPrices.Count > 0 && _currentTrade.StopPrices[_currentTrade.StopPrices.Count - 1].Price != null;
         public bool IsClearLimitEnabled => _currentTrade.LimitPrices.Count > 0 && _currentTrade.LimitPrices[_currentTrade.LimitPrices.Count - 1].Price != null;
-        public bool IsClearEntryOrderEnabled => _currentTrade.EntryDateTime == null && _currentTrade.OrderPrice != null;
-        
+        public bool IsClearEntryOrderEnabled => _currentTrade.OrderDateTime == null && _currentTrade.OrderPrice != null;
+        public bool IsOrderExpiryCandlesEnabled => !Running && !ViewingCompletedTrade;
+
+        public bool IsEntryButtonEnabled
+        {
+            get => _isEntryButtonEnabled;
+            set
+            {
+                _isEntryButtonEnabled = value;
+                OnPropertyChanged();
+            }
+        }
+
+
         private void ChartModeChanged(ChartMode? chartMode)
         {
             UpdateUIState();
@@ -254,13 +283,13 @@ namespace TraderTools.TradingTrainer
                     : (decimal)candle.Close;
 
                 var limit = details.Price;
-                var pips = Math.Abs(PipsHelper.GetPriceInPips((decimal)limit - entry, _market));
+                var pips = Math.Abs(PipsHelper.GetPriceInPips((decimal)limit - entry, _displayedTrade.Market));
 
                 _largeChartTextAnnotation.Text = $"{pips:0.00} pips";
                 _smallChartTextAnnotation.Text = $"{pips:0.00} pips";
                 makeVisible = true;
             }
-            
+
             if (IsSetStopButtonPressed)
             {
                 var stop = (decimal)details.Price;
@@ -268,7 +297,7 @@ namespace TraderTools.TradingTrainer
                 var entry = _currentTrade.OrderPrice != null && _currentTrade.EntryDateTime == null
                     ? _currentTrade.OrderPrice.Value
                     : (decimal)candle.Close;
-                var pips = Math.Abs(PipsHelper.GetPriceInPips(entry - stop, _market));
+                var pips = Math.Abs(PipsHelper.GetPriceInPips(entry - stop, _displayedTrade.Market));
 
                 _largeChartTextAnnotation.Text = $"{pips:0.00} pips";
                 _smallChartTextAnnotation.Text = $"{pips:0.00} pips";
@@ -339,8 +368,6 @@ namespace TraderTools.TradingTrainer
         private void SetTradeEntryPrice(double price)
         {
             IsEntryButtonPressed = false;
-            var date = _allH2Candles[_h2EndDateIndex].CloseTime();
-
             _currentTrade.OrderPrice = (decimal)price;
 
             SetAnnotations();
@@ -401,6 +428,8 @@ namespace TraderTools.TradingTrainer
 
         public List<Timeframe> TimeFrameItems { get; set; }
 
+        public bool ViewingCompletedTrade => _displayedTrade != _currentTrade;
+
         public bool IsSetStopButtonPressed
         {
             get => _isSetStopButtonPressed;
@@ -458,14 +487,14 @@ namespace TraderTools.TradingTrainer
         [Import] public ChartingService ChartingService { get; private set; }
 
         public int SelectedMainIndicatorsIndex { get; set; }
-        public DelegateCommand DeleteCommand { get; }
         public DelegateCommand ClearStopCommand { get; }
         public DelegateCommand ClearLimitCommand { get; }
         public DelegateCommand ClearEntryOrderCommand { get; }
 
-        private void CreateEmptyTrade()
+        private void CreateEmptyTrade(string market)
         {
-            _currentTrade = new TradeDetails();
+            _currentTrade = new TradeDetails { Market = market };
+            _displayedTrade = _currentTrade;
         }
 
         private void CloseTrade()
@@ -522,7 +551,7 @@ namespace TraderTools.TradingTrainer
             }
             else
             {
-                CreateEmptyTrade();
+                CreateEmptyTrade(_currentTrade.Market);
             }
 
             CloseHalfTradeAtLimit = false;
@@ -543,7 +572,7 @@ namespace TraderTools.TradingTrainer
             get => _isCloseHalfTradeAtLimitEnabled;
             set
             {
-                _isCloseHalfTradeAtLimitEnabled = value; 
+                _isCloseHalfTradeAtLimitEnabled = value;
                 OnPropertyChanged();
             }
         }
@@ -594,20 +623,6 @@ namespace TraderTools.TradingTrainer
             }
         }
 
-        protected void DeleteTrade()
-        {
-            if (SelectedTrade == null)
-            {
-                return;
-            }
-
-            var selectedTrade = SelectedTrade;
-            SelectedTrade = null;
-            Trades.Remove(selectedTrade);
-            SaveTrades();
-            SimResultsViewModel.UpdateResults();
-        }
-
         private void SetAnnotations()
         {
             if (!_currentCandles.ContainsKey(GetSelectedTimeframe(null)) || ChartViewModel.ChartPaneViewModels.Count == 0 || ChartViewModelSmaller1.ChartPaneViewModels.Count == 0)
@@ -629,7 +644,7 @@ namespace TraderTools.TradingTrainer
                     if ((string)l.Tag == "Added") continue;
                 }
 
-                if (annotation == _largeChartTextAnnotation || annotation == _smallChartTextAnnotation) continue;
+                if (annotation.Equals(_largeChartTextAnnotation) || annotation.Equals(_smallChartTextAnnotation)) continue;
 
                 ChartViewModel.ChartPaneViewModels[0].TradeAnnotations.RemoveAt(i);
             }
@@ -642,15 +657,15 @@ namespace TraderTools.TradingTrainer
                     if ((string)l.Tag == "Added") continue;
                 }
 
-                if (annotation == _largeChartTextAnnotation || annotation == _smallChartTextAnnotation) continue;
+                if (annotation.Equals(_largeChartTextAnnotation) || annotation.Equals(_smallChartTextAnnotation)) continue;
 
                 ChartViewModelSmaller1.ChartPaneViewModels[0].TradeAnnotations.RemoveAt(i);
             }
 
-            if (_currentTrade.StopPrices.Count > 0)
+            if (_displayedTrade.StopPrices.Count > 0)
             {
-                var stopPosition = _currentTrade.StopPrices[_currentTrade.StopPrices.Count - 1].Price;
-                if (stopPosition != null)
+                var stopPosition = _displayedTrade.StopPrices[_displayedTrade.StopPrices.Count - 1].Price;
+                if (stopPosition != null && _displayedTrade.CloseDateTime == null)
                 {
                     ChartHelper.AddHorizontalLine(
                         stopPosition.Value,
@@ -672,9 +687,9 @@ namespace TraderTools.TradingTrainer
                 }
             }
 
-            if (_currentTrade.LimitPrices.Count > 0)
+            if (_displayedTrade.LimitPrices.Count > 0 && _displayedTrade.CloseDateTime == null)
             {
-                var limtPosition = _currentTrade.LimitPrices[_currentTrade.LimitPrices.Count - 1].Price;
+                var limtPosition = _displayedTrade.LimitPrices[_displayedTrade.LimitPrices.Count - 1].Price;
                 if (limtPosition != null)
                 {
                     ChartHelper.AddHorizontalLine(
@@ -697,9 +712,9 @@ namespace TraderTools.TradingTrainer
                 }
             }
 
-            if (_currentTrade.EntryPrice == null && _currentTrade.OrderPrice != null)
+            if (_displayedTrade.EntryPrice == null && _displayedTrade.OrderPrice != null)
             {
-                var orderPrice = _currentTrade.OrderPrice.Value;
+                var orderPrice = _displayedTrade.OrderPrice.Value;
                 ChartHelper.AddHorizontalLine(
                     orderPrice,
                     new DateTime(largeChartCandles[0].OpenTimeTicks, DateTimeKind.Utc),
@@ -720,49 +735,38 @@ namespace TraderTools.TradingTrainer
             }
 
 
-            var tradeAnnotations = ChartHelper.CreateTradeAnnotations(ChartViewModel, false, GetSelectedTimeframe(_currentTrade), _currentCandles[GetSelectedTimeframe(_currentTrade)], _currentTrade);
+            var tradeAnnotations = ChartHelper.CreateTradeAnnotations(ChartViewModel, false, GetSelectedTimeframe(_displayedTrade), _currentCandles[GetSelectedTimeframe(_displayedTrade)], _displayedTrade);
             foreach (var tradeAnnotation in tradeAnnotations)
             {
                 ChartViewModel.ChartPaneViewModels[0].TradeAnnotations.Add(tradeAnnotation);
             }
 
             var smallChartTradeAnnotations = ChartHelper.CreateTradeAnnotations(ChartViewModelSmaller1, true, Timeframe.D1,
-                _currentCandles[Timeframe.D1], _currentTrade);
+                _currentCandles[Timeframe.D1], _displayedTrade);
             foreach (var tradeAnnotation in smallChartTradeAnnotations)
             {
                 ChartViewModelSmaller1.ChartPaneViewModels[0].TradeAnnotations.Add(tradeAnnotation);
-            }
-        }
-
-        public TradeDetails SelectedTrade
-        {
-            get { return _selectedTrade; }
-            set
-            {
-                _selectedTrade = value;
             }
         }
         #endregion
 
         private void Next()
         {
-            if (_currentTrade.OrderDateTime != null || _currentTrade.EntryDateTime != null)
+            if (_currentTrade != null && (_currentTrade.OrderDateTime != null || _currentTrade.EntryDateTime != null))
             {
                 _showMessageAction("Current trade needs to be completed before changing chart");
                 return;
             }
 
             Log.Info("Loading next chart");
-            _market = _markets[_rnd.Next(0, _markets.Count)];
-            SelectedTrade = null;
-            CreateEmptyTrade();
+            var market = _markets[_rnd.Next(0, _markets.Count)];
+            CreateEmptyTrade(market);
             CloseHalfTradeAtLimit = false;
             OrderExpiryCandlesIndex = 0;
-            var allH2Candles = _candlesService.GetCandles(_market, Timeframe.H2);
+            var allH2Candles = _candlesService.GetCandles(market, Timeframe.H2);
             _h2EndDateIndex = _rnd.Next(12 * 50, allH2Candles.Count - 12 * 50);
 
             _allH2Candles = null;
-            //_allH4Candles = null;
             _allD1Candles = null;
             _allSmallestTimeframeCandles = null;
             UpdateUIState();
@@ -773,16 +777,19 @@ namespace TraderTools.TradingTrainer
         private bool _uiStateUpdating = false;
         private bool _isCloseHalfTradeAtLimitEnabled;
         private IDisposable _chartMouseMoveDisposable;
+        private bool _isEntryButtonEnabled;
 
         private void UpdateUIState()
         {
             if (_uiStateUpdating) return;
 
+            var viewingCompletedTrade = _currentTrade != _displayedTrade;
             _uiStateUpdating = true;
-            IsTradeEnabled = _currentTrade.OrderDateTime == null && _currentTrade.EntryDateTime == null;
-            IsCloseEnabled = _currentTrade.OrderDateTime != null || _currentTrade.EntryDateTime != null;
-            Running = _currentTrade.OrderDateTime != null || _currentTrade.EntryDateTime != null;
-            IsCloseHalfTradeAtLimitEnabled = _currentTrade.LimitPrices.Count > 0 && _currentTrade.EntryPrice == null;
+            IsTradeEnabled = !viewingCompletedTrade && _currentTrade.OrderDateTime == null && _currentTrade.EntryDateTime == null;
+            IsCloseEnabled = !viewingCompletedTrade && (_currentTrade.OrderDateTime != null || _currentTrade.EntryDateTime != null);
+            IsEntryButtonEnabled = !viewingCompletedTrade && _currentTrade.EntryDateTime == null;
+            Running = !viewingCompletedTrade && (_currentTrade.OrderDateTime != null || _currentTrade.EntryDateTime != null);
+            IsCloseHalfTradeAtLimitEnabled = !viewingCompletedTrade && _currentTrade.LimitPrices.Count > 0 && _currentTrade.EntryPrice == null;
 
             if (ChartingService.ChartMode == ChartMode.AddLine)
             {
@@ -803,6 +810,8 @@ namespace TraderTools.TradingTrainer
             ClearLimitCommand.RaiseCanExecuteChanged();
             ClearStopCommand.RaiseCanExecuteChanged();
             ClearEntryOrderCommand.RaiseCanExecuteChanged();
+            OnPropertyChanged("ViewingCompletedTrade");
+            OnPropertyChanged("IsOrderExpiryCandlesEnabled");
 
             _uiStateUpdating = false;
         }
@@ -812,19 +821,19 @@ namespace TraderTools.TradingTrainer
             // Get candles
             if (_allSmallestTimeframeCandles == null)
             {
-                _allSmallestTimeframeCandles = _candlesService.GetCandles(_market, Timeframe.M5);
-                _allH2Candles = _candlesService.GetCandles(_market, Timeframe.H2);
-                _allD1Candles = _candlesService.GetCandles(_market, Timeframe.D1);
+                _allSmallestTimeframeCandles = _candlesService.GetCandles(_displayedTrade.Market, Timeframe.M5);
+                _allH2Candles = _candlesService.GetCandles(_displayedTrade.Market, Timeframe.H2);
+                _allD1Candles = _candlesService.GetCandles(_displayedTrade.Market, Timeframe.D1);
             }
 
             var endDateUtc = new DateTime(_allH2Candles[_h2EndDateIndex].CloseTimeTicks, DateTimeKind.Utc);
 
-            var currentH2Candles = _allH2Candles.Where(x => new DateTime(x.CloseTimeTicks, DateTimeKind.Utc) <= endDateUtc).ToList();
-            var currentD1Candles = _allD1Candles.Where(x => new DateTime(x.CloseTimeTicks, DateTimeKind.Utc) <= endDateUtc).ToList();
+            var currentH2Candles = _allH2Candles.Where(x => _currentTrade != _displayedTrade || new DateTime(x.CloseTimeTicks, DateTimeKind.Utc) <= endDateUtc).ToList();
+            var currentD1Candles = _allD1Candles.Where(x => _currentTrade != _displayedTrade || new DateTime(x.CloseTimeTicks, DateTimeKind.Utc) <= endDateUtc).ToList();
 
             Candle? d1Incomplete = null;
 
-            for (var i = 0; i <= _h2EndDateIndex; i++)
+            for (var i = 0; i <= (_currentTrade == _displayedTrade ? _h2EndDateIndex : _allH2Candles.Count - 1); i++)
             {
                 var h2 = _allH2Candles[i];
 
@@ -851,15 +860,14 @@ namespace TraderTools.TradingTrainer
             _currentCandles[Timeframe.H2] = currentH2Candles;
 
             SetChartCandles(recreateChart);
-        }
 
-        protected override void SelectedLargeChartTimeChanged()
-        {
-            if (SelectedTrade == null)
+            if (recreateChart && _displayedTrade != _currentTrade)
             {
-                SetChartCandles(false);
+                ChartHelper.SetChartViewModelVisibleRange(_displayedTrade, ChartViewModel, _allH2Candles, Timeframe.H2);
+                ChartHelper.SetChartViewModelVisibleRange(_displayedTrade, ChartViewModelSmaller1, _allD1Candles, Timeframe.D1);
             }
         }
+
         private void Trade(TradeDirection direction)
         {
             if (_currentTrade.StopPrices.Count == 0)
@@ -877,7 +885,6 @@ namespace TraderTools.TradingTrainer
             var date = new DateTime(candle.CloseTimeTicks, DateTimeKind.Utc);
 
             _currentTrade.Comments = _getTradeCommentsFunc();
-            _currentTrade.Market = _market;
             _currentTrade.Broker = "FXCM";
             _currentTrade.OrderDateTime = date;
             _currentTrade.OrderAmount = 100;
@@ -931,8 +938,6 @@ namespace TraderTools.TradingTrainer
                 ChartViewModel.ChartPaneViewModels.Clear();
                 ChartViewModelSmaller1.ChartPaneViewModels.Clear();
             }
-
-            if (_market == null) return;
 
             var largeChartTimeframe = GetSelectedTimeframe(null);
 
@@ -995,14 +1000,14 @@ namespace TraderTools.TradingTrainer
 
                     selectedIndicator.Indicator.Reset();
                     if (selectedIndicator.Pane.ChartSeriesViewModels.Count > 0) selectedIndicator.Pane.ChartSeriesViewModels.Clear();
-                    ChartHelper.AddIndicator(selectedIndicator.Pane, _market, selectedIndicator.Indicator, selectedIndicator.Colour, largeChartTimeframe, _currentCandles[largeChartTimeframe]);
+                    ChartHelper.AddIndicator(selectedIndicator.Pane, _displayedTrade.Market, selectedIndicator.Indicator, selectedIndicator.Colour, largeChartTimeframe, _currentCandles[largeChartTimeframe]);
                 }
                 else
                 {
                     selectedIndicator.Indicator.Reset();
-                    ChartHelper.AddIndicator(ChartViewModel.ChartPaneViewModels[0], _market, selectedIndicator.Indicator, selectedIndicator.Colour, largeChartTimeframe, _currentCandles[largeChartTimeframe]);
+                    ChartHelper.AddIndicator(ChartViewModel.ChartPaneViewModels[0], _displayedTrade.Market, selectedIndicator.Indicator, selectedIndicator.Colour, largeChartTimeframe, _currentCandles[largeChartTimeframe]);
                     selectedIndicator.Indicator.Reset();
-                    ChartHelper.AddIndicator(ChartViewModelSmaller1.ChartPaneViewModels[0], _market, selectedIndicator.Indicator, selectedIndicator.Colour, Timeframe.D1, _currentCandles[Timeframe.D1]);
+                    ChartHelper.AddIndicator(ChartViewModelSmaller1.ChartPaneViewModels[0], _displayedTrade.Market, selectedIndicator.Indicator, selectedIndicator.Colour, Timeframe.D1, _currentCandles[Timeframe.D1]);
                 }
             }
 
@@ -1158,6 +1163,7 @@ namespace TraderTools.TradingTrainer
             }
 
             SetupChart(false);
+            UpdateUIState();
         }
 
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
