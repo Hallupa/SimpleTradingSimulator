@@ -112,12 +112,6 @@
         "Entry"
         {
         "MsmKey" = "8:_0892D88154C850C9E8286C3BF27F19BE"
-        "OwnerKey" = "8:_5B9866FBC2D9E101D4A6F496CD5D85E8"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_0892D88154C850C9E8286C3BF27F19BE"
         "OwnerKey" = "8:_5E9E0FCCDEAEF28C0E2F517B86A08676"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -125,6 +119,12 @@
         {
         "MsmKey" = "8:_0892D88154C850C9E8286C3BF27F19BE"
         "OwnerKey" = "8:_B4356602FBF04E19ACA7C8562E817135"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_0892D88154C850C9E8286C3BF27F19BE"
+        "OwnerKey" = "8:_5B9866FBC2D9E101D4A6F496CD5D85E8"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -220,18 +220,6 @@
         "Entry"
         {
         "MsmKey" = "8:_1DBA284E385B884AFD52221CA900B4F1"
-        "OwnerKey" = "8:_B4356602FBF04E19ACA7C8562E817135"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_21B7228C7106231A5ADD1E215AF4AB3B"
-        "OwnerKey" = "8:_5B9866FBC2D9E101D4A6F496CD5D85E8"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_21B7228C7106231A5ADD1E215AF4AB3B"
         "OwnerKey" = "8:_B4356602FBF04E19ACA7C8562E817135"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -802,13 +790,13 @@
         "Entry"
         {
         "MsmKey" = "8:_8591A0E704A4AA5C0F5A41EC636B42D3"
-        "OwnerKey" = "8:_5E9E0FCCDEAEF28C0E2F517B86A08676"
+        "OwnerKey" = "8:_23D291E5E5C7DCA96E1EC885CD40DB1A"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_8591A0E704A4AA5C0F5A41EC636B42D3"
-        "OwnerKey" = "8:_23D291E5E5C7DCA96E1EC885CD40DB1A"
+        "OwnerKey" = "8:_5E9E0FCCDEAEF28C0E2F517B86A08676"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -1167,6 +1155,18 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_BAB02C0014944E29EC9FD903794A79B5"
+        "OwnerKey" = "8:_5B9866FBC2D9E101D4A6F496CD5D85E8"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_BAB02C0014944E29EC9FD903794A79B5"
+        "OwnerKey" = "8:_B4356602FBF04E19ACA7C8562E817135"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_BE215AE6882CA3DB15B8B17EFEF93471"
         "OwnerKey" = "8:_B4356602FBF04E19ACA7C8562E817135"
         "MsmSig" = "8:_UNDEFINED"
@@ -1451,42 +1451,6 @@
         {
         "MsmKey" = "8:_FE8C25C499904B21B84154E942AC9A5C"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_21B7228C7106231A5ADD1E215AF4AB3B"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_068376B8AC739B2F458B03A678E61DDF"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_A391D73C81D023916A49D63107F2E60D"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_9702D70711A07D8B323A17FC674D62F0"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_5B9866FBC2D9E101D4A6F496CD5D85E8"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_5E9E0FCCDEAEF28C0E2F517B86A08676"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -2128,7 +2092,25 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_068376B8AC739B2F458B03A678E61DDF"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_839AA4402FB043604A881C42047E41AE"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_A391D73C81D023916A49D63107F2E60D"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_9702D70711A07D8B323A17FC674D62F0"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -2171,6 +2153,24 @@
         {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_EC1B0BB04FBF39D24FEF108C1BC9292C"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_5B9866FBC2D9E101D4A6F496CD5D85E8"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_BAB02C0014944E29EC9FD903794A79B5"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_5E9E0FCCDEAEF28C0E2F517B86A08676"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -2618,7 +2618,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:TraderTools.Core.UI, Version=1.0.2.0, Culture=neutral, processorArchitecture=x86"
+            "AssemblyAsmDisplayName" = "8:TraderTools.Core.UI, Version=1.0.3.0, Culture=neutral, processorArchitecture=x86"
                 "ScatterAssemblies"
                 {
                     "_068376B8AC739B2F458B03A678E61DDF"
@@ -3120,37 +3120,6 @@
                     }
                 }
             "SourcePath" = "8:System.Windows.Controls.Ribbon.dll"
-            "TargetName" = "8:"
-            "Tag" = "8:"
-            "Folder" = "8:_4D4A4A60AD55400F80A70C76F982CFE1"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:TRUE"
-            "IsolateTo" = "8:"
-            }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_21B7228C7106231A5ADD1E215AF4AB3B"
-            {
-            "AssemblyRegister" = "3:1"
-            "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:System.Windows.Interactivity, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL"
-                "ScatterAssemblies"
-                {
-                    "_21B7228C7106231A5ADD1E215AF4AB3B"
-                    {
-                    "Name" = "8:System.Windows.Interactivity.dll"
-                    "Attributes" = "3:512"
-                    }
-                }
-            "SourcePath" = "8:System.Windows.Interactivity.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_4D4A4A60AD55400F80A70C76F982CFE1"
@@ -4365,7 +4334,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Hallupa.Library.UI, Version=1.0.2.0, Culture=neutral, processorArchitecture=x86"
+            "AssemblyAsmDisplayName" = "8:Hallupa.Library.UI, Version=1.0.3.0, Culture=neutral, processorArchitecture=x86"
                 "ScatterAssemblies"
                 {
                     "_5B9866FBC2D9E101D4A6F496CD5D85E8"
@@ -4498,7 +4467,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:Hallupa.Library, Version=1.0.2.0, Culture=neutral, processorArchitecture=x86"
+            "AssemblyAsmDisplayName" = "8:Hallupa.Library, Version=1.0.3.0, Culture=neutral, processorArchitecture=x86"
                 "ScatterAssemblies"
                 {
                     "_5E9E0FCCDEAEF28C0E2F517B86A08676"
@@ -5715,7 +5684,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:TraderTools.Basics, Version=1.0.2.0, Culture=neutral, processorArchitecture=x86"
+            "AssemblyAsmDisplayName" = "8:TraderTools.Basics, Version=1.0.3.0, Culture=neutral, processorArchitecture=x86"
                 "ScatterAssemblies"
                 {
                     "_9702D70711A07D8B323A17FC674D62F0"
@@ -6034,7 +6003,7 @@
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:TraderTools.Indicators, Version=1.0.2.0, Culture=neutral, processorArchitecture=x86"
+            "AssemblyAsmDisplayName" = "8:TraderTools.Indicators, Version=1.0.3.0, Culture=neutral, processorArchitecture=x86"
                 "ScatterAssemblies"
                 {
                     "_A391D73C81D023916A49D63107F2E60D"
@@ -6724,6 +6693,37 @@
             "Register" = "3:1"
             "Exclude" = "11:FALSE"
             "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_BAB02C0014944E29EC9FD903794A79B5"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:System.Windows.Interactivity, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                    "_BAB02C0014944E29EC9FD903794A79B5"
+                    {
+                    "Name" = "8:System.Windows.Interactivity.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:System.Windows.Interactivity.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_4D4A4A60AD55400F80A70C76F982CFE1"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
             "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_BE215AE6882CA3DB15B8B17EFEF93471"
@@ -7997,15 +7997,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Trader Simulator"
-        "ProductCode" = "8:{121FFD5D-CB5B-473B-99B6-279CB4D5418C}"
-        "PackageCode" = "8:{627387C1-D1CF-4EB8-8ECF-70C948C897C7}"
+        "ProductCode" = "8:{98542A6C-7DFB-4F26-A77D-F532AD23C778}"
+        "PackageCode" = "8:{D1E29116-2115-4D4D-9576-8930D3BEB62E}"
         "UpgradeCode" = "8:{6C223DBD-ACEB-4820-B67A-484AFB14C0DA}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.0.3"
+        "ProductVersion" = "8:1.0.4"
         "Manufacturer" = "8:Hallupa Ltd"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
@@ -8589,7 +8589,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_B4356602FBF04E19ACA7C8562E817135"
             {
-            "SourcePath" = "8:..\\TraderTools.TraderSimulator\\obj\\x86\\Release\\TraderTools.TradingTrainer.exe"
+            "SourcePath" = "8:..\\TraderTools.TraderSimulator\\obj\\x86\\Debug\\TraderTools.TradingTrainer.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_4D4A4A60AD55400F80A70C76F982CFE1"
