@@ -50,6 +50,7 @@ Under the results section shows the completed trades and their details
 # License
 
 This library is release under GNU General Public License v3.0.
+
 Copyright (c) 2019 Oliver Wickenden
 
 https://github.com/Hallupa/TraderSimulator/blob/master/LICENSE
