@@ -45,7 +45,7 @@ All the results are shown in risk to reward ratios, or R, and shows statistics s
 In the drop down listbox it also gives options such as showing results grouped by strategies, markets, etc.
 
 ## Completed trades
-Under the results section shows the completed trades and their details
+Under the results section shows the completed trades and their details. Here completed trades can also be viewed on the chart.
 
 # License
 
