@@ -1,19 +1,17 @@
-# Trader Simulator
-Simple Forex trader simulator for manually testing strategies.
+# Simple Trading Simulator
+Simple trading simulator is a Forex trading simulator for manually testing strategies.
 This application is still in the early stages so is a bit raw - any bugs/suggestions please let me know.
-The application currently has 30 markets each with 5 years of data built in, hence the large size of the download.
+The application currently has 30 markets each with 5 years of data from FXCM built in, hence the large size of the download.
 
-Download installed from https://github.com/Hallupa/TraderSimulator/releases
+Download installed from https://github.com/Hallupa/SimpleTradingSimulator/releases
 
-![Screenshot](https://github.com/Hallupa/TraderSimulator/blob/master/Docs/Images/Screenshot.png)
+![Screenshot](https://github.com/Hallupa/SimpleTradingSimulator/blob/master/Docs/Images/Screenshot.png)
 
 # Installation
 1. Download latest version from:
-https://github.com/Hallupa/TraderSimulator/releases
+https://github.com/Hallupa/SimpleTradingSimulator/releases
 
-2. Extract the zip file
-3. Run setup.exe
-4. This will create a 'Trader Simulator' shortcut in your start menu
+2. Run 'TradingSimulatorInstaller.msi' which will install the application along with shortcuts on the desktop and start menu
 
 # How to use
 After starting the application there will be a random chart from one of 30 markets at a random point in time.
