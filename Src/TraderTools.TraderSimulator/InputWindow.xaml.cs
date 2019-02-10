@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 
-namespace TraderTools.TradingTrainer
+namespace TraderTools.TradingSimulator
 {
     /// <summary>
     /// Interaction logic for InputWindow.xaml

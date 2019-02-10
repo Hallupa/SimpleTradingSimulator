@@ -5,7 +5,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using TraderTools.Basics;
 
-namespace TraderTools.TradingTrainer.Services
+namespace TraderTools.TradingSimulator.Services
 {
     public class CandlesService
     {

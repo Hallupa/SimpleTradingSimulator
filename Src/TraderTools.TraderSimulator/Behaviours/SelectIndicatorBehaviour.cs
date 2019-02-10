@@ -4,7 +4,7 @@ using System.Windows.Controls.Ribbon;
 using System.Windows.Interactivity;
 using TraderTools.Basics;
 
-namespace TraderTools.TradingTrainer.Behaviours
+namespace TraderTools.TradingSimulator.Behaviours
 {
     public class SelectIndicatorBehaviour : Behavior<RibbonToggleButton>
     {

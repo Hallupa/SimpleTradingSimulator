@@ -22,9 +22,9 @@ using TraderTools.Core.UI;
 using TraderTools.Core.UI.Services;
 using TraderTools.Core.UI.ViewModels;
 using TraderTools.Indicators;
-using TraderTools.TradingTrainer.Services;
+using TraderTools.TradingSimulator.Services;
 
-namespace TraderTools.TradingTrainer
+namespace TraderTools.TradingSimulator
 {
     public class IndicatorDisplayOptions
     {

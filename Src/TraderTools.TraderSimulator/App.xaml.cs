@@ -5,7 +5,7 @@ using Hallupa.Library;
 using log4net;
 using TraderTools.Core.UI.Services;
 
-namespace TraderTools.TradingTrainer
+namespace TraderTools.TradingSimulator
 {
     /// <summary>
     /// Interaction logic for App.xaml
@@ -20,8 +20,6 @@ namespace TraderTools.TradingTrainer
 
             DependencyContainer.AddAssembly(typeof(App).Assembly);
             DependencyContainer.AddAssembly(typeof(ChartingService).Assembly);
-
-            // SciChartSurface.SetRuntimeLicenseKey();
         }
     }
 }

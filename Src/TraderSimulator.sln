@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28010.2041
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TraderTools.TraderSimulator", "TraderTools.TraderSimulator\TraderTools.TraderSimulator.csproj", "{7BFDB2E7-9C76-4684-8CB6-224A9A79B2FB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TraderTools.TradingSimulator", "TraderTools.TraderSimulator\TraderTools.TradingSimulator.csproj", "{7BFDB2E7-9C76-4684-8CB6-224A9A79B2FB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Library", "Library\Library.csproj", "{EE1CEA5C-3FF1-45DD-9F3B-8043F71BFB76}"
 EndProject

@@ -1,18 +1,18 @@
-﻿<Window x:Class="TraderTools.TradingTrainer.MainWindow"
+﻿<Window x:Class="TraderTools.TradingSimulator.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:TraderTools.TradingTrainer"
+        xmlns:local="clr-namespace:TraderTools.TradingSimulator"
         xmlns:ui="clr-namespace:Hallupa.Library.UI;assembly=Hallupa.Library.UI"
         xmlns:charting="clr-namespace:TraderTools.Core.UI;assembly=TraderTools.Core.UI"
         xmlns:converters="clr-namespace:Hallupa.Library.UI.Converters;assembly=Hallupa.Library.UI"
         xmlns:views2="clr-namespace:TraderTools.Core.UI.Views;assembly=TraderTools.Core.UI"
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
-        xmlns:behaviours="clr-namespace:TraderTools.TradingTrainer.Behaviours"
+        xmlns:behaviours="clr-namespace:TraderTools.TradingSimulator.Behaviours"
         xmlns:primitives="clr-namespace:System.Windows.Controls.Ribbon.Primitives;assembly=System.Windows.Controls.Ribbon"
         mc:Ignorable="d"
-        Title="Trader Simulator" Height="820" Width="1200" WindowStartupLocation="CenterScreen" WindowState="Normal">
+        Title="Simple Trading Simulator" Height="820" Width="1200" WindowStartupLocation="CenterScreen" WindowState="Normal">
     <Grid>
         <Grid.Resources>
             <ui:BindingProxy x:Key="Proxy" Data="{Binding}" />

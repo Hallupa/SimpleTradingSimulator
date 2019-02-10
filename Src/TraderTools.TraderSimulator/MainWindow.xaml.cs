@@ -4,7 +4,7 @@ using System.Windows.Input;
 using Abt.Controls.SciChart;
 using Hallupa.Library.UI;
 
-namespace TraderTools.TradingTrainer
+namespace TraderTools.TradingSimulator
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
