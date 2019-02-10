@@ -7998,7 +7998,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Simple Trading Simulator"
         "ProductCode" = "8:{98542A6C-7DFB-4F26-A77D-F532AD23C778}"
-        "PackageCode" = "8:{3AD9FCEE-7C75-4436-BB79-249DF2DC8BF0}"
+        "PackageCode" = "8:{467FB8B0-1B3B-4183-90BE-436DF89A7A45}"
         "UpgradeCode" = "8:{6C223DBD-ACEB-4820-B67A-484AFB14C0DA}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
@@ -8134,7 +8134,7 @@
             }
             "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_4BF9A9CD95EC4755924CC0E79CE42B9C"
             {
-            "Name" = "8:Shortcut to Primary output from TraderTools.TradingSimulator (Active)"
+            "Name" = "8:Simple Trading Simulator"
             "Arguments" = "8:"
             "Description" = "8:Simple Trading Simulator"
             "ShowCmd" = "3:1"
