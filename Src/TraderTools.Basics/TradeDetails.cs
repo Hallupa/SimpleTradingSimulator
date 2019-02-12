@@ -477,57 +477,8 @@ namespace TraderTools.Basics
 
             var amount = OrderAmount != null && OrderAmount.Value != 0 ? OrderAmount.Value : EntryQuantity.Value;
             var date = OrderDateTime != null ? OrderDateTime.Value : EntryDateTime.Value;
-            var onePipPerOneItem = PipsHelper.GetOnePipInDecimals(Market);
 
-            if (Market == "AUS200")
-            {
-                var candle = candleService.GetFirstCandleThatClosesBeforeDateTime("GBP/AUD", broker, Basics.Timeframe.D1, date, updateCandles);
-                var price = (decimal)candle.Value.Open;
-                PricePerPip = (onePipPerOneItem * amount * 0.1M) / price;
-            }
-            else if (Market == "GER30" || Market == "Bund" || Market == "FRA40")
-            {
-                var candle = candleService.GetFirstCandleThatClosesBeforeDateTime("EUR/GBP", broker, Basics.Timeframe.D1, date, updateCandles);
-                var price = (decimal)candle.Value.Open;
-                PricePerPip = (onePipPerOneItem * amount * 0.1M) * price;
-            }
-            else if (Market == "NAS100")
-            {
-                var candle = candleService.GetFirstCandleThatClosesBeforeDateTime("GBP/USD", broker, Basics.Timeframe.D1, date, updateCandles);
-                var price = (decimal)candle.Value.Open;
-                PricePerPip = (onePipPerOneItem * amount * 0.1M) / price;
-            }
-            else if (Market == "UK100")
-            {
-                PricePerPip = onePipPerOneItem * amount * 0.1M;
-            }
-            else if (Market == "SPX500")
-            {
-                var candle = candleService.GetFirstCandleThatClosesBeforeDateTime("GBP/USD", broker, Basics.Timeframe.D1, date, updateCandles);
-                var price = (decimal)candle.Value.Open;
-                PricePerPip = (onePipPerOneItem * amount * 1M) / price;
-            }
-            else if (Market == "USOil")
-            {
-                var candle = candleService.GetFirstCandleThatClosesBeforeDateTime("GBP/USD", broker, Basics.Timeframe.D1, date, updateCandles);
-                var price = (decimal)candle.Value.Open;
-                PricePerPip = (onePipPerOneItem * amount * 1M) / price;
-            }
-            else if (Market == "US30")
-            {
-                var candle = candleService.GetFirstCandleThatClosesBeforeDateTime("GBP/USD", broker, Basics.Timeframe.D1, date, updateCandles);
-                var price = (decimal)candle.Value.Open;
-                PricePerPip = (onePipPerOneItem * amount * 0.1M) / price;
-            }
-            else if (Market.Contains("/"))
-            {
-                var c = candleService.GetFirstCandleThatClosesBeforeDateTime(Market, broker, Basics.Timeframe.D1, date, updateCandles);
-                PricePerPip = amount / (decimal)c.Value.Open * onePipPerOneItem;
-            }
-            else
-            {
-                throw new ApplicationException($"Unable to get price/pip for {Market}");
-            }
+            PricePerPip = PipsHelper.ConvertLotSizeToGBPPerPip(amount, Market, date, candleService, broker, updateCandles);
         }
 
         public override string ToString()
