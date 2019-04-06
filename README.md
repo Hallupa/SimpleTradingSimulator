@@ -1,5 +1,5 @@
 # Simple Forex Trading Simulator
-## Simple trading simulator is a Forex trading simulator for manually testing strategies and analysing results.
+## SimpleTradingSimulator is a Forex trading simulator for manually testing strategies and analysing results.
 The application allows stepping through a market at any speed allowing trades to be simulated across many years of data very quickly.
 It currently has 30 markets each with 5 years of data from FXCM built in, hence the large size of the download.
 
