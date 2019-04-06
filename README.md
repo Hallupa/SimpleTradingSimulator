@@ -1,9 +1,7 @@
-# Simple Trading Simulator
-Simple trading simulator is a Forex trading simulator for manually testing strategies.
-This application is still in the early stages so is a bit raw - any bugs/suggestions please let me know.
-The application currently has 30 markets each with 5 years of data from FXCM built in, hence the large size of the download.
-
-Download the Windows installer from https://github.com/Hallupa/SimpleTradingSimulator/releases
+# Simple Forex Trading Simulator
+##Simple trading simulator is a Forex trading simulator for manually testing strategies and analysing results.
+The application allows stepping through a market at any speed allowing trades to be simulated across many years of data very quickly.
+It currently has 30 markets each with 5 years of data from FXCM built in, hence the large size of the download.
 
 ![Screenshot](https://github.com/Hallupa/SimpleTradingSimulator/blob/master/Docs/Images/Screenshot.png)
 
