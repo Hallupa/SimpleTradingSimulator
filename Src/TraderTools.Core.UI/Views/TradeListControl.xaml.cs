@@ -1,8 +1,27 @@
-﻿using System.Windows;
+﻿using System;
+using System.Linq;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace TraderTools.Core.UI.Views
 {
+    [Flags]
+    public enum TradeListDisplayOptionsFlag
+    {
+        None = 0,
+        PoundsPerPip = 1,
+        Quantity = 2,
+        InitialStop = 4,
+        InitialLimit = 8,
+        OrderDate = 16,
+        Broker = 32,
+        Comments = 64,
+        ResultR = 128,
+        ViewTrade = 256,
+        OrderPrice = 512,
+        ClosePrice = 1024
+    }
+
     /// <summary>
     /// Interaction logic for TradeListControl.xaml
     /// </summary>
@@ -14,7 +33,7 @@ namespace TraderTools.Core.UI.Views
         }
 
         public static readonly DependencyProperty ShowTradeEntryOnlyProperty = DependencyProperty.Register(
-            "ShowTradeEntryOnly", typeof(bool), typeof(TradeListControl), new PropertyMetadata(false, PropertyChangedCallback));
+            "ShowTradeEntryOnly", typeof(bool), typeof(TradeListControl), new PropertyMetadata(false, ShowTradeEntryOnlyPropertyChangedCallback));
 
         public static readonly DependencyProperty ShowBasicDetailsOnlyProperty = DependencyProperty.Register(
             "ShowBasicDetailsOnly", typeof(bool), typeof(TradeListControl), new PropertyMetadata(default(bool), ShowBasicDetailsPropertyChangedCallback));
@@ -24,6 +43,22 @@ namespace TraderTools.Core.UI.Views
 
         public static readonly DependencyProperty HideContextMenuProperty = DependencyProperty.Register(
             "HideContextMenu", typeof(bool), typeof(TradeListControl), new PropertyMetadata(default(bool), HideContextMenuPropertyChangedCallback));
+
+        public static readonly DependencyProperty HideContextMenuDeleteOptionProperty = DependencyProperty.Register(
+            "HideContextMenuDeleteOption", typeof(bool), typeof(TradeListControl), new PropertyMetadata(default(bool), HideContextMenuDeleteOptionChanged));
+
+        private static void HideContextMenuDeleteOptionChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var c = (TradeListControl) d;
+            var hide = (bool) e.NewValue;
+            c.MainContextMenuDeleteMenuItem.Visibility = hide ? Visibility.Collapsed : Visibility.Visible;
+        }
+        
+        public bool HideContextMenuDeleteOption
+        {
+            get { return (bool) GetValue(HideContextMenuDeleteOptionProperty); }
+            set { SetValue(HideContextMenuDeleteOptionProperty, value); }
+        }
 
         public static readonly DependencyProperty HideContextMenuEditOptionProperty = DependencyProperty.Register(
             "HideContextMenuEditOption", typeof(bool), typeof(TradeListControl), new PropertyMetadata(default(bool), HideContextMenuEditOptionChanged));
@@ -72,13 +107,10 @@ namespace TraderTools.Core.UI.Views
         private static void ShowBasicDetailsPropertyChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var c = (TradeListControl)d;
-            c.MainDataGrid.Columns[1].Visibility = (bool)e.NewValue ? Visibility.Collapsed : Visibility.Visible;
-            c.MainDataGrid.Columns[7].Visibility = (bool)e.NewValue ? Visibility.Collapsed : Visibility.Visible;
-            c.MainDataGrid.Columns[8].Visibility = (bool)e.NewValue ? Visibility.Collapsed : Visibility.Visible;
-            c.MainDataGrid.Columns[10].Visibility = (bool)e.NewValue ? Visibility.Collapsed : Visibility.Visible;
-            c.MainDataGrid.Columns[13].Visibility = (bool)e.NewValue ? Visibility.Collapsed : Visibility.Visible;
-            c.MainDataGrid.Columns[14].Visibility = (bool)e.NewValue ? Visibility.Collapsed : Visibility.Visible;
-            c.MainDataGrid.Columns[15].Visibility = (bool)e.NewValue ? Visibility.Collapsed : Visibility.Visible;
+            c.MainDataGrid.Columns.First(x => (string)x.Header == "£/pip").Visibility = (bool)e.NewValue ? Visibility.Collapsed : Visibility.Visible;
+            c.MainDataGrid.Columns.First(x => (string)x.Header == "Risking").Visibility = (bool)e.NewValue ? Visibility.Collapsed : Visibility.Visible;
+            c.MainDataGrid.Columns.First(x => (string)x.Header == "Risk %").Visibility = (bool)e.NewValue ? Visibility.Collapsed : Visibility.Visible;
+            c.MainDataGrid.Columns.First(x => (string)x.Header == "Profit").Visibility = (bool)e.NewValue ? Visibility.Collapsed : Visibility.Visible;
         }
 
         public bool ShowBasicDetailsOnly
@@ -87,17 +119,17 @@ namespace TraderTools.Core.UI.Views
             set { SetValue(ShowBasicDetailsOnlyProperty, value); }
         }
 
-        private static void PropertyChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        private static void ShowTradeEntryOnlyPropertyChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var c = (TradeListControl)d;
-            c.MainDataGrid.Columns[2].Visibility = (bool)e.NewValue ? Visibility.Collapsed : Visibility.Visible;
-            c.MainDataGrid.Columns[6].Visibility = (bool)e.NewValue ? Visibility.Collapsed : Visibility.Visible;
-            c.MainDataGrid.Columns[9].Visibility = (bool)e.NewValue ? Visibility.Collapsed : Visibility.Visible;
-            c.MainDataGrid.Columns[10].Visibility = (bool)e.NewValue ? Visibility.Collapsed : Visibility.Visible;
-            c.MainDataGrid.Columns[11].Visibility = (bool)e.NewValue ? Visibility.Collapsed : Visibility.Visible;
-            c.MainDataGrid.Columns[12].Visibility = (bool)e.NewValue ? Visibility.Collapsed : Visibility.Visible;
-            c.MainDataGrid.Columns[13].Visibility = (bool)e.NewValue ? Visibility.Collapsed : Visibility.Visible;
-            c.MainDataGrid.Columns[15].Visibility = (bool)e.NewValue ? Visibility.Collapsed : Visibility.Visible;
+            c.MainDataGrid.Columns.First(x => (string)x.Header == "£/pip").Visibility = (bool)e.NewValue ? Visibility.Collapsed : Visibility.Visible;
+            c.MainDataGrid.Columns.First(x => (string)x.Header == "Risking").Visibility = (bool)e.NewValue ? Visibility.Collapsed : Visibility.Visible;
+            c.MainDataGrid.Columns.First(x => (string)x.Header == "Risk %").Visibility = (bool)e.NewValue ? Visibility.Collapsed : Visibility.Visible;
+            c.MainDataGrid.Columns.First(x => (string)x.Header == "Profit").Visibility = (bool)e.NewValue ? Visibility.Collapsed : Visibility.Visible;
+            c.MainDataGrid.Columns.First(x => (string)x.Header == "Result R").Visibility = (bool)e.NewValue ? Visibility.Collapsed : Visibility.Visible;
+            c.MainDataGrid.Columns.First(x => (string)x.Header == "Status").Visibility = (bool)e.NewValue ? Visibility.Collapsed : Visibility.Visible;
+            c.MainDataGrid.Columns.First(x => (string)x.Header == "Entry date").Visibility = (bool)e.NewValue ? Visibility.Collapsed : Visibility.Visible;
+            c.MainDataGrid.Columns.First(x => (string)x.Header == "Close date").Visibility = (bool)e.NewValue ? Visibility.Collapsed : Visibility.Visible;
         }
 
         public bool ShowTradeEntryOnly

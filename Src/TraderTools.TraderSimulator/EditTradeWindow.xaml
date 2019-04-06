@@ -1,0 +1,52 @@
+﻿<Window x:Class="TraderTools.TradingSimulator.EditTradeWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:TraderTools.TradingSimulator"
+        xmlns:converters="clr-namespace:Hallupa.Library.UI.Converters;assembly=Hallupa.Library.UI"
+        mc:Ignorable="d"
+        Title="Edit trade" Height="400" Width="300" WindowStyle="ToolWindow">
+    <Grid>
+        <Grid.Resources>
+            <converters:BoolToVisibilityConverter x:Key="BoolToVis"/>
+            <converters:BoolToVisibilityConverter x:Key="InvBoolToVis" Inverse="True"/>
+        </Grid.Resources>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Label Content="Trade" Grid.Row="0" FontSize="16" FontWeight="Bold"/>
+
+        <GroupBox Header="Entry order" Grid.Row="1">
+            <StackPanel>
+                <ToggleButton Content="Set entry order" IsChecked="{Binding IsEntryButtonPressed}" IsEnabled="{Binding IsEntryButtonEnabled}" Margin="2" Padding="15,4,15,4"/>
+                <Button Content="Clear entry order" Padding="15,4,15,4" Margin="2" Command="{Binding ClearEntryOrderCommand}" IsEnabled="{Binding IsClearEntryEnabled}"/>
+            </StackPanel>
+        </GroupBox>
+
+        <GroupBox Header="Stop" Grid.Row="2">
+            <StackPanel>
+                <ToggleButton Content="Set stop" IsChecked="{Binding IsSetStopButtonPressed}" IsEnabled="{Binding IsSetStopEnabled}" Margin="2"/>
+                <Button Content="Clear stop" Padding="15,4,15,4" Margin="2" Command="{Binding ClearStopCommand}"/>
+            </StackPanel>
+        </GroupBox>
+
+        <GroupBox Header="Limit" Grid.Row="3">
+            <StackPanel>
+                <ToggleButton Content="Set limit" IsChecked="{Binding IsSetLimitButtonPressed}" IsEnabled="{Binding IsSetLimitEnabled}" Margin="2" Padding="15,4,15,4"/>
+                <Button Content="Clear limit" Padding="15,4,15,4" Margin="2" Command="{Binding ClearLimitCommand}"/>
+            </StackPanel>
+        </GroupBox>
+
+        <StackPanel Grid.Row="4">
+            <Button Content="OK" Margin="2" Padding="15,4,15,4" Command="{Binding OKCommand}"/>
+            <Button Content="Cancel" Margin="2" Padding="15,4,15,4" Command="{Binding CancelCommand}" Visibility="{Binding ShowCancelButton, Converter={StaticResource BoolToVis}}"/>
+            <Button Content="Close trade" Margin="2" Padding="15,4,15,4" Command="{Binding CloseCommand}" Visibility="{Binding ShowCloseButton, Converter={StaticResource BoolToVis}}"/>
+        </StackPanel>
+    </Grid>
+</Window>

@@ -13,6 +13,7 @@
         Range30,
         Range40,
         Range50,
-        Range60
+        Range60,
+        ATR
     }
 }

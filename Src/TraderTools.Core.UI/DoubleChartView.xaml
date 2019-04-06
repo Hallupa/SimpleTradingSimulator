@@ -81,7 +81,7 @@
             <converters:BoolToValueConverter x:Key="MaxAutoTicksConverter" FalseValue="4" TrueValue="8" />
             <converters:BoolToValueConverter x:Key="GrowByConverter">
                 <converters:BoolToValueConverter.TrueValue>
-                    <s:DoubleRange Max="0.3" Min="0.3" />
+                    <s:DoubleRange Max="0.1" Min="0.1" />
                 </converters:BoolToValueConverter.TrueValue>
                 <converters:BoolToValueConverter.FalseValue>
                     <s:DoubleRange Max="0.0" Min="0.0" />
@@ -92,7 +92,8 @@
         </Grid.Resources>
 
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="1.2*"/>
+            <ColumnDefinition Width="1.5*"/>
+            <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="2*"/>
         </Grid.ColumnDefinitions>
 
@@ -104,10 +105,11 @@
         <!-- s:ThemeManager.Theme="BlackSteel" -->
         <Label Grid.Row="0" Grid.Column="0" FontWeight="Bold">D1</Label>
 
-        <Border Grid.Column="0" Grid.Row="1" BorderBrush="DarkGray" BorderThickness="1" Margin="5,5,0,5">
+        <Border Grid.Column="0" Grid.Row="1" BorderBrush="DarkGray" BorderThickness="1" Margin="5,5,0,5" Padding="5">
             <s:SciChartGroup ItemsSource="{Binding ChartViewModelSmaller1.ChartPaneViewModels}" 
                          x:Name="SmallerChartGroup" x:FieldModifier="public"
-                         s:ThemeManager.Theme="Chrome" ItemContainerStyle="{StaticResource ChartPaneStyle}">
+                         s:ThemeManager.Theme="Chrome" ItemContainerStyle="{StaticResource ChartPaneStyle}"
+                         Cursor="{Binding ChartCursor, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=charting:DoubleChartView}}">
                 <s:SciChartGroup.ItemTemplate>
                     <DataTemplate>
                         <Grid>
@@ -153,7 +155,7 @@
                                         <s:ZoomPanModifier ExecuteOn="MouseLeftButton" ClipModeX="None"
                                                            IsEnabled="{Binding Data.ChartingService.ChartMode, Converter={StaticResource ObjToBool}, ConverterParameter={x:Null}, Source={StaticResource Proxy}}" />
                                         <s:YAxisDragModifier DragMode="Scale"/>
-                                        <s:XAxisDragModifier DragMode="Pan"/>
+                                        <s:XAxisDragModifier DragMode="Scale"/>
                                         <s:MouseWheelZoomModifier/>
                                         <s:ZoomExtentsModifier ExecuteOn="MouseDoubleClick" />
                                         <s:TooltipModifier></s:TooltipModifier>
@@ -168,11 +170,14 @@
             </s:SciChartGroup>
         </Border>
 
-        <Label Grid.Row="0" Grid.Column="1" FontWeight="Bold">2H</Label>
+        <GridSplitter Grid.Column="1" HorizontalAlignment="Center" Grid.RowSpan="2" VerticalAlignment="Stretch" Background="DarkGray" Width="7" />
 
-        <Border Grid.Row="1" Grid.Column="1" BorderBrush="DarkGray" BorderThickness="1" Margin="5">
+        <Label Grid.Row="0" Grid.Column="2" FontWeight="Bold">2H</Label>
+
+        <Border Grid.Row="1" Grid.Column="2" BorderBrush="DarkGray" BorderThickness="1" Margin="5" Padding="5">
             <s:SciChartGroup ItemsSource="{Binding ChartViewModel.ChartPaneViewModels}"
-                         s:ThemeManager.Theme="Chrome" ItemContainerStyle="{StaticResource ChartPaneStyle}" x:Name="MainChartGroup" x:FieldModifier="public">
+                         s:ThemeManager.Theme="Chrome" ItemContainerStyle="{StaticResource ChartPaneStyle}" x:Name="MainChartGroup" x:FieldModifier="public"
+                             Cursor="{Binding ChartCursor, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=charting:DoubleChartView}}">
                 <s:SciChartGroup.ItemTemplate>
                     <DataTemplate>
                         <Grid>
@@ -218,7 +223,7 @@
                                         <s:ZoomPanModifier ExecuteOn="MouseLeftButton" ClipModeX="None"
                                                            IsEnabled="{Binding Data.ChartingService.ChartMode, Converter={StaticResource ObjToBool}, ConverterParameter={x:Null}, Source={StaticResource Proxy}}" />
                                         <s:YAxisDragModifier DragMode="Scale"/>
-                                        <s:XAxisDragModifier DragMode="Pan"/>
+                                        <s:XAxisDragModifier DragMode="Scale"/>
                                         <s:MouseWheelZoomModifier/>
                                         <s:ZoomExtentsModifier ExecuteOn="MouseDoubleClick" />
                                         <s:TooltipModifier></s:TooltipModifier>

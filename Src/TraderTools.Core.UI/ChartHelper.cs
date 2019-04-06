@@ -16,6 +16,19 @@ using TraderTools.Core;
 
 namespace TraderTools.Core.UI
 {
+    [Flags]
+    public enum TradeAnnotationsToShow
+    {
+        All = 1,
+        StopsLines = 2,
+        LimitsLines = 4,
+        OrderOrEntryLines = 8,
+        OrderMarker = 16,
+        EntryMarker = 32,
+        CloseMarker = 64,
+        CloseLine = 128
+    }
+
     public static class ChartHelper
     {
         static ChartHelper()
@@ -25,7 +38,7 @@ namespace TraderTools.Core.UI
 
         public static TimeSpan LocalUtcOffset { get; private set; }
 
-        public static void SetChartViewModelPriceData(IList<Candle> candles, ChartViewModel cvm, Timeframe timeframe)
+        public static void SetChartViewModelPriceData(IList<ICandle> candles, ChartViewModel cvm, Timeframe timeframe)
         {
             var priceDataSeries = new OhlcDataSeries<DateTime, double>();
             var time = new DateTime(0);
@@ -74,7 +87,7 @@ namespace TraderTools.Core.UI
             }
         }
 
-        public static IDataSeries CreateIndicatorSeries(string market, IIndicator indicator, Color color, Timeframe timeframe, IList<Candle> candles)
+        public static IDataSeries CreateIndicatorSeries(string market, IIndicator indicator, Color color, Timeframe timeframe, IList<ICandle> candles)
         {
             var series = new XyDataSeries<DateTime, double>();
             var xvalues = new List<DateTime>();
@@ -100,8 +113,7 @@ namespace TraderTools.Core.UI
             return series;
         }
 
-        public static void AddIndicator(
-            ChartPaneViewModel paneViewModel, string market, IIndicator indicator, Color color, Timeframe timeframe, IList<Candle> candles)
+        public static void AddIndicator(ChartPaneViewModel paneViewModel, string market, IIndicator indicator, Color color, Timeframe timeframe, IList<ICandle> candles)
         {
             var series = CreateIndicatorSeries(market, indicator, color, timeframe, candles);
 
@@ -113,7 +125,7 @@ namespace TraderTools.Core.UI
             }));
         }
 
-        private static DateTime? GetChartDateTime(DateTime? dateTime, IList<Candle> candles, Timeframe timeframe)
+        private static DateTime? GetChartDateTime(DateTime? dateTime, IList<ICandle> candles, Timeframe timeframe)
         {
             if (dateTime == null)
             {
@@ -137,8 +149,8 @@ namespace TraderTools.Core.UI
             return dateTime;
         }
 
-        public static AnnotationCollection CreateTradeAnnotations(ChartViewModel cvm, bool basicAnnotations,
-            Timeframe timeframe, IList<Candle> candles, TradeDetails trade)
+        public static AnnotationCollection CreateTradeAnnotations(ChartViewModel cvm, TradeAnnotationsToShow annotationsToShow,
+            Timeframe timeframe, IList<ICandle> candles, TradeDetails trade)
         {
             // Setup annotations
             var annotations = new AnnotationCollection();
@@ -154,20 +166,45 @@ namespace TraderTools.Core.UI
                     ? trade.OrderPrice.Value
                     : trade.EntryPrice.Value;
 
-                if (trade.EntryDateTimeLocal != null)
+                if (trade.OrderPrice != null && (annotationsToShow.HasFlag(TradeAnnotationsToShow.All) || annotationsToShow.HasFlag(TradeAnnotationsToShow.OrderMarker)))
                 {
-                    AddBuySellMarker(trade.TradeDirection.Value, annotations, trade, GetChartDateTime(trade.EntryDateTimeLocal.Value, candles, timeframe).Value, price);
+                    AddBuySellMarker(trade.TradeDirection.Value, annotations, trade, GetChartDateTime(trade.OrderDateTimeLocal.Value, candles, timeframe).Value, trade.OrderPrice.Value, 0.6);
                 }
 
-                AddHorizontalLine(price, GetChartDateTime(startTime.Value, candles, timeframe).Value, GetChartDateTime(endTimeLocal.Value, candles, timeframe).Value,
-                    dataSeries, annotations, trade, Colors.White);
+                if (trade.EntryPrice != null && (annotationsToShow.HasFlag(TradeAnnotationsToShow.All) || annotationsToShow.HasFlag(TradeAnnotationsToShow.EntryMarker)))
+                {
+                    AddBuySellMarker(trade.TradeDirection.Value, annotations, trade, GetChartDateTime(trade.EntryDateTimeLocal.Value, candles, timeframe).Value, trade.EntryPrice.Value, 0.7);
+                }
+
+                if (annotationsToShow.HasFlag(TradeAnnotationsToShow.All) || annotationsToShow.HasFlag(TradeAnnotationsToShow.OrderOrEntryLines))
+                {
+                    AddHorizontalLine(price, GetChartDateTime(startTime.Value, candles, timeframe).Value, GetChartDateTime(endTimeLocal.Value, candles, timeframe).Value, dataSeries, annotations, trade, Colors.Black, true);
+                }
             }
 
             // Add close price line
-            AddCloseAnnotations(trade, annotations, dataSeries, candles, timeframe);
+            if (trade.ClosePrice != null)
+            {
+                var oppositeTradeDirection = trade.TradeDirection.Value == TradeDirection.Long
+                    ? TradeDirection.Short
+                    : TradeDirection.Long;
+
+                if (annotationsToShow.HasFlag(TradeAnnotationsToShow.All) || annotationsToShow.HasFlag(TradeAnnotationsToShow.CloseMarker))
+                {
+                    AddBuySellMarker(oppositeTradeDirection, annotations, trade,
+                        GetChartDateTime(trade.CloseDateTimeLocal.Value, candles, timeframe).Value,
+                        trade.ClosePrice.Value, 0.7);
+                }
+
+                if (annotationsToShow.HasFlag(TradeAnnotationsToShow.All) || annotationsToShow.HasFlag(TradeAnnotationsToShow.CloseLine))
+                {
+                    var time = trade.EntryDateTimeLocal ?? trade.OrderDateTimeLocal.Value;
+                    AddHorizontalLine(trade.ClosePrice.Value, GetChartDateTime(time, candles, timeframe).Value, GetChartDateTime(trade.CloseDateTimeLocal.Value, candles, timeframe).Value, dataSeries, annotations, trade, Colors.Red);
+                }
+            }
 
             // Add stop prices
-            if (!basicAnnotations)
+            if (annotationsToShow.HasFlag(TradeAnnotationsToShow.All) || annotationsToShow.HasFlag(TradeAnnotationsToShow.StopsLines))
             {
                 var stopPrices = trade.GetStopPrices();
                 if (stopPrices.Count > 0)
@@ -182,7 +219,7 @@ namespace TraderTools.Core.UI
             }
 
             // Add limit prices
-            if (!basicAnnotations)
+            if (annotationsToShow.HasFlag(TradeAnnotationsToShow.All) || annotationsToShow.HasFlag(TradeAnnotationsToShow.LimitsLines))
             {
                 var limitPrices = trade.GetLimitPrices();
                 if (limitPrices.Count > 0)
@@ -199,7 +236,7 @@ namespace TraderTools.Core.UI
             return annotations;
         }
 
-        private static void AddBuySellMarker(TradeDirection direction, AnnotationCollection annotations, TradeDetails trade, DateTime timeLocal, decimal price)
+        private static void AddBuySellMarker(TradeDirection direction, AnnotationCollection annotations, TradeDetails trade, DateTime timeLocal, decimal price, double opacity)
         {
             var annotation = direction == TradeDirection.Long ? new BuyMarkerAnnotation() : (CustomAnnotation)new SellMarkerAnnotation();
             annotation.Width = 18;
@@ -210,7 +247,7 @@ namespace TraderTools.Core.UI
             var brush = new SolidColorBrush
             {
                 Color = direction == TradeDirection.Long ? Colors.Green : Colors.DarkRed,
-                Opacity = 0.7
+                Opacity = opacity
             };
 
             ((Path)annotation.Content).Fill = brush;
@@ -220,11 +257,14 @@ namespace TraderTools.Core.UI
             annotations.Add(annotation);
         }
 
-        public static void AddHorizontalLine(decimal price, DateTime start, DateTime end, IDataSeries dataSeries, AnnotationCollection annotations,
-            TradeDetails trade, Color colour)
+        public static void AddHorizontalLine(decimal price, DateTime start, DateTime end, IDataSeries dataSeries, AnnotationCollection annotations, TradeDetails trade, Color colour, bool extendLeftAndRight = false)
         {
             var dateStartIndex = dataSeries.FindIndex(start, SearchMode.RoundDown);
             var dateEndIndex = dataSeries.FindIndex(end, SearchMode.RoundUp);
+
+            if (extendLeftAndRight) dateStartIndex -= 4;
+            if (dateStartIndex < 0) dateStartIndex = 0;
+            if (extendLeftAndRight) dateEndIndex += 4;
 
             var lineAnnotation = new LineAnnotation
             {
@@ -239,20 +279,6 @@ namespace TraderTools.Core.UI
                 Stroke = new SolidColorBrush(colour)
             };
             annotations.Add(lineAnnotation);
-        }
-
-        private static void AddCloseAnnotations(TradeDetails trade, AnnotationCollection annotations, IDataSeries dataSeries, IList<Candle> candles, Timeframe timeframe)
-        {
-            if (trade.ClosePrice != null)
-            {
-                var oppositeTradeDirection = trade.TradeDirection.Value == TradeDirection.Long
-                    ? TradeDirection.Short
-                    : TradeDirection.Long;
-                AddBuySellMarker(oppositeTradeDirection, annotations, trade, GetChartDateTime(trade.CloseDateTimeLocal.Value, candles, timeframe).Value,
-                    trade.ClosePrice.Value);
-                AddHorizontalLine(trade.ClosePrice.Value, GetChartDateTime(trade.EntryDateTimeLocal.Value, candles, timeframe).Value,
-                    GetChartDateTime(trade.CloseDateTimeLocal.Value, candles, timeframe).Value, dataSeries, annotations, trade, Colors.Red);
-            }
         }
 
         private static void AddLineAnnotations(
@@ -287,14 +313,17 @@ namespace TraderTools.Core.UI
                         annotations.Add(annotation);
                     }
 
+                    var first = startIndex == null;
                     startIndex = series.FindIndex(p.Date.ToLocalTime(), SearchMode.Nearest);
+                    if (first) startIndex -= 4;
+                    if (startIndex < 0) startIndex = 0;
                     currentPrice = p.Price;
                 }
             }
         }
 
         public static void SetChartViewModelVisibleRange(
-            TradeDetails trade, ChartViewModel cvm, IList<Candle> candles, Timeframe timeframe)
+            TradeDetails trade, ChartViewModel cvm, IList<ICandle> candles, Timeframe timeframe)
         {
             if (candles.Count == 0) return;
 
@@ -305,10 +334,39 @@ namespace TraderTools.Core.UI
 
             var endCandle = CandlesHelper.GetFirstCandleThatClosesBeforeDateTime(candles, endTime.ToLocalTime()) ?? candles.Last();
 
-            var candlesBeforeTrade = 25;
-            var candlesAfterTrade = 25;
+            var candlesBeforeTrade = 0;
 
-            var min = candles.IndexOf(startCandle.Value) - candlesBeforeTrade;
+            switch (timeframe)
+            {
+                case Timeframe.M1:
+                    candlesBeforeTrade = (1 * 60);
+                    break;
+                case Timeframe.M5:
+                    candlesBeforeTrade = (6 * 12);
+                    break;
+                case Timeframe.H1:
+                    candlesBeforeTrade = (2 * 24);
+                    break;
+                case Timeframe.H2:
+                    candlesBeforeTrade = (5 * 12);
+                    break;
+                case Timeframe.H4:
+                    candlesBeforeTrade = (10 * 6);
+                    break;
+                case Timeframe.H8:
+                    candlesBeforeTrade = (20 * 3);
+                    break;
+                case Timeframe.D1:
+                case Timeframe.D1Tiger:
+                    candlesBeforeTrade = 30;
+                    break;
+                default:
+                    throw new ApplicationException(timeframe + " timeframe not found for chart helper vis range");
+            }
+
+            var candlesAfterTrade = (int)(candlesBeforeTrade * 0.1);
+
+            var min = candles.IndexOf(startCandle) - candlesBeforeTrade;
             var max = candles.IndexOf(endCandle) + candlesAfterTrade;
 
             if (min < 0)

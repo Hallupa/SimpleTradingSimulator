@@ -101,10 +101,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Candle.cs" />
+    <Compile Include="ChartDataRunner.cs" />
     <Compile Include="DepositWithdrawal.cs" />
     <Compile Include="Extensions\BrokerCandlesServiceExtensions.cs" />
     <Compile Include="Extensions\CandleExtensions.cs" />
+    <Compile Include="Extensions\TradeDetailsExtensions.cs" />
     <Compile Include="Helpers\CandlesHelper.cs" />
+    <Compile Include="Helpers\TigerHelper.cs" />
     <Compile Include="IBroker.cs" />
     <Compile Include="IBrokersCandlesService.cs" />
     <Compile Include="IIndicator.cs" />
@@ -119,6 +122,7 @@
     <Compile Include="SimpleCandle.cs" />
     <Compile Include="TickData.cs" />
     <Compile Include="Timeframe.cs" />
+    <Compile Include="TimeframeLookup.cs" />
     <Compile Include="TradeDetails.cs" />
     <Compile Include="TradeDirection.cs" />
   </ItemGroup>

@@ -6,16 +6,19 @@ namespace TraderTools.Basics.Helpers
 {
     public static class CandlesHelper
     {
-        public static Candle? GetFirstCandleThatClosesBeforeDateTime(IList<Candle> candles, DateTime dateTime)
+        public static ICandle GetFirstCandleThatClosesBeforeDateTime(IList<ICandle> candles, DateTime dateTime)
         {
-            var ret = candles.Where(x => x.CloseTimeTicks <= dateTime.Ticks).OrderByDescending(x => x.CloseTimeTicks).ToList();
-
-            if (ret.Count == 0)
+            // Candles will be ordered in ascending date order
+            for (var i = candles.Count - 1; i >= 0; i--)
             {
-                return null;
+                var c = candles[i];
+                if (c.CloseTimeTicks <= dateTime.Ticks)
+                {
+                    return c;
+                }
             }
 
-            return ret[0];
+            return null;
         }
     }
 }

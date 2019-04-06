@@ -4,25 +4,9 @@ using TraderTools.Basics.Extensions;
 
 namespace TraderTools.Basics
 {
-    public interface ICandle
+    public struct BasicCandleAndIndicators : ISimpleCandle
     {
-        decimal High { get; }
-        decimal Low { get; }
-        decimal Close { get; }
-        decimal Open { get; }
-        DateTime CloseTime { get; }
-        DateTime OpenTime { get; }
-    }
-
-    public interface ISimpleCandleWithIsComplete : ISimpleCandle
-    {
-        byte IsComplete { get; }
-    }
-
-   // [ZeroFormattable]
-    public struct BasicCandleAndIndicators : ISimpleCandleWithIsComplete
-    {
-        public BasicCandleAndIndicators(Candle candle,
+        public BasicCandleAndIndicators(ICandle candle,
             int signalsCount)
         {
             High = (float)candle.High;
@@ -116,8 +100,22 @@ namespace TraderTools.Basics
         }
     }
 
+    public interface ICandle
+    {
+        double High { get; set; }
+        double Low { get; set; }
+        double Close { get; set; }
+        double Open { get; set; }
+        long OpenTimeTicks { get; set; }
+        long CloseTimeTicks { get; set; }
+        byte IsComplete { get; set; }
+        int Timeframe { get; set; }
+        double Volume { get; set; }
+        int TradeCount { get; set; }
+    }
+
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct Candle
+    public struct Candle : ICandle
     {
         public Guid Id { get; set; }
         public long OpenTimeTicks { get; set; }

@@ -16,7 +16,7 @@ namespace TraderTools.TradingSimulator.Services
 
         public string CandlesDirectory { get; }
 
-        public List<Candle> GetCandles(string market, Timeframe timeframe)
+        public List<ICandle> GetCandles(string market, Timeframe timeframe)
         {
             var path = Path.Combine(CandlesDirectory, $"FXCM_{market}_{timeframe}.dat");
             var data = Decompress(File.ReadAllBytes(path));
@@ -27,7 +27,7 @@ namespace TraderTools.TradingSimulator.Services
             Marshal.Copy(data, 0, handle2.AddrOfPinnedObject(), data.Length);// do the copy
             handle2.Free();// cleanup the handle
 
-            return ret.Select(c => new Candle(c)).ToList();
+            return ret.Select(c => (ICandle)new Candle(c)).ToList();
         }
 
         public static byte[] Decompress(byte[] data)

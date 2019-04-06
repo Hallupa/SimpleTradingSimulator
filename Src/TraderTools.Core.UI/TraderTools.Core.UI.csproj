@@ -123,7 +123,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\ChartingService.cs" />
     <Compile Include="ViewModels\DoubleChartViewModel.cs" />
-    <Compile Include="ViewModels\StrategyRunResult.cs" />
+    <Compile Include="ViewModels\TradesResult.cs" />
     <Compile Include="ViewModels\TradeDetailsViewModel.cs" />
     <Compile Include="ViewModels\TradesResultsViewModel.cs" />
     <Compile Include="ViewModels\TradeViewModelBase.cs" />
@@ -169,7 +169,7 @@
       <Name>Library.UI</Name>
     </ProjectReference>
     <ProjectReference Include="..\Library\Library.csproj">
-      <Project>{EE1CEA5C-3FF1-45DD-9F3B-8043F71BFB76}</Project>
+      <Project>{ee1cea5c-3ff1-45dd-9f3b-8043f71bfb76}</Project>
       <Name>Library</Name>
     </ProjectReference>
     <ProjectReference Include="..\TraderTools.Basics\TraderTools.Basics.csproj">

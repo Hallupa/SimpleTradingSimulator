@@ -5,7 +5,7 @@ namespace TraderTools.Basics
 {
     public interface IBrokersCandlesService
     {
-        List<Candle> GetCandles(IBroker broker, string market, Timeframe timeframe, bool updateCandles, DateTime? minOpenTimeUtc = null, DateTime? maxCloseTimeUtc = null, bool cacheData = true);
+        List<ICandle> GetCandles(IBroker broker, string market, Timeframe timeframe, bool updateCandles, DateTime? minOpenTimeUtc = null, DateTime? maxCloseTimeUtc = null, bool cacheData = true);
 
         void UpdateCandles(IBroker broker, string market, Timeframe timeframe);
 

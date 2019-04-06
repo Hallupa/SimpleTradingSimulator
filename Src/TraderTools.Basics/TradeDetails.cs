@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
-using TraderTools.Basics.Extensions;
 
 namespace TraderTools.Basics
 {
@@ -21,7 +22,6 @@ namespace TraderTools.Basics
         EntryPrice
     }
 
-    //[ZeroFormattable]
     public class DatePrice
     {
         public DatePrice(DateTime date, decimal? price)
@@ -34,14 +34,11 @@ namespace TraderTools.Basics
         {
         }
 
-      //  // [Index(0)]
-        public virtual DateTime Date { get; set; }
-      //  // [Index(1)]
-        public virtual decimal? Price { get; set; }
+        public DateTime Date { get; set; }
+        public decimal? Price { get; set; }
     }
 
-   // [ZeroFormattable]
-    public class TradeDetails
+    public class TradeDetails : INotifyPropertyChanged
     {
         public TradeDetails()
         {
@@ -64,89 +61,199 @@ namespace TraderTools.Basics
             Custom4 = custom4;
         }
 
-     //   // [Index(0)]
-        public virtual string Comments { get; set; }
-     //   // [Index(1)]
-        public virtual DateTime? EntryDateTime { get; set; }
-        // [Index(2)]
-        public virtual Guid UniqueId { get; set; } = Guid.NewGuid();
-        // [Index(3)]
-        public virtual string Id { get; set; }
-        // [Index(4)]
-        public virtual string Broker { get; set; }
-        // [Index(5)]
-        public virtual decimal? Commission { get; set; }
-        // [Index(6)]
-        public virtual string CommissionAsset { get; set; }
-        // [Index(7)]
-        public virtual string OrderId { get; set; }
-        // [Index(8)]
-        public virtual OrderKind OrderKind { get; set; }
-        // [Index(9)]
-        public virtual decimal? EntryPrice { get; set; }
-        // [Index(10)]
-        public virtual decimal? ClosePrice { get; set; }
-        // [Index(11)]
-        public virtual decimal? EntryQuantity { get; set; }
-        // [Index(12)]
-        public virtual decimal? GrossProfitLoss { get; set; }
-        // [Index(13)]
-        public virtual decimal? NetProfitLoss { get; set; }
-        // [Index(14)]
-        public virtual decimal? Rollover { get; set; }
-        // [Index(15)]
-        public virtual decimal? PricePerPip { get; set; }
-        // [Index(16)]
-        public virtual string Market { get; set; }
-        // [Index(17)]
-        public virtual string BaseAsset { get; set; }
-        // [Index(18)]
-        public virtual bool Alert { get; set; }
-        // [Index(19)]
-        public virtual int Custom1 { get; set; }
-        // [Index(20)]
-        public virtual int Custom2 { get; set; }
-        // [Index(21)]
-        public virtual int Custom3 { get; set; }
-        // [Index(22)]
-        public virtual int Custom4 { get; set; }
-        // [Index(23)]
-        public virtual int Custom5 { get; set; }
-        // [Index(24)]
-        public virtual Timeframe? Timeframe { get; set; }
-        // [Index(25)]
-        public virtual TradeDirection? TradeDirection { get; set; }
-        // [Index(26)]
-        public virtual DateTime? CloseDateTime { get; set; }
+        public string Comments { get; set; }
 
-        // [Index(27)]
-        public virtual TradeCloseReason? CloseReason { get; set; }
+        public DateTime? EntryDateTime
+        {
+            get => _entryDateTime;
+            set
+            {
+                _entryDateTime = value;
+                OnPropertyChanged();
+                OnPropertyChanged("EntryDateTimeLocal");
+            }
+        }
 
-        // [Index(28)]
-        public virtual DateTime? OrderDateTime { get; set; }
-        // [Index(29)]
-        public virtual decimal? OrderPrice { get; set; }
-        // [Index(30)]
-        public virtual DateTime? OrderExpireTime { get; set; }
-        // [Index(31)]
-        public virtual decimal? OrderAmount { get; set; }
-        // [Index(32)]
-        public virtual List<DatePrice> StopPrices { get; set; } = new List<DatePrice>();
-        // [Index(33)]
-        public virtual List<DatePrice> LimitPrices { get; set; } = new List<DatePrice>();
-        // [Index(34)]
-        public virtual decimal? RiskAmount { get; set; }
-        // [Index(35)]
-        public virtual decimal? RiskPercentOfBalance { get; set; }
-        // [IgnoreFormat]
+        public Guid UniqueId { get; set; } = Guid.NewGuid();
+        
+        public string Id { get; set; }
+        
+        public string Broker { get; set; }
+        
+        public decimal? Commission { get; set; }
+        
+        public string CommissionAsset { get; set; }
+        
+        public string OrderId { get; set; }
+
+        public OrderKind OrderKind
+        {
+            get => _orderKind;
+            set
+            {
+                _orderKind = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public decimal? EntryPrice
+        {
+            get => _entryPrice;
+            set
+            {
+                _entryPrice = value;
+                OnPropertyChanged();
+                OnPropertyChanged("InitialStopInPips");
+                OnPropertyChanged("InitialLimitInPips");
+                OnPropertyChanged("Status");
+            }
+        }
+
+        public decimal? ClosePrice
+        {
+            get => _closePrice;
+            set
+            {
+                _closePrice = value;
+                OnPropertyChanged();
+                OnPropertyChanged("RMultiple");
+            }
+        }
+
+        public decimal? EntryQuantity { get; set; }
+        
+        public decimal? GrossProfitLoss { get; set; }
+
+        public decimal? NetProfitLoss
+        {
+            get => _netProfitLoss;
+            set
+            {
+                _netProfitLoss = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public decimal? Rollover { get; set; }
+
+        public decimal? PricePerPip
+        {
+            get => _pricePerPip;
+            set
+            {
+                _pricePerPip = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string Market { get; set; }
+        
+        public string BaseAsset { get; set; }
+        
+        public bool Alert { get; set; }
+        
+        public int Custom1 { get; set; }
+        
+        public int Custom2 { get; set; }
+        
+        public int Custom3 { get; set; }
+        
+        public int Custom4 { get; set; }
+        
+        public int Custom5 { get; set; }
+
+        public Timeframe? Timeframe
+        {
+            get => _timeframe;
+            set
+            {
+                _timeframe = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public TradeDirection? TradeDirection
+        {
+            get => _tradeDirection;
+            set
+            {
+                _tradeDirection = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public DateTime? CloseDateTime
+        {
+            get => _closeDateTime;
+            set
+            {
+                _closeDateTime = value;
+                OnPropertyChanged();
+                OnPropertyChanged("CloseDateTimeLocal");
+                OnPropertyChanged("Status");
+            }
+        }
+
+
+        public TradeCloseReason? CloseReason
+        {
+            get => _closeReason;
+            set
+            {
+                _closeReason = value;
+                OnPropertyChanged();
+                OnPropertyChanged("Status");
+            }
+        }
+
+
+        public DateTime? OrderDateTime
+        {
+            get => _orderDateTime;
+            set
+            {
+                _orderDateTime = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public decimal? OrderPrice
+        {
+            get => _orderPrice;
+            set
+            {
+                _orderPrice = value;
+                OnPropertyChanged();
+                OnPropertyChanged("InitialStopInPips");
+                OnPropertyChanged("InitialLimitInPips");
+                OnPropertyChanged("Status");
+            }
+        }
+
+        public DateTime? OrderExpireTime
+        {
+            get => _orderExpireTime;
+            set
+            {
+                _orderExpireTime = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public decimal? OrderAmount { get; set; }
+        
+        public List<DatePrice> StopPrices { get; set; } = new List<DatePrice>();
+        
+        public List<DatePrice> LimitPrices { get; set; } = new List<DatePrice>();
+        
+        public decimal? RiskAmount { get; set; }
+        
+        public decimal? RiskPercentOfBalance { get; set; }
         public DateTime? EntryDateTimeLocal => EntryDateTime != null ? (DateTime?)EntryDateTime.Value.ToLocalTime() : null;
-        // [IgnoreFormat]
         public DateTime? StartDateTimeLocal => OrderDateTime != null ? (DateTime?)OrderDateTime.Value.ToLocalTime() : EntryDateTimeLocal;
-        // [IgnoreFormat]
         public DateTime? StartDateTime => OrderDateTime != null ? (DateTime?)OrderDateTime.Value : EntryDateTime;
 
-        // [IgnoreFormat]
-        public decimal? InitialStopPrice
+        public decimal? InitialStop
         {
             get
             {
@@ -159,21 +266,6 @@ namespace TraderTools.Basics
             }
         }
 
-        // [IgnoreFormat]
-        public decimal? InitialLimitPrice
-        {
-            get
-            {
-                if (LimitPrices.Count == 0)
-                {
-                    return null;
-                }
-
-                return LimitPrices[0].Price;
-            }
-        }
-
-        // [IgnoreFormat]
         public decimal? StopPrice
         {
             get
@@ -192,7 +284,6 @@ namespace TraderTools.Basics
             }
         }
 
-        // [IgnoreFormat]
         public decimal? LimitPrice
         {
             get
@@ -206,31 +297,30 @@ namespace TraderTools.Basics
             }
         }
 
-        // [IgnoreFormat]
         public DateTime? CloseDateTimeLocal
         {
             get { return CloseDateTime != null ? (DateTime?)CloseDateTime.Value.ToLocalTime() : null; }
         }
 
-        // [IgnoreFormat]
         public DateTime? OrderDateTimeLocal
         {
             get { return OrderDateTime != null ? (DateTime?)OrderDateTime.Value.ToLocalTime() : null; }
         }
 
-
-        // [IgnoreFormat]
         public DateTime? OrderExpireTimeLocal
         {
             get { return OrderExpireTime != null ? (DateTime?)OrderExpireTime.Value.ToLocalTime() : null; }
         }
-
-
-        // [IgnoreFormat]
+        
         public decimal? RMultiple
         {
             get
             {
+                if (ClosePrice == null && RiskAmount != null && RiskAmount.Value > 0M && Profit != null && Profit.Value != 0M)
+                {
+                    return Profit / RiskAmount;
+                }
+
                 if (ClosePrice == null || StopPrices.Count == 0 || EntryPrice == null)
                 {
                     return null;
@@ -275,18 +365,35 @@ namespace TraderTools.Basics
         }
 
         private decimal? _currentStopPrice = null;
+        private decimal? _pricePerPip;
+        private decimal? _entryPrice;
+        private decimal? _closePrice;
+        private decimal? _netProfitLoss;
+        private Timeframe? _timeframe;
+        private TradeDirection? _tradeDirection;
+        private DateTime? _closeDateTime;
+        private TradeCloseReason? _closeReason;
+        private decimal? _orderPrice;
+        private DateTime? _orderDateTime;
+        private DateTime? _orderExpireTime;
+        private OrderKind _orderKind;
+        private DateTime? _entryDateTime;
 
         public void AddStopPrice(DateTime date, decimal? price)
         {
             StopPrices.Add(new DatePrice(date, price));
             StopPrices = StopPrices.OrderBy(x => x.Date).ToList();
             _currentStopPrice = null;
+            OnPropertyChanged("InitialStop");
+            OnPropertyChanged("InitialStopInPips");
         }
 
         public void ClearStopPrices()
         {
             StopPrices.Clear();
             _currentStopPrice = null;
+            OnPropertyChanged("InitialStop");
+            OnPropertyChanged("InitialStopInPips");
         }
 
         public List<DatePrice> GetStopPrices()
@@ -303,17 +410,23 @@ namespace TraderTools.Basics
 
             StopPrices.RemoveAt(index);
             _currentStopPrice = null;
+            OnPropertyChanged("InitialStop");
+            OnPropertyChanged("InitialStopInPips");
         }
 
         public void AddLimitPrice(DateTime date, decimal? price)
         {
             LimitPrices.Add(new DatePrice(date, price));
             LimitPrices = LimitPrices.OrderBy(x => x.Date).ToList();
+            OnPropertyChanged("InitialLimit");
+            OnPropertyChanged("InitialLimitInPips");
         }
 
         public void ClearLimitPrices()
         {
             LimitPrices.Clear();
+            OnPropertyChanged("InitialLimit");
+            OnPropertyChanged("InitialLimitInPips");
         }
 
         public List<DatePrice> GetLimitPrices()
@@ -329,6 +442,8 @@ namespace TraderTools.Basics
             }
 
             LimitPrices.RemoveAt(index);
+            OnPropertyChanged("InitialLimit");
+            OnPropertyChanged("InitialLimitInPips");
         }
 
         public void SetClose(DateTime dateTime, decimal price, TradeCloseReason reason)
@@ -360,7 +475,6 @@ namespace TraderTools.Basics
             CloseReason = TradeCloseReason.HitExpiry;
         }
 
-        // [IgnoreFormat]
         public decimal? InitialStopInPips
         {
             get
@@ -383,27 +497,6 @@ namespace TraderTools.Basics
             }
         }
 
-        // [IgnoreFormat]
-        public decimal? InitialStop
-        {
-            get
-            {
-                if (EntryPrice == null && OrderPrice == null)
-                {
-                    return null;
-                }
-
-                if (StopPrices.Count > 0)
-                {
-                    var stop = GetStopPrices().First();
-                    return stop.Price != null ? (decimal?)stop.Price.Value : null;
-                }
-
-                return null;
-            }
-        }
-
-        // [IgnoreFormat]
         public decimal? InitialLimitInPips
         {
             get
@@ -426,20 +519,14 @@ namespace TraderTools.Basics
             }
         }
 
-        // [IgnoreFormat]
         public decimal? InitialLimit
         {
             get
             {
-                if (EntryPrice == null && OrderPrice == null)
-                {
-                    return null;
-                }
-
                 if (LimitPrices.Count > 0)
                 {
                     var limit = GetLimitPrices().First();
-                    return limit.Price != null ? (decimal?)limit.Price.Value : null;
+                    return limit.Price;
                 }
 
                 return null;
@@ -485,6 +572,8 @@ namespace TraderTools.Basics
         {
             var ret = new StringBuilder();
 
+            ret.Append($"{Market} {Broker} {TradeDirection} ");
+
             if (OrderDateTime != null)
             {
                 ret.Append($"Order: {OrderDateTime.Value}UTC {OrderAmount:0.00}@{OrderPrice:0.0000}");
@@ -497,7 +586,7 @@ namespace TraderTools.Basics
                     ret.Append(" ");
                 }
 
-                ret.Append($"Entry: {EntryDateTime.Value}UTC Price: {EntryPrice:0.0000}");
+                ret.Append($"Entry: {EntryDateTime.Value}UTC {EntryQuantity:0.0000} @ Price: {EntryPrice:0.0000}");
             }
 
             if (CloseDateTime != null)
@@ -533,10 +622,14 @@ namespace TraderTools.Basics
                 ret.Append($"Timeframe: {Timeframe}");
             }
 
+            if (NetProfitLoss != null)
+            {
+                ret.Append($" NetProfit: {NetProfitLoss}");
+            }
+
             return ret.ToString();
         }
 
-        // [IgnoreFormat]
         public string Status
         {
             get
@@ -567,14 +660,12 @@ namespace TraderTools.Basics
                     }
                 }
 
-                return "Unknown";
+                return "";
             }
         }
 
-        // [IgnoreFormat]
         public decimal? StartPrice => OrderPrice ?? EntryPrice;
 
-        // [IgnoreFormat]
         public decimal? Profit => NetProfitLoss ?? GrossProfitLoss;
 
         public void Initialise()
@@ -583,6 +674,13 @@ namespace TraderTools.Basics
             {
                 OrderDateTime = EntryDateTime;
             }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

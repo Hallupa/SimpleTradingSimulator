@@ -1,23 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel.Composition;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Threading;
 using Hallupa.Library;
 using TraderTools.Basics;
 
 namespace TraderTools.Core.UI.ViewModels
 {
-    public class SimulationResultsViewModel
+    public class TradesResultsViewModel : DependencyObject
     {
         private readonly Func<List<TradeDetails>> _getTradesFunc;
         private string _selectedResultOption = "Summary";
         private Dispatcher _dispatcher;
 
-        public ObservableCollection<StrategyRunResult> Results { get; } = new ObservableCollection<StrategyRunResult>();
+        public ObservableCollection<TradesResult> Results { get; } = new ObservableCollection<TradesResult>();
 
         public List<string> ResultOptions { get; private set; } = new List<string>
         {
@@ -29,11 +29,24 @@ namespace TraderTools.Core.UI.ViewModels
             "Grouped (10)"
         };
 
-        public SimulationResultsViewModel(Func<List<TradeDetails>> getTradesFunc)
+        public TradesResultsViewModel(Func<List<TradeDetails>> getTradesFunc)
         {
             _dispatcher = Dispatcher.CurrentDispatcher;
             _getTradesFunc = getTradesFunc;
         }
+
+        public static readonly DependencyProperty ShowOptionsProperty = DependencyProperty.Register(
+            "ShowOptions", typeof(bool), typeof(TradesResultsViewModel), new PropertyMetadata(true));
+
+        public bool ShowOptions
+        {
+            get { return (bool) GetValue(ShowOptionsProperty); }
+            set { SetValue(ShowOptionsProperty, value); }
+        }
+
+        public bool ShowProfit { get; set; } = false;
+
+        public bool AdvStrategyNaming { get; set; } = false;
 
         public string SelectedResultOption
         {
@@ -55,35 +68,45 @@ namespace TraderTools.Core.UI.ViewModels
         public void UpdateResults()
         {
             var trades = _getTradesFunc();
+            var completedTrades = trades.Where(t => t.CloseDateTime != null).ToList();
             IEnumerable<IGrouping<string, TradeDetails>> groupedTrades = null;
 
             switch (SelectedResultOption)
             {
                 case "Summary":
-                    groupedTrades = trades.Where(t => t.RMultiple != null).GroupBy(x => "All trades").ToList();
+                    groupedTrades = trades.GroupBy(x => "All trades").ToList();
                     break;
                 case "Markets":
-                    groupedTrades = trades.Where(t => t.RMultiple != null).GroupBy(x => x.Market).ToList();
+                    groupedTrades = trades.GroupBy(x => x.Market).ToList();
                     break;
                 case "Months":
-                    groupedTrades = trades.Where(t => t.RMultiple != null).GroupBy(x =>
-                        $"{x.OrderDateTimeLocal.Value.Year}/{x.OrderDateTimeLocal.Value.Month:00}").ToList();
+                    var now = DateTime.Now;
+                    groupedTrades = trades.GroupBy(x =>
+                        x.CloseDateTimeLocal != null ? $"{x.CloseDateTimeLocal.Value.Year}/{x.CloseDateTimeLocal.Value.Month:00}"
+                            : $"{now.Year}/{now.Month:00}").ToList();
                     break;
                 case "Timeframes":
-                    groupedTrades = trades.Where(t => t.RMultiple != null).GroupBy(x => $"{x.Timeframe}").ToList();
+                    groupedTrades = trades.GroupBy(x => $"{x.Timeframe}").ToList();
                     break;
                 case "Strategies":
-                    var advStratNaming = false;
 
-                    if (advStratNaming)
+                    if (AdvStrategyNaming)
                     {
                         var regex = new Regex("#[a-zA-Z0-9&]*");
                         groupedTrades = trades.Where(t => t.RMultiple != null).SelectMany(t =>
                         {
                             var ret = new List<(string Name, TradeDetails Trade)>();
-                            foreach (Match match in regex.Matches(t.Comments))
+
+                            if (!string.IsNullOrEmpty(t.Comments))
                             {
-                                ret.Add((match.Value, t));
+                                foreach (Match match in regex.Matches(t.Comments))
+                                {
+                                    ret.Add((match.Value, t));
+                                }
+                            }
+                            else
+                            {
+                                ret.Add((string.Empty, t));
                             }
 
                             return ret;
@@ -91,16 +114,17 @@ namespace TraderTools.Core.UI.ViewModels
                     }
                     else
                     {
-                        groupedTrades = trades.Where(t => t.RMultiple != null).GroupBy(x => x.Comments).ToList();
+                        groupedTrades = trades.GroupBy(x => x.Comments).ToList();
                     }
 
                     break;
                 case "Grouped (10)":
-                    var completedTrades = trades.Where(t => t.RMultiple != null).Reverse().ToList();
-                    groupedTrades = completedTrades.GroupBy(x =>
+                    var reversedCompletedTrades = completedTrades.ToList();
+                    reversedCompletedTrades.Reverse();
+                    groupedTrades = reversedCompletedTrades.GroupBy(x =>
                     {
-                        var start = (((int) (completedTrades.IndexOf(x) / 10.0)) * 10 + 1).ToString();
-                        var end = (((int)(completedTrades.IndexOf(x) / 10.0)) * 10 + 10).ToString();
+                        var start = (((int)(reversedCompletedTrades.IndexOf(x) / 10.0)) * 10 + 1).ToString();
+                        var end = (((int)(reversedCompletedTrades.IndexOf(x) / 10.0)) * 10 + 10).ToString();
                         return $"Trade {start} - {end}";
                     }).ToList();
                     break;
@@ -131,10 +155,10 @@ namespace TraderTools.Core.UI.ViewModels
             }*/
 
             // Update or add
-            var results = new List<StrategyRunResult>();
+            var results = new List<TradesResult>();
             foreach (var group in groupedTrades)
             {
-                var result = new StrategyRunResult
+                var result = new TradesResult
                 {
                     Name = group.Key
                 };
@@ -143,11 +167,17 @@ namespace TraderTools.Core.UI.ViewModels
                 var groupTrades = group.ToList();
                 var winningTrades = groupTrades.Where(t => t.RMultiple != null && t.RMultiple > 0).ToList();
                 var losingTrades = groupTrades.Where(t => t.RMultiple != null && t.RMultiple <= 0).ToList();
-                var completedTrades = groupTrades.Where(x => x.ClosePrice != null).ToList();
+                var completedGroupedTrades = groupTrades.Where(x => x.EntryDateTime != null).ToList();
 
-                result.CompletedTrades = completedTrades.Count;
-                result.PercentSuccessfulTrades = result.CompletedTrades != 0
-                    ? (winningTrades.Count * 100M) / result.CompletedTrades
+                foreach (var t in groupTrades)
+                {
+                    result.Trades.Add(t);
+                }
+                
+                result.CompletedOrOpenTrades = completedGroupedTrades.Count;
+                result.Profit = groupTrades.Sum(t => t.Profit ?? 0);
+                result.PercentSuccessfulTrades = result.CompletedOrOpenTrades != 0
+                    ? (winningTrades.Count * 100M) / result.CompletedOrOpenTrades
                     : 0;
                 result.RSum = groupTrades.Where(t => t.RMultiple != null).Sum(t => t.RMultiple.Value);
 

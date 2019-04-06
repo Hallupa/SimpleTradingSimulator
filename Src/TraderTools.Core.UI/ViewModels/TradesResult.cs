@@ -1,12 +1,14 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using TraderTools.Basics;
 
 namespace TraderTools.Core.UI.ViewModels
 {
-    public class StrategyRunResult : INotifyPropertyChanged
+    public class TradesResult : INotifyPropertyChanged
     {
         private string _name;
-        private int _completedTrades;
+        private int _completedOrOpenTrades;
         private decimal _percentSuccessfulTrades;
         private decimal _avRWinningTrades;
         private decimal _avRLosingTrades;
@@ -14,6 +16,8 @@ namespace TraderTools.Core.UI.ViewModels
         private decimal _avAdverseRFor10Candles;
         private decimal _avPositiveRFor20Candles;
         private decimal _expectancyR;
+
+        public ObservableCollection<TradeDetails> Trades { get; } = new ObservableCollection<TradeDetails>();
 
         public string Name
         {
@@ -25,12 +29,12 @@ namespace TraderTools.Core.UI.ViewModels
             }
         }
 
-        public int CompletedTrades
+        public int CompletedOrOpenTrades
         {
-            get => _completedTrades;
+            get => _completedOrOpenTrades;
             set
             {
-                _completedTrades = value;
+                _completedOrOpenTrades = value;
                 OnPropertyChanged();
             }
         }
@@ -105,6 +109,8 @@ namespace TraderTools.Core.UI.ViewModels
                 OnPropertyChanged();
             }
         }
+
+        public decimal Profit { get; set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
 

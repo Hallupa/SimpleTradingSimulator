@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using Abt.Controls.SciChart;
+using Hallupa.Library;
 using Hallupa.Library.UI;
+using Octokit;
 
 namespace TraderTools.TradingSimulator
 {
@@ -19,11 +22,16 @@ namespace TraderTools.TradingSimulator
 
             Title = Title + $" {typeof(MainWindow).Assembly.GetName().Version}";
 
+            SciStockChart mainChart = null;
+            SciStockChart smallerChart = null;
+            
             Func<string> getInput = () =>
             {
                 _dlg = new InputWindow
                 {
-                    WindowLabel = {Content = "Strategy:"}, WindowTextBox = {Text = ""}, Owner = this
+                    WindowLabel = { Content = "Comments:" },
+                    WindowTextBox = { Text = "" },
+                    Owner = this
                 };
                 _dlg.ShowDialog();
                 Focus();
@@ -40,9 +48,53 @@ namespace TraderTools.TradingSimulator
                     Focus();
                     return res;
                 }),
-                c => Cursor = c);
+                c => DoubleChart.ChartCursor = c,
+                (trade, completeCallback, vm) =>
+                {
+                    var editTradeWindow = new EditTradeWindow { Owner = this };
+                    editTradeWindow.Closed += (sender, args) => { completeCallback?.Invoke(); };
+                    vm.CloseEditViewAction = () => editTradeWindow.Close();
+                    editTradeWindow.DataContext = vm;
+                    editTradeWindow.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+                    editTradeWindow.Show();
+                },
+                () =>
+                {
+                    var mainChartLocal = mainChart ?? (mainChart = VisualHelper.GetChildOfType<SciStockChart>(DoubleChart.MainChartGroup));
+                    var smallerChartLocal = smallerChart ?? (smallerChart = VisualHelper.GetChildOfType<SciStockChart>(DoubleChart.SmallerChartGroup));
+
+                    var d1 = mainChartLocal.SuspendUpdates();
+                    var d2 = smallerChartLocal.SuspendUpdates();
+                    return new DisposableAction(() =>
+                    {
+                        d1.Dispose();
+                        d2.Dispose();
+                    });
+                },
+                UpdateLayout);
 
             PreviewKeyDown += UIElement_OnPreviewKeyDown;
+
+            Task.Run(() =>
+            {
+                var github = new GitHubClient(new ProductHeaderValue("Hallupa"));
+                var releases = github.Repository.Release.GetAll("Hallupa", "SimpleTradingSimulator").Result;
+                var latestReleaseVersion = releases[0].TagName.Replace("v", "");
+                var assemblyVersion = typeof(MainWindow).Assembly.GetName().Version;
+                var currentVersion = $"{assemblyVersion.Major}.{assemblyVersion.Minor}.{assemblyVersion.Build}";
+
+                if (latestReleaseVersion != currentVersion)
+                {
+                    Dispatcher.Invoke(() =>
+                    {
+                        MessageBox.Show(
+                            "Newer version is available - please download from https://github.com/Hallupa/SimpleTradingSimulator",
+                            "Newer version available",
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Information);
+                    });
+                }
+            });
         }
 
         private void UIElement_OnPreviewKeyDown(object sender, KeyEventArgs e)
@@ -61,18 +113,18 @@ namespace TraderTools.TradingSimulator
                     {
                         var xCalc = stockChart.XAxis.GetCurrentCoordinateCalculator();
                         var yCalc = stockChart.YAxis.GetCurrentCoordinateCalculator();
-                        var mousePoint = Mouse.GetPosition((UIElement) stockChart.ModifierSurface);
-                        var candleIndex = (int) xCalc.GetDataValue(mousePoint.X);
-                        var price = (decimal) yCalc.GetDataValue(mousePoint.Y);
+                        var mousePoint = Mouse.GetPosition((UIElement)stockChart.ModifierSurface);
+                        var candleIndex = (int)xCalc.GetDataValue(mousePoint.X);
+                        var price = (decimal)yCalc.GetDataValue(mousePoint.Y);
 
-                        ((MainWindowViewModel) DataContext).KeyDown(e.Key, candleIndex, price);
+                        ((MainWindowViewModel)DataContext).KeyDown(e.Key, candleIndex, price);
                         chartKey = true;
                     }
                 }
 
                 if (!chartKey)
                 {
-                    ((MainWindowViewModel) DataContext).KeyDown(e.Key, null, null);
+                    ((MainWindowViewModel)DataContext).KeyDown(e.Key, null, null);
                 }
             }
         }

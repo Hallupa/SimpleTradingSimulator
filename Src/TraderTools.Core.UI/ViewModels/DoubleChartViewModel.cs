@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
+using System.Windows;
 using Abt.Controls.SciChart;
 using TraderTools.Basics;
 
 namespace TraderTools.Core.UI.ViewModels
 {
-    public abstract class DoubleChartViewModel
+    public abstract class DoubleChartViewModel : DependencyObject
     {
         private string _selectedLargeChartTimeframe;
 

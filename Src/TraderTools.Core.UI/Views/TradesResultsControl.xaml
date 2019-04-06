@@ -3,9 +3,14 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:converters="clr-namespace:Hallupa.Library.UI.Converters;assembly=Hallupa.Library.UI"
+             xmlns:views="clr-namespace:TraderTools.Core.UI.Views"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
+        <Grid.Resources>
+            <converters:BoolToVisibilityConverter x:Key="BoolToVis"/>
+        </Grid.Resources>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -15,19 +20,30 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <Label Content="Results type:" VerticalAlignment="Center"/>
-        <ComboBox Grid.Row="0" Grid.Column="1" HorizontalAlignment="Left" Margin="2" Width="150" ItemsSource="{Binding SimResultsViewModel.ResultOptions}" SelectedItem="{Binding SimResultsViewModel.SelectedResultOption}"/>
+        <Label Content="Results type:" VerticalAlignment="Center" Visibility="{Binding ResultsViewModel.ShowOptions, Converter={StaticResource BoolToVis}}"/>
+        <ComboBox Grid.Row="0" Grid.Column="1" HorizontalAlignment="Left" Margin="2" Width="150" ItemsSource="{Binding ResultsViewModel.ResultOptions}" SelectedItem="{Binding ResultsViewModel.SelectedResultOption}" Visibility="{Binding ResultsViewModel.ShowOptions, Converter={StaticResource BoolToVis}}"/>
 
-        <DataGrid Grid.Row="1" Grid.ColumnSpan="2" AutoGenerateColumns="False" ClipboardCopyMode="IncludeHeader" ItemsSource="{Binding SimResultsViewModel.Results}" CanUserAddRows="False">
+        <DataGrid Grid.Row="1" Grid.ColumnSpan="2" ScrollViewer.CanContentScroll="False" AutoGenerateColumns="False" ClipboardCopyMode="IncludeHeader" ItemsSource="{Binding ResultsViewModel.Results}" CanUserAddRows="False" RowDetailsVisibilityMode="Collapsed">
+            <DataGrid.RowStyle>
+                <Style TargetType="{x:Type DataGridRow}">
+                    <EventSetter Event="MouseDoubleClick" Handler="RowDoubleClick"/>
+                </Style>
+            </DataGrid.RowStyle>
             <DataGrid.Columns>
                 <DataGridTextColumn Binding="{Binding Name}" Header="Name" Width="100" IsReadOnly="True"/>
-                <DataGridTextColumn Binding="{Binding CompletedTrades}" Header="Completed trades" IsReadOnly="True"/>
+                <DataGridTextColumn Binding="{Binding CompletedOrOpenTrades}" Header="#Completed/open trades" IsReadOnly="True"/>
+                <DataGridTextColumn Binding="{Binding Profit, StringFormat={}£{0:0.0}}" Header="Profit" IsReadOnly="True" Width="100" Visibility="{Binding ShowProfit, Converter={StaticResource BoolToVis}}"/>
                 <DataGridTextColumn Binding="{Binding PercentSuccessfulTrades, StringFormat={}{0:0.0}%}" Header="Successful trades" Width="100" IsReadOnly="True"/>
                 <DataGridTextColumn Binding="{Binding AvRWinningTrades, StringFormat={}{0:0.000}}" Header="Average win R" Width="140" IsReadOnly="True"/>
                 <DataGridTextColumn Binding="{Binding AvRLosingTrades, StringFormat={}{0:0.000}}" Header="Average lose R" Width="140" IsReadOnly="True"/>
                 <DataGridTextColumn Binding="{Binding RExpectancy, StringFormat={}{0:0.000}}" Header="Expectancy R" Width="140" IsReadOnly="True"/>
                 <DataGridTextColumn Binding="{Binding RSum, StringFormat={}{0:0.000}}" Header="R sum" Width="80" IsReadOnly="True" Visibility="Collapsed"/>
             </DataGrid.Columns>
+            <DataGrid.RowDetailsTemplate>
+                <DataTemplate>
+                    <views:TradeListControl/>
+                </DataTemplate>
+            </DataGrid.RowDetailsTemplate>
         </DataGrid>
     </Grid>
 </UserControl>

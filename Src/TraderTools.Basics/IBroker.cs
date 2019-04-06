@@ -31,7 +31,7 @@ namespace TraderTools.Basics
     {
         string Name { get; }
         bool UpdateAccount(IBrokerAccount account);
-        bool UpdateCandles(List<Candle> candles, string market, Timeframe timeframe, DateTime start);
+        bool UpdateCandles(List<ICandle> candles, string market, Timeframe timeframe, DateTime start);
         void Connect();
         ConnectStatus Status { get; set; }
         BrokerKind Kind { get; }

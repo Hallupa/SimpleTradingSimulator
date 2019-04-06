@@ -9,7 +9,7 @@ namespace TraderTools.Basics
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct SimpleCandle : ISimpleCandle
     {
-        public SimpleCandle(Candle candle)
+        public SimpleCandle(ICandle candle)
         {
             Open = (float)candle.Open;
             Close = (float)candle.Close;

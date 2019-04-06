@@ -1,4 +1,5 @@
-﻿using System.Windows.Controls;
+﻿using System.Windows;
+using System.Windows.Controls;
 
 namespace TraderTools.Core.UI.Views
 {
@@ -10,6 +11,13 @@ namespace TraderTools.Core.UI.Views
         public TradesResultsControl()
         {
             InitializeComponent();
+        }
+
+        private void RowDoubleClick(object sender, RoutedEventArgs e)
+        {
+            var row = (DataGridRow)sender;
+            row.DetailsVisibility = row.DetailsVisibility == Visibility.Collapsed ?
+                Visibility.Visible : Visibility.Collapsed;
         }
     }
 }

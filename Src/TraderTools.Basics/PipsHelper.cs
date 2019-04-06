@@ -51,6 +51,10 @@ namespace TraderTools.Basics
                         multiplier = 0.1M;
                         marketPairForCalculation = "GBP/USD";
                         break;
+                    case "NGAS":
+                        multiplier = 100M;
+                        marketPairForCalculation = "GBP/USD";
+                        break;
                     case "Bund":
                         multiplier = 0.1M;
                         marketPairForCalculation = "EUR/GBP";
@@ -93,7 +97,7 @@ namespace TraderTools.Basics
 
                 if (gbpCandle != null)
                 {
-                    price = (decimal)gbpCandle.Value.Open;
+                    price = (decimal)gbpCandle.Open;
                     if (!marketPairForCalculation.StartsWith("GBP")) price = 1 / price;
                 }
                 else
@@ -103,7 +107,7 @@ namespace TraderTools.Basics
                         $"USD/{market.Split('/')[1]}", broker, Timeframe.D1, date, updateCandles);
                     var gbpUSDCandle = candleService.GetFirstCandleThatClosesBeforeDateTime(
                         "GBP/USD", broker, Timeframe.D1, date, updateCandles);
-                    price = ((decimal)usdCandle.Value.Open) / ((decimal)gbpUSDCandle.Value.Open);
+                    price = ((decimal)usdCandle.Open) / ((decimal)gbpUSDCandle.Open);
                 }
             }
 
@@ -126,6 +130,11 @@ namespace TraderTools.Basics
             }
 
             if (market == "Copper")
+            {
+                return 0.001M;
+            }
+
+            if (market == "Copper" || market == "NGAS")
             {
                 return 0.001M;
             }
