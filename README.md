@@ -37,6 +37,29 @@ In there the trade can be closed or the stop/limit can also be adjusted.
 ## Results
 In the Analyis section all the results are shown in risk to reward ratios, or R, and shows statistics such as % trades that made a positve R, expectancy, etc.
 
+# Building the source code
+Visual Studio 2017 or later is required
+
+## Building the source code
+1. Install Expression Blend SDK from https://www.microsoft.com/en-gb/download/details.aspx?id=10801
+2. Install SciChart 3.5.0.7128 from https://www.scichart.com/Downloads/v3.5/SciChart_v3.5.7128_Installer.zip
+3. Load Visual Studio .NET 2017
+4. Select x86 build configuration
+5. Build
+
+## Building the installer
+To build the installer, Installer Project extension must be installed. This can be done by:
+
+1 Load Visual Studio .NET 2017
+2 Click on "Tools" -> Extension and Updates -> Online
+3 Type "Installer Project" on the search box
+4 Click on "Install" in Microsoft Visual Studio Installer Project
+5 Restart Visual Studio .NET and follow the instructions to install the extension
+
+Or by downloading via marketplace.visualstudio.com
+
+Once installed the installer should build
+
 # License
 
 This library is release under GNU General Public License v3.0.
