@@ -40,7 +40,9 @@ In the Analyis section all the results are shown in risk to reward ratios, or R,
 # Building the source code
 Visual Studio 2017 or later is required
 
-## Building the source code
+## Building the application
+To build the application:
+
 1. Install Expression Blend SDK from https://www.microsoft.com/en-gb/download/details.aspx?id=10801
 2. Install SciChart 3.5.0.7128 from https://www.scichart.com/Downloads/v3.5/SciChart_v3.5.7128_Installer.zip
 3. Load Visual Studio .NET 2017
