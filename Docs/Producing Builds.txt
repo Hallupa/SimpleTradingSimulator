@@ -1,0 +1,4 @@
+1. Insert Certrum code signing dongle
+2. Update versions in source code and in the installer project
+3. Switch to Release mode
+4. Build TradingSimulatorInstaller
