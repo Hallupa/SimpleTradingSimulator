@@ -220,28 +220,27 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Library.UI\Library.UI.csproj">
-      <Project>{b4226072-15e4-4ce4-bc3a-387f14112f9f}</Project>
+    <ProjectReference Include="..\..\Common\Src\Library.UI\Library.UI.csproj">
+      <Project>{38ecc387-7bb9-4152-b60e-54b697d2b708}</Project>
       <Name>Library.UI</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Library\Library.csproj">
-      <Project>{ee1cea5c-3ff1-45dd-9f3b-8043f71bfb76}</Project>
+    <ProjectReference Include="..\..\Common\Src\Library\Library.csproj">
+      <Project>{827454b9-ca87-493d-acd0-676eb423772f}</Project>
       <Name>Library</Name>
     </ProjectReference>
-    <ProjectReference Include="..\TraderTools.Basics\TraderTools.Basics.csproj">
-      <Project>{610CED3A-FFEF-45D5-B0C0-B4F79F320509}</Project>
+    <ProjectReference Include="..\..\Common\Src\TraderTools.Basics\TraderTools.Basics.csproj">
+      <Project>{089ce7bd-eab1-498c-a6bd-a41f14860aca}</Project>
       <Name>TraderTools.Basics</Name>
     </ProjectReference>
-    <ProjectReference Include="..\TraderTools.Core.UI\TraderTools.Core.UI.csproj">
-      <Project>{2A2CF3F9-24AD-46E9-A341-75BDD4B191D1}</Project>
+    <ProjectReference Include="..\..\Common\Src\TraderTools.Core.UI\TraderTools.Core.UI.csproj">
+      <Project>{5e885f6a-3461-4d96-bcf8-d4a50f526726}</Project>
       <Name>TraderTools.Core.UI</Name>
     </ProjectReference>
-    <ProjectReference Include="..\TraderTools.Indicators\TraderTools.Indicators.csproj">
-      <Project>{687880C4-A3AB-4874-95BB-5222870B74B4}</Project>
+    <ProjectReference Include="..\..\Common\Src\TraderTools.Indicators\TraderTools.Indicators.csproj">
+      <Project>{a5a59813-a3d3-4af5-9923-ec5b0879be9c}</Project>
       <Name>TraderTools.Indicators</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>MKDIR Candles
