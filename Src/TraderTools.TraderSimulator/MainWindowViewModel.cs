@@ -76,7 +76,6 @@ namespace TraderTools.TradingSimulator
         {
             TimeFrameItems = new List<Timeframe>
             {
-                Timeframe.D1Tiger,
                 Timeframe.D1,
                 Timeframe.H4,
                 Timeframe.H2,
@@ -142,8 +141,8 @@ namespace TraderTools.TradingSimulator
 
         // ReSharper disable once UnusedMember.Global
         public TradeListDisplayOptionsFlag TradeListDisplayOptions { get; set; } =
-            TradeListDisplayOptionsFlag.PoundsPerPip | TradeListDisplayOptionsFlag.InitialStop
-                                                     | TradeListDisplayOptionsFlag.InitialLimit
+            TradeListDisplayOptionsFlag.PoundsPerPip | TradeListDisplayOptionsFlag.Stop
+                                                     | TradeListDisplayOptionsFlag.Limit
                                                      | TradeListDisplayOptionsFlag.OrderDate
                                                      | TradeListDisplayOptionsFlag.OrderPrice
                                                      | TradeListDisplayOptionsFlag.ResultR;

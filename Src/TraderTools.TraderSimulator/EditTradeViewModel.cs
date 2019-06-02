@@ -506,7 +506,6 @@ namespace TraderTools.TradingSimulator
                     : (decimal)candle.Close;
 
                 var limit = details.Price;
-                var pips = Math.Abs(PipsHelper.GetPriceInPips((decimal)limit - entry, Trade.Market));
             }
 
             if (IsSetStopButtonPressed)
@@ -516,8 +515,6 @@ namespace TraderTools.TradingSimulator
                 var entry = Trade.OrderPrice != null && Trade.EntryDateTime == null
                     ? Trade.OrderPrice.Value
                     : (decimal)candle.Close;
-                var pips = Math.Abs(PipsHelper.GetPriceInPips(entry - stop, Trade.Market));
-
             }
         }
 

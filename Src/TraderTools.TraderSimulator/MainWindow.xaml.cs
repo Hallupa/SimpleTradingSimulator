@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using Abt.Controls.SciChart;
 using Hallupa.Library;
 using Hallupa.Library.UI;
+using log4net;
 using Octokit;
 
 namespace TraderTools.TradingSimulator
@@ -14,6 +16,7 @@ namespace TraderTools.TradingSimulator
     /// </summary>
     public partial class MainWindow : Window
     {
+        private static readonly ILog Log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         private InputWindow _dlg;
 
         public MainWindow()
@@ -77,22 +80,29 @@ namespace TraderTools.TradingSimulator
 
             Task.Run(() =>
             {
-                var github = new GitHubClient(new ProductHeaderValue("Hallupa"));
-                var releases = github.Repository.Release.GetAll("Hallupa", "SimpleTradingSimulator").Result;
-                var latestReleaseVersion = releases[0].TagName.Replace("v", "");
-                var assemblyVersion = typeof(MainWindow).Assembly.GetName().Version;
-                var currentVersion = $"{assemblyVersion.Major}.{assemblyVersion.Minor}.{assemblyVersion.Build}";
-
-                if (latestReleaseVersion != currentVersion)
+                try
                 {
-                    Dispatcher.Invoke(() =>
+                    var github = new GitHubClient(new ProductHeaderValue("Hallupa"));
+                    var releases = github.Repository.Release.GetAll("Hallupa", "SimpleTradingSimulator").Result;
+                    var latestReleaseVersion = releases[0].TagName.Replace("v", "");
+                    var assemblyVersion = typeof(MainWindow).Assembly.GetName().Version;
+                    var currentVersion = $"{assemblyVersion.Major}.{assemblyVersion.Minor}.{assemblyVersion.Build}";
+
+                    if (latestReleaseVersion != currentVersion)
                     {
-                        MessageBox.Show(
-                            "Newer version is available - please download from https://github.com/Hallupa/SimpleTradingSimulator",
-                            "Newer version available",
-                            MessageBoxButton.OK,
-                            MessageBoxImage.Information);
-                    });
+                        Dispatcher.Invoke(() =>
+                        {
+                            MessageBox.Show(
+                                "Newer version is available - please download from https://github.com/Hallupa/SimpleTradingSimulator",
+                                "Newer version available",
+                                MessageBoxButton.OK,
+                                MessageBoxImage.Information);
+                        });
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Log.Warn($"Unable to check GitHub releases");
                 }
             });
         }
