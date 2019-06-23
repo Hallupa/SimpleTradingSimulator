@@ -18,7 +18,7 @@ namespace TraderTools.TradingSimulator.Services
 
         public List<ICandle> GetCandles(string market, Timeframe timeframe)
         {
-            var path = Path.Combine(CandlesDirectory, $"FXCM_{market}_{timeframe}.dat");
+            var path = Path.Combine(CandlesDirectory, $"FXCM_{market.Replace("/", "")}_{timeframe}.dat");
             var data = Decompress(File.ReadAllBytes(path));
 
             int structSize = Marshal.SizeOf(typeof(SimpleCandle));

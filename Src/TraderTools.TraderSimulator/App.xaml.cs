@@ -1,9 +1,13 @@
-﻿using System.Reflection;
+﻿using System.IO;
+using System.Reflection;
 using System.Windows;
 using Abt.Controls.SciChart.Visuals;
 using Hallupa.Library;
 using log4net;
+using TraderTools.Basics;
+using TraderTools.Core.Services;
 using TraderTools.Core.UI.Services;
+using TraderTools.TradingSimulator.Services;
 
 namespace TraderTools.TradingSimulator
 {
@@ -20,6 +24,9 @@ namespace TraderTools.TradingSimulator
 
             DependencyContainer.AddAssembly(typeof(App).Assembly);
             DependencyContainer.AddAssembly(typeof(ChartingService).Assembly);
+            DependencyContainer.AddAssembly(typeof(MarketDetailsService).Assembly);
+
+            BrokersService.DataDirectory = Path.Combine(Path.GetDirectoryName(typeof(CandlesService).Assembly.Location));
         }
     }
 }

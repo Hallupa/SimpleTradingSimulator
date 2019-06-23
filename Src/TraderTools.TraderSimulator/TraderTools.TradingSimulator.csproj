@@ -206,6 +206,9 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <Content Include="MarketDetails.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
@@ -235,6 +238,10 @@
     <ProjectReference Include="..\..\Common\Src\TraderTools.Core.UI\TraderTools.Core.UI.csproj">
       <Project>{5e885f6a-3461-4d96-bcf8-d4a50f526726}</Project>
       <Name>TraderTools.Core.UI</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Common\Src\TraderTools.Core\TraderTools.Core.csproj">
+      <Project>{53BA9AD8-A1E8-409F-9C23-5148F91305E2}</Project>
+      <Name>TraderTools.Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Common\Src\TraderTools.Indicators\TraderTools.Indicators.csproj">
       <Project>{a5a59813-a3d3-4af5-9923-ec5b0879be9c}</Project>

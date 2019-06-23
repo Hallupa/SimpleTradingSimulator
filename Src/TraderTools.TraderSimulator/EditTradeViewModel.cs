@@ -278,13 +278,13 @@ namespace TraderTools.TradingSimulator
                 return;
             }
 
-            if (Trade.TradeDirection == TradeDirection.Long && (price < lastCandle.Close || (Trade.OrderPrice != null && Trade.EntryPrice == null && (decimal)price < Trade.OrderPrice.Value)))
+            if (Trade.TradeDirection == TradeDirection.Long && ((Trade.OrderPrice == null && price < lastCandle.Close) || (Trade.OrderPrice != null && Trade.EntryPrice == null && (decimal)price < Trade.OrderPrice.Value)))
             {
                 MessageBox.Show("Invalid limit", "Invalid value", MessageBoxButton.OK);
                 return;
             }
 
-            if (Trade.TradeDirection == TradeDirection.Short && (price > lastCandle.Close || (Trade.OrderPrice != null && Trade.EntryPrice == null && (decimal)price > Trade.OrderPrice.Value)))
+            if (Trade.TradeDirection == TradeDirection.Short && ((Trade.OrderPrice == null && price > lastCandle.Close) || (Trade.OrderPrice != null && Trade.EntryPrice == null && (decimal)price > Trade.OrderPrice.Value)))
             {
                 MessageBox.Show("Invalid limit", "Invalid value", MessageBoxButton.OK);
                 return;
@@ -322,13 +322,13 @@ namespace TraderTools.TradingSimulator
             }
 
             var lastCandle = _lastCandle();
-            if (Trade.TradeDirection == TradeDirection.Long && (price > lastCandle.Close || (Trade.OrderPrice != null && Trade.EntryPrice == null && (decimal)price > Trade.OrderPrice.Value)))
+            if (Trade.TradeDirection == TradeDirection.Long && ((Trade.OrderPrice == null && price > lastCandle.Close) || (Trade.OrderPrice != null && Trade.EntryPrice == null && (decimal)price > Trade.OrderPrice.Value)))
             {
                 MessageBox.Show("Invalid stop", "Invalid value", MessageBoxButton.OK);
                 return;
             }
 
-            if (Trade.TradeDirection == TradeDirection.Short && (price < lastCandle.Close || (Trade.OrderPrice != null && Trade.EntryPrice == null && (decimal)price < Trade.OrderPrice.Value)))
+            if (Trade.TradeDirection == TradeDirection.Short && ((Trade.OrderPrice == null && price < lastCandle.Close) || (Trade.OrderPrice != null && Trade.EntryPrice == null && (decimal)price < Trade.OrderPrice.Value)))
             {
                 MessageBox.Show("Invalid stop", "Invalid value", MessageBoxButton.OK);
                 return;
@@ -428,45 +428,8 @@ namespace TraderTools.TradingSimulator
             }
 
             IsEntryButtonPressed = false;
-            var lastCandle = _lastCandle();
 
             if (!IsEntryButtonEnabled) return;
-
-            if (Trade.TradeDirection == TradeDirection.Long && price > lastCandle.Close)
-            {
-                MessageBox.Show("Invalid entry price - price is above current price", "Invalid value", MessageBoxButton.OK);
-                return;
-            }
-
-            if (Trade.TradeDirection == TradeDirection.Long && Trade.StopPrice != null && (decimal)price < Trade.StopPrice.Value)
-            {
-                MessageBox.Show("Invalid entry price - stop would be above entry", "Invalid value", MessageBoxButton.OK);
-                return;
-            }
-
-            if (Trade.TradeDirection == TradeDirection.Long && Trade.LimitPrice != null && (decimal)price > Trade.LimitPrice.Value)
-            {
-                MessageBox.Show("Invalid entry price - limit would be below entry", "Invalid value", MessageBoxButton.OK);
-                return;
-            }
-
-            if (Trade.TradeDirection == TradeDirection.Short && price < lastCandle.Close)
-            {
-                MessageBox.Show("Invalid entry price - price is below current price", "Invalid value", MessageBoxButton.OK);
-                return;
-            }
-
-            if (Trade.TradeDirection == TradeDirection.Short && Trade.StopPrice != null && (decimal)price > Trade.StopPrice.Value)
-            {
-                MessageBox.Show("Invalid entry price - stop would be below entry", "Invalid value", MessageBoxButton.OK);
-                return;
-            }
-
-            if (Trade.TradeDirection == TradeDirection.Short && Trade.LimitPrice != null && (decimal)price < Trade.LimitPrice.Value)
-            {
-                MessageBox.Show("Invalid entry price - limit would be above entry", "Invalid value", MessageBoxButton.OK);
-                return;
-            }
 
             Trade.OrderPrice = (decimal)price;
 
