@@ -7,22 +7,23 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Text.RegularExpressions;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
 using Abt.Controls.SciChart.Visuals.Annotations;
 using Hallupa.Library;
 using log4net;
+using Newtonsoft.Json;
 using TraderTools.Basics;
 using TraderTools.Basics.Extensions;
-using TraderTools.Core.Services;
 using TraderTools.Core.UI;
 using TraderTools.Core.UI.Services;
 using TraderTools.Core.UI.ViewModels;
 using TraderTools.Core.UI.Views;
 using TraderTools.Indicators;
+using TraderTools.TradingSimulator.Extensions;
 using TraderTools.TradingSimulator.Services;
 
 namespace TraderTools.TradingSimulator
@@ -43,51 +44,77 @@ namespace TraderTools.TradingSimulator
         private readonly Func<string> _getTradeCommentsFunc;
         private readonly Action<string> _showMessageAction;
         private readonly Action<Cursor> _setCursorAction;
-        private readonly Action<TradeDetails, Action, EditTradeViewModel> _showEditTradeAction;
         private readonly Func<IDisposable> _suspendChartUpdatesAction;
         private readonly Action _updateWindowAction;
         private Dispatcher _dispatcher;
         private Random _rnd = new Random();
-        private Dictionary<Timeframe, List<ICandle>> _currentCandles = new Dictionary<Timeframe, List<ICandle>>();
+        private Dictionary<Timeframe, List<Candle>> _currentCandles = new Dictionary<Timeframe, List<Candle>>();
         private bool _isTradeEnabled;
         private int _orderExpiryCandlesIndex;
         private int _h2EndDateIndex;
         private bool _running;
-        private TradeDetails _tradeBeingSetup;
-        private List<ICandle> _allSmallestTimeframeCandles;
-        private List<ICandle> _allH2Candles;
-        private List<ICandle> _allD1Candles;
+        private Trade _tradeBeingSetup;
+        private List<Candle> _allSmallestTimeframeCandles;
+        private List<Candle> _allH2Candles;
+        private List<Candle> _allH4Candles;
+        private List<Candle> _allD1Candles;
         public event PropertyChangedEventHandler PropertyChanged;
-        private CandlesService _candlesService;
-        private ObservableCollection<TradeDetails> _trades = new ObservableCollection<TradeDetails>();
+        private ObservableCollection<Trade> _trades = new ObservableCollection<Trade>();
         private List<string> _markets;
         private IDisposable _chartModeDisposable;
         private string _market;
-        private TradeDetails _tradeBeingEdited;
-        private TradeDetails _selectedTrade;
+        private Trade _selectedTrade;
+        private IDisposable _chartClickedDisposable;
+        private IDisposable _chartMouseMoveDisposable;
 
+        [Import] private IBrokersCandlesService _brokerCandlesService;
         [Import] IMarketDetailsService _marketsService;
         [Import] private ITradeDetailsAutoCalculatorService _tradeCalculatorService;
+        [Import] private IDataDirectoryService _dataDirectoryService;
+        private string _directory;
+        private Action _selectedTradeChangedAction;
+        private bool _setLimitChecked;
+        private bool _setStopChecked;
+        private bool _setOrderChecked;
+        private CandlesService _candlesService;
+        private bool _setCloseEnabled;
+        private bool _setOrderEnabled;
+        private bool _setLimitEnabled;
+        private bool _setStopEnabled;
+
         #endregion
 
         public MainWindowViewModel(
             Func<string> getTradeCommentsFunc,
             Action<string> showMessageAction,
             Action<Cursor> setCursorAction,
-            Action<TradeDetails, Action, EditTradeViewModel> showEditTradeAction,
             Func<IDisposable> suspendChartUpdatesAction,
             Action updateWindowAction)
         {
             DependencyContainer.ComposeParts(this);
 
-            TimeFrameItems = new List<Timeframe>
+            _directory = _dataDirectoryService.MainDirectoryWithApplicationName;
+            if (!Directory.Exists(_directory))
             {
-                Timeframe.D1,
-                Timeframe.H4,
-                Timeframe.H2,
-                Timeframe.H1,
-                Timeframe.M1,
-            };
+                Directory.CreateDirectory(_directory);
+            }
+
+            _candlesService = new CandlesService();
+
+            /* // Create candles
+            Task.Run(() =>
+            {
+                Log.Info("Creating candles");
+                _candlesService.ConvertCandles(_brokerCandlesService, _fxcm, _marketsService.GetAllMarketDetails().Select(m => m.Name).ToList());
+                Log.Info("Candles created");
+            });
+            return;*/
+
+            TimeFrameItems = new List<Timeframe> { Timeframe.D1, Timeframe.H4, Timeframe.H2, Timeframe.H1, Timeframe.M1 };
+
+            LargeChartTimeframeOptions.Clear();
+            LargeChartTimeframeOptions.Add(Timeframe.H4);
+            LargeChartTimeframeOptions.Add(Timeframe.H2);
 
             // Setup available indicators
             AddAvailableIndicator(new ExponentialMovingAverage(8), Colors.DarkBlue, false, true);
@@ -100,46 +127,45 @@ namespace TraderTools.TradingSimulator
             AddAvailableIndicator(new CommodityChannelIndex(), Colors.Red, true, false);
             AddAvailableIndicator(new T3CommodityChannelIndex(), Colors.Red, true, false);
 
-            NewChartCommand = new DelegateCommand(o => Next(), o => !Running);
+            NewChartCommand = new DelegateCommand(o => NewChartMarket(), o => !Running);
             NextCandleCommand = new DelegateCommand(o => ProgressTime());
             ClearTradesCommand = new DelegateCommand(o => ClearTrades());
-            EditTradeCommand = new DelegateCommand(o => EditTrade(SelectedTrade), o => _tradeBeingEdited == null && SelectedTrade != null && SelectedTrade.CloseDateTime == null);
-            StartLongTradeCommand = new DelegateCommand(o => StartTrade(TradeDirection.Long), o => _tradeBeingEdited == null);
-            StartShortTradeCommand = new DelegateCommand(o => StartTrade(TradeDirection.Short), o => _tradeBeingEdited == null);
+            CloseTradeCommand = new DelegateCommand(o => CloseTrade(), o => SelectedTrade != null && SelectedTrade.CloseDateTime == null && (SelectedTrade.EntryPrice != null || SelectedTrade.OrderPrice != null));
+            DeleteTradeCommand = new DelegateCommand(o => DeleteTrade());
+            StartLongTradeCommand = new DelegateCommand(o => StartTrade(TradeDirection.Long));
+            StartShortTradeCommand = new DelegateCommand(o => StartTrade(TradeDirection.Short));
 
             _getTradeCommentsFunc = getTradeCommentsFunc;
             _showMessageAction = showMessageAction;
             _setCursorAction = setCursorAction;
-            _showEditTradeAction = showEditTradeAction;
             _suspendChartUpdatesAction = suspendChartUpdatesAction;
             _updateWindowAction = updateWindowAction;
             DependencyContainer.ComposeParts(this);
             _dispatcher = Dispatcher.CurrentDispatcher;
-            _candlesService = new CandlesService();
 
             _chartModeDisposable = ChartingService.ChartModeObservable.Subscribe(ChartModeChanged);
 
+            TradeListDisplayOptions = TradeListDisplayOptionsFlag.ClosePrice
+                                  | TradeListDisplayOptionsFlag.Comments
+                                  | TradeListDisplayOptionsFlag.OrderPrice
+                                  | TradeListDisplayOptionsFlag.Limit
+                                  | TradeListDisplayOptionsFlag.OrderDate
+                                  | TradeListDisplayOptionsFlag.ResultR
+                                  | TradeListDisplayOptionsFlag.Status
+                                  | TradeListDisplayOptionsFlag.Stop
+                                  | TradeListDisplayOptionsFlag.Strategies;
 
-            var regex = new Regex("FXCM_([a-zA-Z0-9]*)_");
-            var markets = new HashSet<string>();
-            foreach (var candlesPath in Directory.GetFiles(_candlesService.CandlesDirectory))
+            _markets = new List<string>();
+            foreach (var m in _marketsService.GetAllMarketDetails().Select(m => m.Name))
             {
-                var marketName = regex.Match(Path.GetFileName(candlesPath)).Groups[1].Value;
-
-                if (!_marketsService.HasMarketDetails("FXCM", marketName))
+                if (File.Exists(_candlesService.GetCandlesPath(m, Timeframe.M5))
+                    && File.Exists(_candlesService.GetCandlesPath(m, Timeframe.H2))
+                    && File.Exists(_candlesService.GetCandlesPath(m, Timeframe.H4))
+                    && File.Exists(_candlesService.GetCandlesPath(m, Timeframe.D1)))
                 {
-                    marketName = marketName.Insert(3, "/");
+                    _markets.Add(m);
                 }
-
-                if (!_marketsService.HasMarketDetails("FXCM", marketName))
-                {
-                    throw new ApplicationException($"Unable to find market {marketName}");
-                }
-
-                markets.Add(marketName);
             }
-
-            _markets = markets.ToList();
 
             IsTradeEnabled = false;
 
@@ -153,17 +179,170 @@ namespace TraderTools.TradingSimulator
 
             ResultsViewModel = new TradesResultsViewModel(() => Trades.ToList()) { ShowOptions = true, ShowSubOptions = false, AdvStrategyNaming = true };
             ResultsViewModel.ResultOptions.Remove("Timeframe");
+            ResultsViewModel.ShowOptions = false;
+            ResultsViewModel.ShowIncludeOpenClosedTradesOptions = false;
 
-            Next();
+            LoadTrades();
+            RemoveIncompleteTrades();
+            NewChartMarket();
+
+            _chartClickedDisposable = ChartingService.ChartClickObservable.Subscribe(ChartClicked);
+            // _chartMouseMoveDisposable = ChartingService.ChartMoveObservable.Subscribe(ChartMouseMove);
+        }
+
+
+
+        public bool SetLimitChecked
+        {
+            get => _setLimitChecked;
+            set
+            {
+                if (value)
+                {
+                    SetStopChecked = false;
+                    SetOrderChecked = false;
+                }
+
+                _setLimitChecked = value; 
+                OnPropertyChanged();
+            }
+        }
+
+        public bool SetStopChecked
+        {
+            get => _setStopChecked;
+            set
+            {
+                if (value)
+                {
+                    SetLimitChecked = false;
+                    SetOrderChecked = false;
+                }
+
+                _setStopChecked = value; 
+                OnPropertyChanged();
+            }
+        }
+
+        public bool SetOrderChecked
+        {
+            get => _setOrderChecked;
+            set
+            {
+                if (value)
+                {
+                    SetLimitChecked = false;
+                    SetStopChecked = false;
+                }
+
+                _setOrderChecked = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool SetCloseEnabled
+        {
+            get => _setCloseEnabled;
+            set
+            {
+                _setCloseEnabled = value; 
+                OnPropertyChanged();
+            }
+        }
+
+        public bool SetOrderEnabled
+        {
+            get => _setOrderEnabled;
+            set
+            {
+                _setOrderEnabled = value; 
+                OnPropertyChanged();
+            }
+        }
+
+        public bool SetLimitEnabled
+        {
+            get => _setLimitEnabled;
+            set
+            {
+                _setLimitEnabled = value; 
+                OnPropertyChanged();
+            }
+        }
+
+        public bool SetStopEnabled
+        {
+            get => _setStopEnabled;
+            set
+            {
+                _setStopEnabled = value; 
+                OnPropertyChanged();
+            }
+        }
+
+        private void ChartClicked((DateTime Time, double Price, Action SetIsHandled) details)
+        {
+            if (SelectedTrade == null) return;
+
+            var lastCandle = _allH2Candles[_h2EndDateIndex];
+            
+            if (SetStopChecked)
+            {
+                SelectedTrade.SetTradeStop(lastCandle, details.Price);
+                SetStopChecked = false;
+                SetupAnnotations();
+                details.SetIsHandled();
+            }
+
+            if (SetLimitChecked)
+            {
+                SelectedTrade.SetTradeLimit(lastCandle, details.Price);
+                SetLimitChecked = false;
+                SetupAnnotations();
+                details.SetIsHandled();
+            }
+
+            if (SetOrderChecked)
+            {
+                SelectedTrade.SetTradeEntryPrice(lastCandle, details.Price);
+                SetOrderChecked = false;
+                SetupAnnotations();
+                details.SetIsHandled();
+            }
+        }
+
+        private void DeleteTrade()
+        {
+            if (SelectedTrade != null)
+            {
+                SelectedTrade = null;
+                Trades.Remove(SelectedTrade);
+                TradeAutoCalculator.RemoveTrade(SelectedTrade);
+                SaveTrades();
+                ResultsViewModel.UpdateResults();
+                SetupAnnotations();
+            }
+        }
+
+        private void CloseTrade()
+        {
+            if (SelectedTrade != null)
+            {
+                CloseTrade(SelectedTrade);
+            }
+        }
+
+        public static readonly DependencyProperty TradeSelectionModeProperty = DependencyProperty.Register(
+            "TradeSelectionMode", typeof(DataGridSelectionMode), typeof(MainWindowViewModel), new PropertyMetadata(DataGridSelectionMode.Single));
+
+        public DataGridSelectionMode TradeSelectionMode
+        {
+            get { return (DataGridSelectionMode) GetValue(TradeSelectionModeProperty); }
+            set { SetValue(TradeSelectionModeProperty, value); }
         }
 
         // ReSharper disable once UnusedMember.Global
-        public TradeListDisplayOptionsFlag TradeListDisplayOptions { get; set; } =
-            TradeListDisplayOptionsFlag.PoundsPerPip | TradeListDisplayOptionsFlag.Stop
-                                                     | TradeListDisplayOptionsFlag.Limit
-                                                     | TradeListDisplayOptionsFlag.OrderDate
-                                                     | TradeListDisplayOptionsFlag.OrderPrice
-                                                     | TradeListDisplayOptionsFlag.ResultR;
+        public TradeListDisplayOptionsFlag TradeListDisplayOptions { get; set; }
 
         private void ClearTrades()
         {
@@ -177,21 +356,31 @@ namespace TraderTools.TradingSimulator
             ResultsViewModel.UpdateResults();
         }
 
-        public TradeDetails SelectedTrade
+        public Trade SelectedTrade
         {
             get => _selectedTrade;
             set
             {
                 _selectedTrade = value;
-                EditTradeCommand.RaiseCanExecuteChanged();
                 SetupAnnotations();
                 OnPropertyChanged();
+                _selectedTradeChangedAction?.Invoke();
+                SelectedTradeUpdated();
+                UpdateUI();
             }
         }
 
         public ObservableCollection<IndicatorDisplayOptions> AvailableIndiciators { get; } = new ObservableCollection<IndicatorDisplayOptions>();
 
         public ObservableCollection<IndicatorDisplayOptions> SelectedIndicators { get; } = new ObservableCollection<IndicatorDisplayOptions>();
+
+        private void UpdateUI()
+        {
+            SetOrderEnabled = SelectedTrade != null && SelectedTrade.EntryPrice == null && SelectedTrade.ClosePrice == null;
+            SetCloseEnabled = SelectedTrade != null && (SelectedTrade.EntryPrice != null || SelectedTrade.OrderPrice != null) && SelectedTrade.ClosePrice == null;
+            SetLimitEnabled = SelectedTrade != null && SelectedTrade.ClosePrice == null;
+            SetStopEnabled = SelectedTrade != null && SelectedTrade.ClosePrice == null;
+        }
 
         private void AddAvailableIndicator(IIndicator indicator, Color colour, bool showInLargeChartInSeparatePane, bool selectIndicator)
         {
@@ -220,6 +409,18 @@ namespace TraderTools.TradingSimulator
             }
         }
 
+        private void RemoveIncompleteTrades()
+        {
+            foreach(var t in Trades.ToList())
+            {
+                if (t.CloseDateTime == null)
+                {
+                    Trades.Remove(t);
+                    TradeAutoCalculator.RemoveTrade(t);
+                }
+            }
+        }
+
         private void ChartModeChanged(ChartMode? chartMode)
         {
         }
@@ -230,63 +431,78 @@ namespace TraderTools.TradingSimulator
         public DelegateCommand StartShortTradeCommand { get; }
         public List<Timeframe> TimeFrameItems { get; set; }
         public DelegateCommand ClearTradesCommand { get; set; }
-        public DelegateCommand EditTradeCommand { get; set; }
+        public DelegateCommand CloseTradeCommand { get; set; }
+        public DelegateCommand DeleteTradeCommand { get; set; }
         [Import] public ChartingService ChartingService { get; private set; }
-        [Import] public ITradeDetailsAutoCalculatorService TradeDetailsAutoCalculator { get; private set; }
+        [Import] public ITradeDetailsAutoCalculatorService TradeAutoCalculator { get; private set; }
 
-        public TradeDetails TradeBeingEdited
+        private void SelectedTradeUpdated()
         {
-            get => _tradeBeingEdited;
-            set
-            {
-                _tradeBeingEdited = value;
-                OnPropertyChanged();
-                EditTradeCommand.RaiseCanExecuteChanged();
-                StartLongTradeCommand.RaiseCanExecuteChanged();
-                StartShortTradeCommand.RaiseCanExecuteChanged();
-                SetupAnnotations();
-            }
+            CloseTradeCommand.RaiseCanExecuteChanged();
         }
 
-        private void EditTrade(TradeDetails trade)
+        private void CloseTrade(Trade trade)
         {
-            if (TradeBeingEdited != null) return;
-            TradeBeingEdited = trade;
+            if (trade.CloseDateTime == null)
+            {
+                var candle = _allH2Candles[_h2EndDateIndex];
+                var date = new DateTime(candle.CloseTimeTicks, DateTimeKind.Utc);
 
-            var vm = new EditTradeViewModel(trade, ChartingService, () => _allH2Candles[_h2EndDateIndex], true, _setCursorAction, SetupAnnotations, true);
-            _showEditTradeAction(
-                trade,
-                () =>
+                var price = trade.TradeDirection == TradeDirection.Long
+                    ? (decimal) candle.CloseBid
+                    : (decimal) candle.CloseAsk;
+                trade.SetClose(date,
+                    trade.EntryPrice != null ? price : (decimal?)null,
+                    TradeCloseReason.ManualClose);
+            }
+
+            ResultsViewModel.UpdateResults();
+            SetupAnnotations();
+        }
+
+        private void LoadTrades()
+        {
+            var path = Path.Combine(_directory, "Trades.json");
+
+            if (File.Exists(path))
+            {
+                var trades = JsonConvert.DeserializeObject<List<Trade>>(File.ReadAllText(path));
+                foreach (var t in trades)
                 {
-                    if (vm.CloseClicked)
-                    {
-                        if (trade.CloseDateTime == null)
-                        {
-                            var candle = _allH2Candles[_h2EndDateIndex];
-                            var date = new DateTime(candle.CloseTimeTicks, DateTimeKind.Utc);
-                            trade.SetClose(date, (decimal)candle.Close, TradeCloseReason.ManualClose);
-                        }
+                    Trades.Add(t);
+                }
+            }
 
-                        ResultsViewModel.UpdateResults();
-                    }
+            ResultsViewModel.UpdateResults();
+            SetupAnnotations();
+        }
 
-                    SetupAnnotations();
-                    TradeBeingEdited = null;
-                },
-                vm);
+        private void SaveTrades()
+        {
+            var path = Path.Combine(_directory, "Trades.json");
+            var json = JsonConvert.SerializeObject(Trades);
+            File.WriteAllText(path, json);
         }
 
         private void StartTrade(TradeDirection direction)
         {
-            if (TradeBeingEdited != null) return;
+            if (Trades.Any(t => t.OrderPrice == null && t.EntryPrice == null))
+            {
+                MessageBox.Show("New trade is already being setup", "New trade already being created", MessageBoxButton.OK);
+                return;
+            }
 
-            var timeframe = GetSelectedTimeframe(null);
+            var timeframe = LargeChartTimeframe;
             var candle = _currentCandles[Timeframe.D1][_currentCandles[Timeframe.D1].Count - 1];
-            var close = (decimal)candle.Close;
             var date = new DateTime(candle.CloseTimeTicks, DateTimeKind.Utc);
 
-            var newTrade = new TradeDetails
+            var nextId = Trades.Count(t => !string.IsNullOrEmpty(t.Id)) > 0
+                ? Trades.Where(t => !string.IsNullOrEmpty(t.Id)).Select(t => int.Parse(t.Id)).Max() + 1
+                : 1;
+
+            var newTrade = new Trade
             {
+                Id = nextId.ToString(),
                 Broker = "FXCM",
                 Market = _market,
                 TradeDirection = direction,
@@ -294,58 +510,13 @@ namespace TraderTools.TradingSimulator
                 OrderAmount = 100,
                 Timeframe = timeframe
             };
-            TradeDetailsAutoCalculator.AddTrade(newTrade);
-            TradeBeingEdited = newTrade;
+            TradeAutoCalculator.AddTrade(newTrade);
+            Trades.Insert(0, newTrade);
             SelectedTrade = newTrade;
 
-            Trades.Insert(0, newTrade);
+            SaveTrades();
+
             newTrade.PropertyChanged += TradeOnPropertyChanged;
-            var vm = new EditTradeViewModel(
-                newTrade, ChartingService, () => _allH2Candles[_h2EndDateIndex], true, _setCursorAction, SetupAnnotations,
-                false);
-            _showEditTradeAction(
-                newTrade,
-                () =>
-                {
-                    if (!vm.OKClicked)
-                    {
-                        SelectedTrade = null;
-                        Trades.Remove(newTrade);
-                        newTrade.PropertyChanged -= TradeOnPropertyChanged;
-                        TradeDetailsAutoCalculator.RemoveTrade(newTrade);
-                        SetupAnnotations();
-                    }
-                    else
-                    {
-                        newTrade.OrderKind = newTrade.OrderPrice == null ? OrderKind.Market : OrderKind.EntryPrice;
-                        if (newTrade.OrderPrice == null)
-                        {
-                            newTrade.SetEntry(date, close, newTrade.OrderAmount.Value);
-                        }
-                        else
-                        {
-                            /*
-                            Buy below current market price or sell above current market price - LimitEntry
-                            Buy above current price or sell below current market price - StopEntry
-                            */
-
-                            if (newTrade.TradeDirection == TradeDirection.Long)
-                            {
-                                newTrade.OrderType = newTrade.OrderPrice.Value < close ? OrderType.LimitEntry : OrderType.StopEntry;
-                            }
-                            else
-                            {
-                                newTrade.OrderType = newTrade.OrderPrice.Value < close ? OrderType.StopEntry : OrderType.LimitEntry;
-                            }
-                        }
-
-                        SelectedTrade = newTrade;
-                    }
-
-                    TradeBeingEdited = null;
-                    vm.Dispose();
-                },
-                vm);
         }
 
         private void TradeOnPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -354,7 +525,7 @@ namespace TraderTools.TradingSimulator
         }
 
         #region Properties
-        public ObservableCollection<TradeDetails> Trades { get; } = new ObservableCollection<TradeDetails>();
+        public ObservableCollection<Trade> Trades { get; } = new ObservableCollection<Trade>();
         public TradesResultsViewModel ResultsViewModel { get; }
 
         public bool IsTradeEnabled
@@ -380,7 +551,7 @@ namespace TraderTools.TradingSimulator
 
         private void SetupAnnotations()
         {
-            if (!_currentCandles.ContainsKey(GetSelectedTimeframe(null)) || ChartViewModel.ChartPaneViewModels.Count == 0 || ChartViewModelSmaller1.ChartPaneViewModels.Count == 0)
+            if (!_currentCandles.ContainsKey(LargeChartTimeframe) || ChartViewModel.ChartPaneViewModels.Count == 0 || ChartViewModelSmaller1.ChartPaneViewModels.Count == 0)
             {
                 return;
             }
@@ -391,70 +562,75 @@ namespace TraderTools.TradingSimulator
             var mainAnnotations = ChartViewModel.ChartPaneViewModels[0].TradeAnnotations;
             var smallAnnotations = ChartViewModelSmaller1.ChartPaneViewModels[0].TradeAnnotations;
 
-            ChartViewModel.ChartPaneViewModels[0].TradeAnnotations = null;
-            ChartViewModelSmaller1.ChartPaneViewModels[0].TradeAnnotations = null;
-
             var fullTradeAnnotations = TradeAnnotationsToShow.All;
             var partialTradeAnnotations = TradeAnnotationsToShow.EntryMarker | TradeAnnotationsToShow.CloseMarker | TradeAnnotationsToShow.MakeEntryCloseMarkerSmaller;
 
             using (_suspendChartUpdatesAction())
             {
-                // Remove existing annotations
-                for (var i = mainAnnotations.Count - 1; i >= 0; i--)
-                {
-                    var annotation = mainAnnotations[i];
-                    if (annotation is LineAnnotation l)
-                    {
-                        if (l.Tag != null && ((string)l.Tag).StartsWith("Added")) continue;
-                    }
-
-                    mainAnnotations.RemoveAt(i);
-                }
-
-                for (var i = smallAnnotations.Count - 1; i >= 0; i--)
-                {
-                    var annotation = smallAnnotations[i];
-                    if (annotation is LineAnnotation l)
-                    {
-                        if (l.Tag != null && ((string)l.Tag).StartsWith("Added")) continue;
-                    }
-
-                    smallAnnotations.RemoveAt(i);
-                }
+                RemoveExistingAnnotations(mainAnnotations, smallAnnotations);
 
                 foreach (var trade in Trades)
                 {
-                    var tradeAnnotations = ChartHelper.CreateTradeAnnotations(ChartViewModel, trade == SelectedTrade || trade == TradeBeingEdited ? fullTradeAnnotations : partialTradeAnnotations, GetSelectedTimeframe(trade), _currentCandles[GetSelectedTimeframe(trade)], trade);
-                    foreach (var tradeAnnotation in tradeAnnotations)
-                    {
-                        mainAnnotations.Add(tradeAnnotation);
-                    }
+                    if (trade.Market != _market) continue;
 
-                    var smallChartTradeAnnotations = ChartHelper.CreateTradeAnnotations(ChartViewModelSmaller1, trade == SelectedTrade || trade == TradeBeingEdited ? fullTradeAnnotations : partialTradeAnnotations, Timeframe.D1, _currentCandles[Timeframe.D1], trade);
-                    foreach (var tradeAnnotation in smallChartTradeAnnotations)
-                    {
-                        smallAnnotations.Add(tradeAnnotation);
-                    }
+                    ChartHelper.CreateTradeAnnotations(mainAnnotations, ChartViewModel, trade == SelectedTrade ? fullTradeAnnotations : partialTradeAnnotations, _currentCandles[LargeChartTimeframe], trade);
+                    ChartHelper.CreateTradeAnnotations(smallAnnotations, ChartViewModelSmaller1, trade == SelectedTrade ? fullTradeAnnotations : partialTradeAnnotations, _currentCandles[Timeframe.D1], trade);
                 }
             }
-
-            ChartViewModel.ChartPaneViewModels[0].TradeAnnotations = mainAnnotations;
-            ChartViewModelSmaller1.ChartPaneViewModels[0].TradeAnnotations = smallAnnotations;
         }
+
+        private static void RemoveExistingAnnotations(AnnotationCollection mainAnnotations, AnnotationCollection smallAnnotations)
+        {
+            // Remove existing annotations
+            for (var i = mainAnnotations.Count - 1; i >= 0; i--)
+            {
+                var annotation = mainAnnotations[i];
+                if (annotation is LineAnnotation l)
+                {
+                    if (l.Tag != null && ((string) l.Tag).StartsWith("Added")) continue;
+                }
+
+                mainAnnotations.RemoveAt(i);
+            }
+
+            for (var i = smallAnnotations.Count - 1; i >= 0; i--)
+            {
+                var annotation = smallAnnotations[i];
+                if (annotation is LineAnnotation l)
+                {
+                    if (l.Tag != null && ((string) l.Tag).StartsWith("Added")) continue;
+                }
+
+                smallAnnotations.RemoveAt(i);
+            }
+        }
+
         #endregion
 
-        private void Next()
+        private void NewChartMarket()
         {
             Log.Info("Loading next chart");
+            RemoveIncompleteTrades();
             _market = _markets[_rnd.Next(0, _markets.Count)];
             OrderExpiryCandlesIndex = 0;
-            var allH2Candles = _candlesService.GetCandles(_market, Timeframe.H2);
-            _h2EndDateIndex = _rnd.Next(12 * 50, allH2Candles.Count - 12 * 100);
+            _allH2Candles = _candlesService.GetCandles(_market, Timeframe.H2);
+            _h2EndDateIndex = _rnd.Next(12 * 50, _allH2Candles.Count - 12 * 100);
 
-            _allH2Candles = null;
-            _allD1Candles = null;
-            _allSmallestTimeframeCandles = null;
+            _allSmallestTimeframeCandles = _candlesService.GetCandles(_market, Timeframe.M5);
+            _allH4Candles = _candlesService.GetCandles(_market, Timeframe.H4);
+            _allD1Candles = _candlesService.GetCandles(_market, Timeframe.D1);
 
+            if (_allSmallestTimeframeCandles.Count == 0 || _allH2Candles.Count == 0)
+            {
+                NewChartMarket();
+                return;
+            }
+
+            SetupChart();
+        }
+
+        protected override void LargeChartTimeframeChanged()
+        {
             SetupChart();
         }
 
@@ -464,12 +640,14 @@ namespace TraderTools.TradingSimulator
             if (_allSmallestTimeframeCandles == null)
             {
                 _allSmallestTimeframeCandles = _candlesService.GetCandles(_market, Timeframe.M5);
+                _allH4Candles = _candlesService.GetCandles(_market, Timeframe.H4);
                 _allH2Candles = _candlesService.GetCandles(_market, Timeframe.H2);
                 _allD1Candles = _candlesService.GetCandles(_market, Timeframe.D1);
             }
 
             var endDateUtc = new DateTime(_allH2Candles[_h2EndDateIndex].CloseTimeTicks, DateTimeKind.Utc);
 
+            var currentH4Candles = _allH4Candles.Where(x => new DateTime(x.CloseTimeTicks, DateTimeKind.Utc) <= endDateUtc).ToList();
             var currentH2Candles = _allH2Candles.Where(x => new DateTime(x.CloseTimeTicks, DateTimeKind.Utc) <= endDateUtc).ToList();
             var currentD1Candles = _allD1Candles.Where(x => new DateTime(x.CloseTimeTicks, DateTimeKind.Utc) <= endDateUtc).ToList();
 
@@ -483,15 +661,17 @@ namespace TraderTools.TradingSimulator
                 {
                     d1Incomplete = new Candle
                     {
-                        Timeframe = (int)Timeframe.D1,
-                        Close = h2.Close,
-                        Open = d1Incomplete?.Open ?? h2.Open,
+                        CloseAsk = h2.CloseAsk,
+                        CloseBid = h2.CloseBid,
+                        OpenAsk = d1Incomplete?.OpenAsk ?? h2.OpenAsk,
+                        OpenBid = d1Incomplete?.OpenBid ?? h2.OpenBid,
                         CloseTimeTicks = h2.CloseTimeTicks,
-                        High = d1Incomplete != null && d1Incomplete.Value.High > h2.High ? d1Incomplete.Value.High : h2.High,
-                        Low = d1Incomplete != null && d1Incomplete.Value.Low < h2.Low ? d1Incomplete.Value.Low : h2.Low,
+                        HighBid = d1Incomplete != null && d1Incomplete.Value.HighBid > h2.HighBid ? d1Incomplete.Value.HighBid : h2.HighBid,
+                        HighAsk = d1Incomplete != null && d1Incomplete.Value.HighAsk > h2.HighAsk ? d1Incomplete.Value.HighAsk : h2.HighAsk,
+                        LowBid = d1Incomplete != null && d1Incomplete.Value.LowBid < h2.LowBid ? d1Incomplete.Value.LowBid : h2.LowBid,
+                        LowAsk = d1Incomplete != null && d1Incomplete.Value.LowAsk < h2.LowAsk ? d1Incomplete.Value.LowAsk : h2.LowAsk,
                         OpenTimeTicks = d1Incomplete?.OpenTimeTicks ?? h2.OpenTimeTicks,
-                        IsComplete = 0,
-                        Id = Guid.NewGuid()
+                        IsComplete = 0
                     };
                 }
             }
@@ -500,6 +680,7 @@ namespace TraderTools.TradingSimulator
 
             _currentCandles[Timeframe.D1] = currentD1Candles;
             _currentCandles[Timeframe.H2] = currentH2Candles;
+            _currentCandles[Timeframe.H4] = currentH4Candles;
 
             SetChartCandles(recreateChart);
         }
@@ -524,7 +705,7 @@ namespace TraderTools.TradingSimulator
                 ChartViewModelSmaller1.ChartPaneViewModels.Clear();
             }
 
-            var largeChartTimeframe = GetSelectedTimeframe(null);
+            var largeChartTimeframe = LargeChartTimeframe;
 
             if (ChartViewModel.ChartPaneViewModels.Count > 0) ChartViewModel.ChartPaneViewModels[0].ChartSeriesViewModels.Clear();
             if (ChartViewModelSmaller1.ChartPaneViewModels.Count > 0) ChartViewModelSmaller1.ChartPaneViewModels[0].ChartSeriesViewModels.Clear();
@@ -606,7 +787,7 @@ namespace TraderTools.TradingSimulator
                     if (key == Key.H) AddHorizontalLine(price.Value);
                 }
 
-                if (key == Key.N && !Running) Next();
+                if (key == Key.N && !Running) NewChartMarket();
 
                 if (key == Key.F)
                 {
@@ -644,6 +825,23 @@ namespace TraderTools.TradingSimulator
 
         private void ProgressTime()
         {
+            if (Trades.Any(t => t.StopPrice == null))
+            {
+                MessageBox.Show("Cannot progress time as there is a trade without a stop price", "Cannot progress time", MessageBoxButton.OK);
+                return;
+            }
+
+            // Enter market for any market entry trades
+            var lastCandle = _allH2Candles[_h2EndDateIndex];
+            foreach (var t in Trades.Where(t => t.OrderPrice == null && t.EntryPrice == null && t.CloseDateTime == null))
+            {
+                var close = t.TradeDirection == TradeDirection.Long
+                    ? (decimal) lastCandle.CloseAsk
+                    : (decimal) lastCandle.CloseBid;
+                t.OrderKind = OrderKind.Market;
+                t.SetEntry(lastCandle.CloseTime(), close, t.OrderAmount.Value);
+            }
+
             Dispatcher.BeginInvoke((Action)(() =>
             {
                 var allH2Candles = _allH2Candles;
@@ -688,6 +886,11 @@ namespace TraderTools.TradingSimulator
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        public void Closing()
+        {
+            SaveTrades();
         }
     }
 }

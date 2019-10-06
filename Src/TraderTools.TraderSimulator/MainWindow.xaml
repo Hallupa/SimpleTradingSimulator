@@ -3,16 +3,14 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:TraderTools.TradingSimulator"
         xmlns:ui="clr-namespace:Hallupa.Library.UI;assembly=Hallupa.Library.UI"
         xmlns:charting="clr-namespace:TraderTools.Core.UI;assembly=TraderTools.Core.UI"
         xmlns:converters="clr-namespace:Hallupa.Library.UI.Converters;assembly=Hallupa.Library.UI"
         xmlns:views2="clr-namespace:TraderTools.Core.UI.Views;assembly=TraderTools.Core.UI"
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
         xmlns:behaviours="clr-namespace:TraderTools.TradingSimulator.Behaviours"
-        xmlns:primitives="clr-namespace:System.Windows.Controls.Ribbon.Primitives;assembly=System.Windows.Controls.Ribbon"
         mc:Ignorable="d"
-        Title="Simple Trading Simulator" Height="900" Width="1400" WindowStartupLocation="CenterScreen" WindowState="Normal">
+        Title="Simple Trading Simulator" Height="900" Width="1400" WindowStartupLocation="CenterScreen" WindowState="Normal" Closing="MainWindow_OnClosing">
     <Grid>
         <Grid.Resources>
             <ui:BindingProxy x:Key="Proxy" Data="{Binding}" />
@@ -55,11 +53,25 @@
                         </RibbonMenuButton.ItemTemplate>
                     </RibbonMenuButton>
                 </RibbonGroup>
-                <RibbonGroup Height="Auto" Header="Trade">
-                    <RibbonButton Label="Long trade" Command="{Binding StartLongTradeCommand}"/>
-                    <RibbonButton Label="Short trade" Command="{Binding StartShortTradeCommand}"/>
-                    <RibbonButton Label="Edit trade" Command="{Binding EditTradeCommand}"/>
+                <RibbonGroup Height="Auto" Header="Trades">
+                    <RibbonButton Label="New long trade" Command="{Binding StartLongTradeCommand}" LargeImageSource="Icons/Long.ico"/>
+                    <RibbonButton Label="New short trade" Command="{Binding StartShortTradeCommand}" LargeImageSource="Icons/Short.ico"/>
                     <RibbonButton Label="Clear trades" Command="{Binding ClearTradesCommand}"/>
+                    <RibbonButton Label="Delete trade" Command="{Binding DeleteTradeCommand}"/>
+                </RibbonGroup>
+                <RibbonGroup Height="Auto" Header="Edit trade">
+                    <RibbonButton Label="Close trade" Command="{Binding CloseTradeCommand}" IsEnabled="{Binding SetCloseEnabled}" LargeImageSource="Icons/SetClose.ico"/>
+                    <RibbonToggleButton Label="Set limit price" IsChecked="{Binding SetLimitChecked}" LargeImageSource="Icons/SetLimit.ico" IsEnabled="{Binding SetLimitEnabled}"/>
+                    <RibbonToggleButton Label="Set stop price" IsChecked="{Binding SetStopChecked}" LargeImageSource="Icons/SetStop.ico" IsEnabled="{Binding SetStopEnabled}"/>
+                    <RibbonToggleButton Label="Set order price" IsChecked="{Binding SetOrderChecked}" LargeImageSource="Icons/SetOrder.ico" IsEnabled="{Binding SetOrderEnabled}"/>
+                </RibbonGroup>
+                <RibbonGroup Height="Auto" Header="Results">
+                    <RibbonCheckBox Label="Include open trades" IsChecked="{Binding ResultsViewModel.IncludeOpenTrades}"/>
+                    <RibbonCheckBox Label="Include completed trades" IsChecked="{Binding ResultsViewModel.IncludeClosedTrades}"/>
+                    <StackPanel Orientation="Horizontal">
+                        <Label Content="Results grouping" VerticalContentAlignment="Center"/>
+                        <ComboBox ItemsSource="{Binding ResultsViewModel.ResultOptions}" SelectedItem="{Binding ResultsViewModel.SelectedResultOption}"/>
+                    </StackPanel>
                 </RibbonGroup>
             </RibbonTab>
         </Ribbon>
@@ -68,7 +80,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
-                <RowDefinition Height="300"/>
+                <RowDefinition Height="450"/>
             </Grid.RowDefinitions>
 
             <charting:DoubleChartView Grid.Row="0" x:Name="DoubleChart"/>
@@ -77,18 +89,19 @@
 
             <Grid Grid.Row="2" Margin="5">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="180"/>
                     <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="130"/>
+                    <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-                <GroupBox Header="Trades" Grid.Row="0" Padding="3">
-                    <views2:TradeListControl ShowBasicDetailsOnly="True" HideContextMenuEditOption="True" AllColumnsReadOnly="True" HideContextMenuDeleteOption="True"/>
+
+                <GroupBox Header="Results" Grid.Row="0" Padding="2" Margin="2,10,2,10" FontWeight="Bold">
+                    <views2:TradesResultsControl FontWeight="Normal" DataContext="{Binding ResultsViewModel}"/>
                 </GroupBox>
 
                 <GridSplitter Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Center" Background="DarkGray" Height="7" />
 
-                <GroupBox Header="Analysis" Grid.Row="2" Padding="3">
-                    <views2:TradesResultsControl DataContext="{Binding ResultsViewModel}"/>
+                <GroupBox Header="Trades" Grid.Row="2" Padding="2" Margin="2,10,2,10" FontWeight="Bold">
+                    <views2:TradeListControl FontWeight="Normal" HideContextMenuEditOption="True" AllColumnsReadOnly="True" HideContextMenuDeleteOption="True"/>
                 </GroupBox>
             </Grid>
         </Grid>

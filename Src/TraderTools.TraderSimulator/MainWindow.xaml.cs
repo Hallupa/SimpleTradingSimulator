@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
@@ -27,7 +28,7 @@ namespace TraderTools.TradingSimulator
 
             SciStockChart mainChart = null;
             SciStockChart smallerChart = null;
-            
+
             Func<string> getInput = () =>
             {
                 _dlg = new InputWindow
@@ -52,15 +53,6 @@ namespace TraderTools.TradingSimulator
                     return res;
                 }),
                 c => DoubleChart.ChartCursor = c,
-                (trade, completeCallback, vm) =>
-                {
-                    var editTradeWindow = new EditTradeWindow { Owner = this };
-                    editTradeWindow.Closed += (sender, args) => { completeCallback?.Invoke(); };
-                    vm.CloseEditViewAction = () => editTradeWindow.Close();
-                    editTradeWindow.DataContext = vm;
-                    editTradeWindow.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-                    editTradeWindow.Show();
-                },
                 () =>
                 {
                     var mainChartLocal = mainChart ?? (mainChart = VisualHelper.GetChildOfType<SciStockChart>(DoubleChart.MainChartGroup));
@@ -105,6 +97,9 @@ namespace TraderTools.TradingSimulator
                     Log.Warn($"Unable to check GitHub releases");
                 }
             });
+
+            Height = SystemParameters.PrimaryScreenHeight * 0.70;
+            Width = Height * 1.5;
         }
 
         private void UIElement_OnPreviewKeyDown(object sender, KeyEventArgs e)
@@ -137,6 +132,11 @@ namespace TraderTools.TradingSimulator
                     ((MainWindowViewModel)DataContext).KeyDown(e.Key, null, null);
                 }
             }
+        }
+
+        private void MainWindow_OnClosing(object sender, CancelEventArgs e)
+        {
+            ((MainWindowViewModel)DataContext).Closing();
         }
     }
 }

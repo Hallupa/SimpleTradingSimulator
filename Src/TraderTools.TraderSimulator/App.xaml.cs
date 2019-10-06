@@ -1,13 +1,11 @@
-﻿using System.IO;
+﻿using System.ComponentModel.Composition;
 using System.Reflection;
 using System.Windows;
-using Abt.Controls.SciChart.Visuals;
 using Hallupa.Library;
 using log4net;
 using TraderTools.Basics;
 using TraderTools.Core.Services;
 using TraderTools.Core.UI.Services;
-using TraderTools.TradingSimulator.Services;
 
 namespace TraderTools.TradingSimulator
 {
@@ -17,6 +15,7 @@ namespace TraderTools.TradingSimulator
     public partial class App : Application
     {
         private static readonly ILog Log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        [Import] private IDataDirectoryService _dataDirectoryService;
 
         protected override void OnStartup(StartupEventArgs e)
         {
@@ -26,7 +25,8 @@ namespace TraderTools.TradingSimulator
             DependencyContainer.AddAssembly(typeof(ChartingService).Assembly);
             DependencyContainer.AddAssembly(typeof(MarketDetailsService).Assembly);
 
-            BrokersService.DataDirectory = Path.Combine(Path.GetDirectoryName(typeof(CandlesService).Assembly.Location));
+            DependencyContainer.ComposeParts(this);
+            _dataDirectoryService.SetApplicationName("TradeSimulator");
         }
     }
 }
