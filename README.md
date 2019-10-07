@@ -1,7 +1,7 @@
 # SimpleTradingSimulator
 ## SimpleTradingSimulator is a Forex trading simulator for manually testing trading strategies and analysing results.
 The application allows stepping through a market at any speed allowing trades to be simulated across many years of data very quickly.
-It currently has 30 markets each with 5 years of data from FXCM built in, hence the large size of the download.
+It currently has 20 markets each with around 10 years of data from FXCM built in, hence the large size of the download.
 
 ![Screenshot](https://github.com/Hallupa/SimpleTradingSimulator/blob/master/Docs/Images/Screenshot.png)
 
