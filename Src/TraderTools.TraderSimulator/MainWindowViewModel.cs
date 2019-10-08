@@ -130,7 +130,7 @@ namespace TraderTools.TradingSimulator
             NewChartCommand = new DelegateCommand(o => NewChartMarket(), o => !Running);
             NextCandleCommand = new DelegateCommand(o => ProgressTime());
             ClearTradesCommand = new DelegateCommand(o => ClearTrades());
-            CloseTradeCommand = new DelegateCommand(o => CloseTrade(), o => SelectedTrade != null && SelectedTrade.CloseDateTime == null && (SelectedTrade.EntryPrice != null || SelectedTrade.OrderPrice != null));
+            CloseTradeCommand = new DelegateCommand(o => CloseTrade());
             DeleteTradeCommand = new DelegateCommand(o => DeleteTrade());
             StartLongTradeCommand = new DelegateCommand(o => StartTrade(TradeDirection.Long));
             StartShortTradeCommand = new DelegateCommand(o => StartTrade(TradeDirection.Short));
@@ -315,9 +315,10 @@ namespace TraderTools.TradingSimulator
         {
             if (SelectedTrade != null)
             {
+                var tradeToRemove = SelectedTrade;
                 SelectedTrade = null;
-                Trades.Remove(SelectedTrade);
-                TradeAutoCalculator.RemoveTrade(SelectedTrade);
+                Trades.Remove(tradeToRemove);
+                TradeAutoCalculator.RemoveTrade(tradeToRemove);
                 SaveTrades();
                 ResultsViewModel.UpdateResults();
                 SetupAnnotations();
@@ -365,7 +366,6 @@ namespace TraderTools.TradingSimulator
                 SetupAnnotations();
                 OnPropertyChanged();
                 _selectedTradeChangedAction?.Invoke();
-                SelectedTradeUpdated();
                 UpdateUI();
             }
         }
@@ -436,11 +436,6 @@ namespace TraderTools.TradingSimulator
         [Import] public ChartingService ChartingService { get; private set; }
         [Import] public ITradeDetailsAutoCalculatorService TradeAutoCalculator { get; private set; }
 
-        private void SelectedTradeUpdated()
-        {
-            CloseTradeCommand.RaiseCanExecuteChanged();
-        }
-
         private void CloseTrade(Trade trade)
         {
             if (trade.CloseDateTime == null)
@@ -479,9 +474,37 @@ namespace TraderTools.TradingSimulator
 
         private void SaveTrades()
         {
+            // Rename backups
+            int maxBackups = 20;
+            for (var i = maxBackups; i >= 1; i--)
+            {
+                var backupPath = Path.Combine(_directory, $"Trades_{i}.json");
+
+                if (i == maxBackups && File.Exists(backupPath))
+                {
+                    File.Delete(backupPath);
+                }
+
+                if (i != maxBackups && File.Exists(backupPath))
+                {
+                    var newBackupPath = Path.Combine(_directory, $"Trades_{i + 1}.json");
+                    File.Move(backupPath, newBackupPath);
+                }
+            }
+
             var path = Path.Combine(_directory, "Trades.json");
+            if (File.Exists(path))
+            {
+                var backupPath = Path.Combine(_directory, "Trades_1.json");
+                File.Move(path, backupPath);
+            }
+
+            var tmpPath = Path.Combine(_directory, "Trades_tmp.json");
             var json = JsonConvert.SerializeObject(Trades);
-            File.WriteAllText(path, json);
+            File.WriteAllText(tmpPath, json);
+
+            File.Copy(tmpPath, path);
+            File.Delete(tmpPath);
         }
 
         private void StartTrade(TradeDirection direction)
@@ -831,6 +854,7 @@ namespace TraderTools.TradingSimulator
                 return;
             }
 
+            var updated = false;
             // Enter market for any market entry trades
             var lastCandle = _allH2Candles[_h2EndDateIndex];
             foreach (var t in Trades.Where(t => t.OrderPrice == null && t.EntryPrice == null && t.CloseDateTime == null))
@@ -840,6 +864,7 @@ namespace TraderTools.TradingSimulator
                     : (decimal) lastCandle.CloseBid;
                 t.OrderKind = OrderKind.Market;
                 t.SetEntry(lastCandle.CloseTime(), close, t.OrderAmount.Value);
+                updated = true;
             }
 
             Dispatcher.BeginInvoke((Action)(() =>
@@ -852,7 +877,6 @@ namespace TraderTools.TradingSimulator
 
                 var endDate = new DateTime(allH2Candles[_h2EndDateIndex].CloseTimeTicks, DateTimeKind.Utc);
                 var startDate = new DateTime(allH2Candles[_h2EndDateIndex - 1].CloseTimeTicks, DateTimeKind.Utc);
-                var updated = false;
 
                 for (var i = 0; i < _allSmallestTimeframeCandles.Count; i++)
                 {
@@ -875,6 +899,7 @@ namespace TraderTools.TradingSimulator
                 if (updated)
                 {
                     ResultsViewModel.UpdateResults();
+                    UpdateUI();
                 }
 
                 SetupAnnotations();
