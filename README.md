@@ -12,30 +12,31 @@ https://github.com/Hallupa/SimpleTradingSimulator/releases
 2. Run 'TradingSimulatorInstaller.msi' which will install the application along with shortcuts on the desktop and start menu
 
 # How to use
-After starting the application there will be a random chart from one of 30 markets at a random point in time.
+After starting the application there will be a random chart from one of 20 markets at a random point in time.
 
-The chart on the left shows day candles, on the right are 2 hour candles.
+The chart on the left shows day candles, on the right are 2 hour or 4 hour candles.
 Clicking 'next candle' or pressing Control-F will progress one candle forward.
 Clicking 'New chart' will select another random market and time.
 
 ## Setting up a trade
-Clicking 'long trade' or 'short trade' will bring up the setup trade window.
-Every trade has to have a stop so the trade can have a risk to reward ratio.
-1. Click 'Set stop' then click a point on the chart for the stop.
-2. If wanted, click 'Set limit' and click a point on the chart for the limit. Clicking 'Close half of trade at limit price' will close half the trade when the limit is reached.
+Clicking 'long trade' or 'short trade' will add a new trade in the trades window.
+Every trade has to have a stop so the trade can calculate a risk to reward ratio.
 
+### Set stop
+Select the new trade, click 'Set stop' then click a point on the chart for the stop.
+### Set limit (optional)
+If wanted, click 'Set limit' and click a point on the chart for the limit.
 ### Market price
-If the stop has been set, simply clicking 'OK' will start the trade.
+If no order price has been set, when time is progressed the trade will automatically start at market price.
 ### Entry price
 To set the entry price, click 'Set entry price' then select a point on the chart.
-Then click 'OK' to begin. When progressing through the candles, if the entry price is hit the trade will start.
+When progressing through the candles, if the entry price is hit the trade will start.
 
 ## Editing the trade
-Clicking a trade in the 'Trades' section then clicking the toolbar option 'Edit trade' will bring up the edit trade window.
-In there the trade can be closed or the stop/limit can also be adjusted.
+When a trade is active selecting the trade then clicking the toolbar option 'Set stop', 'Set limit' or 'Set stop' will then allow selecting a point on the chart.
 
 ## Results
-In the Analyis section all the results are shown in risk to reward ratios, or R, and shows statistics such as % trades that made a positve R, expectancy, etc.
+In the Results section analysis is shown of the trades, such as average return in in risk to reward ratios, or R, and shows statistics such as % trades that made a positve R, expectancy, etc.
 
 # Building the source code
 Visual Studio 2017 or later is required
