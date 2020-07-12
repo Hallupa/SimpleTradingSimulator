@@ -2,7 +2,6 @@
 using System.Windows;
 using System.Windows.Controls.Ribbon;
 using System.Windows.Interactivity;
-using TraderTools.Basics;
 
 namespace TraderTools.TradingSimulator.Behaviours
 {

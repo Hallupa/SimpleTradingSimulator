@@ -125,7 +125,6 @@ namespace TraderTools.TradingSimulator.Extensions
                 return;
             }
 
-            trade.OrderKind = OrderKind.EntryPrice;
             trade.AddOrderPrice(lastCandle.CloseTime(), (decimal)price);
 
             if (trade.TradeDirection == TradeDirection.Long)

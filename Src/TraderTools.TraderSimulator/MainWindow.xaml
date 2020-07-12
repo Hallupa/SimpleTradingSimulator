@@ -37,6 +37,7 @@
             <RibbonTab Header="Main" Grid.Row="0">
                 <RibbonGroup Height="Auto" Header="Chart">
                     <RibbonToggleButton Label="Add line" IsChecked="{Binding ChartingService.ChartMode, Converter={StaticResource ObjToBool}, ConverterParameter={x:Static charting:ChartMode.AddLine}, Mode=TwoWay}"/>
+                    <RibbonButton Label="Remove line" Command="{Binding RemoveSelectedLineCommand}"/>
                     <RibbonToggleButton Label="Zoom" IsChecked="{Binding ChartingService.ChartMode, Converter={StaticResource ObjToBool}, ConverterParameter={x:Static charting:ChartMode.Zoom}, Mode=TwoWay}"/>
                     <RibbonButton Label="New chart (Ctrl-N)" Command="{Binding NewChartCommand}"/>
                     <RibbonButton Label="Next candle (Ctrl-F)" Command="{Binding NextCandleCommand}" IsEnabled="{Binding ViewingCompletedTrade, Converter={StaticResource InvBool}}"/>

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28010.2041
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30128.74
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TraderTools.TradingSimulator", "TraderTools.TraderSimulator\TraderTools.TradingSimulator.csproj", "{7BFDB2E7-9C76-4684-8CB6-224A9A79B2FB}"
 EndProject
@@ -19,7 +19,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TraderTools.Indicators", ".
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TraderTools.Basics", "..\Common\Src\TraderTools.Basics\TraderTools.Basics.csproj", "{089CE7BD-EAB1-498C-A6BD-A41F14860ACA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TraderTools.Core", "..\Common\Src\TraderTools.Core\TraderTools.Core.csproj", "{DF376238-6A60-4FA6-AF06-00982E7CD525}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TraderTools.Core", "..\Common\Src\TraderTools.Core\TraderTools.Core.csproj", "{53BA9AD8-A1E8-409F-9C23-5148F91305E2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -46,7 +46,6 @@ Global
 		{C7375D78-0DDA-4CDF-8BC8-A46EFA13ED18}.Debug|Any CPU.ActiveCfg = Debug
 		{C7375D78-0DDA-4CDF-8BC8-A46EFA13ED18}.Debug|x64.ActiveCfg = Debug
 		{C7375D78-0DDA-4CDF-8BC8-A46EFA13ED18}.Debug|x86.ActiveCfg = Debug
-		{C7375D78-0DDA-4CDF-8BC8-A46EFA13ED18}.Debug|x86.Build.0 = Debug
 		{C7375D78-0DDA-4CDF-8BC8-A46EFA13ED18}.Release|Any CPU.ActiveCfg = Release
 		{C7375D78-0DDA-4CDF-8BC8-A46EFA13ED18}.Release|x64.ActiveCfg = Release
 		{C7375D78-0DDA-4CDF-8BC8-A46EFA13ED18}.Release|x86.ActiveCfg = Release
@@ -110,18 +109,18 @@ Global
 		{089CE7BD-EAB1-498C-A6BD-A41F14860ACA}.Release|x64.Build.0 = Release|x64
 		{089CE7BD-EAB1-498C-A6BD-A41F14860ACA}.Release|x86.ActiveCfg = Release|x86
 		{089CE7BD-EAB1-498C-A6BD-A41F14860ACA}.Release|x86.Build.0 = Release|x86
-		{DF376238-6A60-4FA6-AF06-00982E7CD525}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DF376238-6A60-4FA6-AF06-00982E7CD525}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DF376238-6A60-4FA6-AF06-00982E7CD525}.Debug|x64.ActiveCfg = Debug|x64
-		{DF376238-6A60-4FA6-AF06-00982E7CD525}.Debug|x64.Build.0 = Debug|x64
-		{DF376238-6A60-4FA6-AF06-00982E7CD525}.Debug|x86.ActiveCfg = Debug|x86
-		{DF376238-6A60-4FA6-AF06-00982E7CD525}.Debug|x86.Build.0 = Debug|x86
-		{DF376238-6A60-4FA6-AF06-00982E7CD525}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DF376238-6A60-4FA6-AF06-00982E7CD525}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DF376238-6A60-4FA6-AF06-00982E7CD525}.Release|x64.ActiveCfg = Release|x64
-		{DF376238-6A60-4FA6-AF06-00982E7CD525}.Release|x64.Build.0 = Release|x64
-		{DF376238-6A60-4FA6-AF06-00982E7CD525}.Release|x86.ActiveCfg = Release|x86
-		{DF376238-6A60-4FA6-AF06-00982E7CD525}.Release|x86.Build.0 = Release|x86
+		{53BA9AD8-A1E8-409F-9C23-5148F91305E2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{53BA9AD8-A1E8-409F-9C23-5148F91305E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{53BA9AD8-A1E8-409F-9C23-5148F91305E2}.Debug|x64.ActiveCfg = Debug|x64
+		{53BA9AD8-A1E8-409F-9C23-5148F91305E2}.Debug|x64.Build.0 = Debug|x64
+		{53BA9AD8-A1E8-409F-9C23-5148F91305E2}.Debug|x86.ActiveCfg = Debug|x86
+		{53BA9AD8-A1E8-409F-9C23-5148F91305E2}.Debug|x86.Build.0 = Debug|x86
+		{53BA9AD8-A1E8-409F-9C23-5148F91305E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{53BA9AD8-A1E8-409F-9C23-5148F91305E2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{53BA9AD8-A1E8-409F-9C23-5148F91305E2}.Release|x64.ActiveCfg = Release|x64
+		{53BA9AD8-A1E8-409F-9C23-5148F91305E2}.Release|x64.Build.0 = Release|x64
+		{53BA9AD8-A1E8-409F-9C23-5148F91305E2}.Release|x86.ActiveCfg = Release|x86
+		{53BA9AD8-A1E8-409F-9C23-5148F91305E2}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -132,7 +131,7 @@ Global
 		{5E885F6A-3461-4D96-BCF8-D4A50F526726} = {109F2637-5CDD-456E-B7ED-1FC47EC3D1E9}
 		{A5A59813-A3D3-4AF5-9923-EC5B0879BE9C} = {109F2637-5CDD-456E-B7ED-1FC47EC3D1E9}
 		{089CE7BD-EAB1-498C-A6BD-A41F14860ACA} = {109F2637-5CDD-456E-B7ED-1FC47EC3D1E9}
-		{DF376238-6A60-4FA6-AF06-00982E7CD525} = {109F2637-5CDD-456E-B7ED-1FC47EC3D1E9}
+		{53BA9AD8-A1E8-409F-9C23-5148F91305E2} = {109F2637-5CDD-456E-B7ED-1FC47EC3D1E9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {FE4644F0-AF1A-4877-93DF-2FB6646404FB}

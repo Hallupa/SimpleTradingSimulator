@@ -187,10 +187,7 @@ namespace TraderTools.TradingSimulator
             NewChartMarket();
 
             _chartClickedDisposable = ChartingService.ChartClickObservable.Subscribe(ChartClicked);
-            // _chartMouseMoveDisposable = ChartingService.ChartMoveObservable.Subscribe(ChartMouseMove);
         }
-
-
 
         public bool SetLimitChecked
         {
@@ -336,6 +333,8 @@ namespace TraderTools.TradingSimulator
         public static readonly DependencyProperty TradeSelectionModeProperty = DependencyProperty.Register(
             "TradeSelectionMode", typeof(DataGridSelectionMode), typeof(MainWindowViewModel), new PropertyMetadata(DataGridSelectionMode.Single));
 
+        private int _loadedTradesCount;
+
         public DataGridSelectionMode TradeSelectionMode
         {
             get { return (DataGridSelectionMode) GetValue(TradeSelectionModeProperty); }
@@ -466,6 +465,8 @@ namespace TraderTools.TradingSimulator
                 {
                     Trades.Add(t);
                 }
+
+                _loadedTradesCount = trades.Count;
             }
 
             ResultsViewModel.UpdateResults();
@@ -533,7 +534,6 @@ namespace TraderTools.TradingSimulator
                 OrderAmount = 100,
                 Timeframe = timeframe
             };
-            TradeAutoCalculator.AddTrade(newTrade);
             Trades.Insert(0, newTrade);
             SelectedTrade = newTrade;
 
@@ -592,7 +592,7 @@ namespace TraderTools.TradingSimulator
             {
                 RemoveExistingAnnotations(mainAnnotations, smallAnnotations);
 
-                foreach (var trade in Trades)
+                foreach (var trade in Trades.Skip(_loadedTradesCount))
                 {
                     if (trade.Market != _market) continue;
 
@@ -862,7 +862,7 @@ namespace TraderTools.TradingSimulator
                 var close = t.TradeDirection == TradeDirection.Long
                     ? (decimal) lastCandle.CloseAsk
                     : (decimal) lastCandle.CloseBid;
-                t.OrderKind = OrderKind.Market;
+
                 t.SetEntry(lastCandle.CloseTime(), close, t.OrderAmount.Value);
                 updated = true;
             }
